@@ -14,7 +14,7 @@ const DashboardStatCard = ({ icon, percentage, title, value }) => {
         </div>
       </div>
       <h3 className="mt-4 text-gray-500">{title}</h3>
-      <h1 className="mt-1 text-4xl font-bold">{value}</h1>
+      <h1 className="mt-1 text-2xl font-bold">{value}</h1>
     </div>
   );
 };

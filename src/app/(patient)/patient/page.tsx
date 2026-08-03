@@ -1,0 +1,7 @@
+export default function PatientDashboardPage() {
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-gray-800">Patient Dashboard</h1>
+    </div>
+  );
+}

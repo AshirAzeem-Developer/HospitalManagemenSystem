@@ -1,5 +1,6 @@
 'use client'
 import { usePagination } from '@/hooks/usePagination'
+import SearchBar from '@/components/ui/SearchBar'
 
 const fakeDoctors = [
   'Dr. Ahmed', 'Dr. Sara', 'Dr. Bilal', 'Dr. Ayesha', 'Dr. Hamza',
@@ -28,11 +29,10 @@ export default function TestPage() {
 
   return (
     <div>
-      <input
-        type="text"
-        placeholder="Search doctors..."
+      <SearchBar
         defaultValue={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onSearch={setQuery}
+        placeholder="Search doctors..."
       />
       <h3>Doctors (Page {page} of {totalPages})</h3>
       <ul>

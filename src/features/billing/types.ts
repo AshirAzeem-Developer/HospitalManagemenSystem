@@ -1,4 +1,4 @@
-// type.ts => how the data is structured
+// type.ts => defines TypeScript interfaces and types for the Billing module.
 export interface Invoice {
     id : string,
     appointment_id : string | null,
@@ -12,6 +12,7 @@ export interface Invoice {
     status : "draft" | "paid" | "partially_paid" | "unpaid" | "overdue",
     notes : string | null,
 }
+export type NewInvoice = Omit<Invoice,"id">;
 
 export interface InvoiceItems {
     id : string,
@@ -22,6 +23,7 @@ export interface InvoiceItems {
     quantity: number,
     amount: number,
 }
+export type NewInvoiceItems = Omit<InvoiceItems,"id">;
 
 export interface Payment {
     id : string,
@@ -32,3 +34,4 @@ export interface Payment {
     payment_status : "success" | "pending" | "failed",
     reference_number : string,
 }
+export type NewPayment = Omit<Payment,"id">;

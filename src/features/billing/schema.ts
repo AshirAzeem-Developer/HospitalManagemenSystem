@@ -1,4 +1,4 @@
-// schema.ts => which data is valid
+// schema.ts => defines Zod validation schemas for invoices, invoice items, and payments.
 import { z } from "zod";
 
 export const invoiceSchema = z.object({
@@ -43,6 +43,7 @@ export const invoiceSchema = z.object({
   notes: z.string().nullable(),
 });
 
+
 export const invoiceItemSchema = z.object({
   invoice_id: z.string().uuid(),
 
@@ -60,6 +61,7 @@ export const invoiceItemSchema = z.object({
 
   amount: z.number().min(0),
 });
+
 
 export const paymentSchema = z.object({
   invoice_id: z.string().uuid(),

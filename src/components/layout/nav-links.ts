@@ -14,6 +14,7 @@ export const doctorLinks: NavLink[] = [
   { label: "Dashboard", href: "/doctor" },
   { label: "My Appointments", href: "/doctor/appointments" },
   { label: "My Patients", href: "/doctor/patients" },
+  {label: "Prescriptions", href: "/doctor/prescriptions"},
   { label: "Settings", href: "/settings/profile" },
 ];
 

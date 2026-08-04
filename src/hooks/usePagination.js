@@ -8,14 +8,19 @@ export function usePagination() {
 
   const page = Number(searchParams.get('page') ?? '1')
   const query = searchParams.get('q') ?? ''
+  const limit = Number(searchParams.get('limit') ?? '10')
 
   function goToPage(newPage) {
-    router.push(`${pathname}?q=${query}&page=${newPage}`)
+    router.push(`${pathname}?q=${query}&page=${newPage}&limit=${limit}`)
   }
 
   function setQuery(newQuery) {
-    router.push(`${pathname}?q=${newQuery}&page=1`)
+    router.push(`${pathname}?q=${newQuery}&page=1&limit=${limit}`)
   }
 
-  return { page, query, goToPage, setQuery }
+  function setLimit(newLimit) {
+    router.push(`${pathname}?q=${query}&page=1&limit=${newLimit}`)
+  }
+
+  return { page, query, limit, goToPage, setQuery, setLimit }
 }

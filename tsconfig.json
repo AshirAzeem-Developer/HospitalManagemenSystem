@@ -28,7 +28,10 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
-, "src/app/test-pagination/page.jsx", "src/hooks/usePagination.js"  ],
+    "**/*.mts",
+    "src/app/test-pagination/page.jsx",
+    "src/hooks/usePagination.js",
+    "src/components/ui/table.jsx"
+  ],
   "exclude": ["node_modules"]
 }

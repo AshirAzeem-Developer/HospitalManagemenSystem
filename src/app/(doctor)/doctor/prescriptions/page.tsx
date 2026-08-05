@@ -1,6 +1,6 @@
 import PrescriptionTable from "@/features/prescriptions/components/prescription-table";
 import { Images } from "@/assets";
-const prescriptions = [
+const prescriptionList = [
   {
     id: "PRE0025",
     patientName: "John Richard",
@@ -24,7 +24,7 @@ const prescriptions = [
 export default function PrescriptionsPage() {
   return (
     <section className="">
-      <PrescriptionTable prescriptions={prescriptions} />
+      <PrescriptionTable prescriptions={prescriptionList} />
     </section>
   );
 }

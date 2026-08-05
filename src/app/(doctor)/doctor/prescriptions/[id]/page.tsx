@@ -1,5 +1,6 @@
-import { Images } from "@/assets";
-import Image from "next/image";
+import PrescriptionDetail from "@/features/prescriptions/components/prescription-detail";
+import { prescriptionDummyDetail } from "@/features/prescriptions/data/dummy-prescription-detail";
+import { notFound } from "next/navigation";
 
 export default async function PrescriptionDetailPage({
   params,
@@ -8,15 +9,14 @@ export default async function PrescriptionDetailPage({
 }) {
   const { id } = await params;
 
+  const prescription = prescriptionDummyDetail.find((pres) => pres.id === id);
+  console.log(prescription);
+  if (!prescription) {
+    return notFound();
+  }
   return (
-    <div className="bg-white p-5 box-border">
-      <div className="flex items-center justify-between border-b-1 pb-3 mb-3">
-        <Image src={Images.Logo} alt="" />
-        <span className=" border py-1 px-2">{id}</span>
-      </div>
-      <div>
-        
-      </div>
-    </div>
+    <>
+      <PrescriptionDetail prescription={prescription} />
+    </>
   );
 }

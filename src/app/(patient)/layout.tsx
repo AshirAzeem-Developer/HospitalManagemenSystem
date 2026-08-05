@@ -29,7 +29,7 @@ export default async function PatientLayout({
       <Sidebar links={patientLinks} roleLabel="Patient" />
       <div className="flex-1">
         <Navbar />
-        <main className="p-6">{children}</main>
+        <main className="p-6 ">{children}</main>
       </div>
     </div>
   );

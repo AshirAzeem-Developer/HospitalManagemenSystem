@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Image, { StaticImageData } from "next/image";
+
 import { FiFilter, FiMoreVertical, FiEye, FiTrash2 } from "react-icons/fi";
 import { IoChevronDown } from "react-icons/io5";
 import { FaL } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
 
 interface Prescription {
   id: string;
@@ -22,6 +24,7 @@ export default function PrescriptionTable({
 }: PrescriptionTableProps) {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [search, setSearch] = useState("");
+  const router = useRouter();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const filteredPrescriptions = prescriptions.filter(
@@ -136,7 +139,12 @@ export default function PrescriptionTable({
                       className="rounded-full object-cover"
                     />
 
-                    <span className="font-medium text-slate-800">
+                    <span
+                      onClick={() => {
+                        router.push(`/doctor/prescriptions/${prescription.id}`);
+                      }}
+                      className=" cursor-pointer hover:text-teal-700 font-medium text-slate-800"
+                    >
                       {prescription.patientName}
                     </span>
                   </div>
@@ -147,7 +155,7 @@ export default function PrescriptionTable({
                 </td>
 
                 <td className="px-6 py-5 text-center">
-            {/* 3 dots wala kam hwa hw yhan edit and delete */}
+                  {/* 3 dots wala kam hwa hw yhan edit and delete */}
 
                   <div className="relative">
                     <button
@@ -166,7 +174,11 @@ export default function PrescriptionTable({
                         <button
                           className="flex w-full items-center gap-3 px-5 py-3 text-left text-gray-700 hover:bg-gray-100"
                           onClick={() => {
-                            console.log("View", prescription.id);
+                            // console.log("View", prescription.id);
+
+                            router.push(
+                              `/doctor/prescriptions/${prescription.id}`,
+                            );
                             setOpenMenu(null);
                           }}
                         >

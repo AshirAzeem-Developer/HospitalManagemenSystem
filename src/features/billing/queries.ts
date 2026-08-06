@@ -13,7 +13,16 @@ import type {
 // invoice
 export async function getInvoices(): Promise<Invoice[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("invoices").select("*");
+  const { data, error } = await supabase.from("invoices").select(`
+    *,
+    patients(
+     profile_id,
+    profiles(
+     full_name,
+     avatar_url
+      )
+     )
+  `);
 
   if (error) {
     throw new Error(error.message);

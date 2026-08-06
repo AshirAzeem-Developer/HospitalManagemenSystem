@@ -1,12 +1,12 @@
 import { StaticImageData } from "next/image";
 
 export interface Medicine {
-  sno: number;
   medicineName: string;
   dosage: string;
   frequency: string;
   duration: string;
-  timings: string;
+  timing: string;
+  instructions: string;
 }
 
 export interface Prescription {
@@ -37,4 +37,20 @@ export interface PrescriptionListItem {
   patientName: string;
   patientImage: StaticImageData;
   prescribedOn: string;
+}
+
+export interface CreatePrescriptionInput {
+  appointmentId: string;
+
+  bloodPressure: string;
+  temperature: number;
+  pulseRate: number;
+  weight: number;
+  height: number;
+  spo2: number;
+
+  diagnosis: string;
+  advice: string;
+
+  medicines: Medicine[];
 }

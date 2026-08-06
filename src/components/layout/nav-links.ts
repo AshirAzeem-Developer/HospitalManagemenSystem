@@ -27,7 +27,6 @@ export const adminLinks: MenuGroup[] = [
         href: "/admin/appointments",
         icon: "CalendarDays",
       },
-
       {
         label: "Billing",
         href: "/admin/billing",
@@ -69,6 +68,19 @@ export const doctorLinks: MenuGroup[] = [
         href: "/doctor/patients",
         icon: "Users",
       },
+
+      {
+        label: "Prescriptions",
+        href: "/doctor/prescriptions",
+        icon: "FileText",
+      },
+
+      {
+        label: "Create Prescriptions",
+        href: "/doctor/prescriptions/create-prescription",
+        icon: "FileText",
+      },
+
 
       {
         label: "Settings",

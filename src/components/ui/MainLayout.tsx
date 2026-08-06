@@ -108,6 +108,7 @@ export default function MainLayout({
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [notificationsOn, setNotificationsOn] = useState(true);
 
+  console.log ("main layout");
   return (
     <div className="flex min-h-screen bg-[#F7F8FC]">
       {/* ================= Sidebar ================= */}

@@ -1,6 +1,8 @@
 import { Images } from "@/assets";
+import { Prescription } from "../types/prescription";
 
-export const prescriptionDummyDetail = [
+
+export const prescriptionDetail: Prescription[] = [
   {
     id: "PRE0025",
     clinicName: "Trustcare Clinic",
@@ -24,7 +26,7 @@ export const prescriptionDummyDetail = [
     medicines: [
       {
         sno: 1,
-        medicineName: "",
+        medicineName: "Aalu",
         dosage: "",
         frequency: "",
         duration: "",
@@ -32,7 +34,7 @@ export const prescriptionDummyDetail = [
       },
       {
         sno: 2,
-        medicineName: "",
+        medicineName: "Bhindhi",
         dosage: "",
         frequency: "",
         duration: "",

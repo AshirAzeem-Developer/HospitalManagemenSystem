@@ -1,5 +1,5 @@
 import PrescriptionDetail from "@/features/prescriptions/components/prescription-detail";
-import { prescriptionDummyDetail } from "@/features/prescriptions/data/dummy-prescription-detail";
+import { prescriptionDetail } from "@/features/prescriptions/data/prescription-detail";
 import { notFound } from "next/navigation";
 
 export default async function PrescriptionDetailPage({
@@ -9,7 +9,7 @@ export default async function PrescriptionDetailPage({
 }) {
   const { id } = await params;
 
-  const prescription = prescriptionDummyDetail.find((pres) => pres.id === id);
+  const prescription = prescriptionDetail.find((pres) => pres.id === id);
   console.log(prescription);
   if (!prescription) {
     return notFound();

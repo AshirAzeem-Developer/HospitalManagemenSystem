@@ -8,15 +8,10 @@ import { IoChevronDown } from "react-icons/io5";
 import { FaL } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 
-interface Prescription {
-  id: string;
-  patientName: string;
-  patientImage: StaticImageData;
-  prescribedOn: string;
-}
+import { PrescriptionListItem } from "../types/prescription";
 
 interface PrescriptionTableProps {
-  prescriptions: Prescription[];
+  prescriptions: PrescriptionListItem[];
 }
 
 export default function PrescriptionTable({

@@ -29,7 +29,7 @@ export default async function AdminLayout({
       <Sidebar links={adminLinks} roleLabel="Admin" />
       <div className="flex-1">
         <Navbar />
-        <main className="p-6">{children}</main>
+        <main>{children}</main>
       </div>
     </div>
   );

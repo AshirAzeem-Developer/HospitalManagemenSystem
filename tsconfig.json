@@ -32,6 +32,6 @@
     "src/app/test-pagination/page.jsx",
     "src/hooks/usePagination.js",
     "src/components/ui/table.jsx"
-  ],
+, "src/app/(admin)/admin/appointments/page.jsx"  ],
   "exclude": ["node_modules"]
 }

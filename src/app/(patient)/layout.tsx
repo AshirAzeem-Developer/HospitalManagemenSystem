@@ -1,52 +1,36 @@
-import MainLayout from "@/components/ui/MainLayout";
-import type { MenuGroup } from "@/components/ui/MainLayout";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Navbar } from "@/components/layout/navbar";
+import { patientLinks } from "@/components/layout/nav-links";
 
-const patientMenuGroups: MenuGroup[] = [
-  {
-    items: [
-      { label: "Dashboard", href: "/patient", icon: "LayoutDashboard" },
-      {
-        label: "Appointments",
-        href: "/patient/appointments",
-        icon: "CalendarDays",
-      },
-      { label: "Doctors", href: "/patient/doctors", icon: "Stethoscope" },
-      {
-        label: "Prescriptions",
-        href: "/patient/prescriptions",
-        icon: "FileText",
-      },
-      { label: "Invoice", href: "/patient/invoice", icon: "Receipt" },
-      {
-        label: "Health Tracking",
-        href: "/patient/health-tracking",
-        icon: "HeartPulse",
-        hasArrow: true,
-      },
-      {
-        label: "AI Assistant",
-        href: "/patient/ai-assistant",
-        icon: "Bot",
-        hasArrow: true,
-      },
-      {
-        label: "Settings",
-        href: "/patient/settings",
-        icon: "Settings",
-        hasArrow: true,
-      },
-    ],
-  },
-];
-
-export default function PatientLayout({
+export default async function PatientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const role = profile?.role || user.user_metadata?.role || "patient";
+  if (role !== "patient") redirect("/unauthorized");
+
   return (
-    <MainLayout menuGroups={patientMenuGroups} userInitials="PT">
-      {children}
-    </MainLayout>
+    <div className="flex">
+      <Sidebar links={patientLinks} roleLabel="Patient" />
+      <div className="flex-1">
+        <Navbar />
+        <main className="p-6">{children}</main>
+      </div>
+    </div>
   );
 }

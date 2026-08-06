@@ -1,40 +1,36 @@
-import MainLayout from "@/components/ui/MainLayout";
-import type { MenuGroup } from "@/components/ui/MainLayout";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Navbar } from "@/components/layout/navbar";
+import { doctorLinks } from "@/components/layout/nav-links";
 
-const doctorMenuGroups: MenuGroup[] = [
-  {
-    items: [
-      { label: "Dashboard", href: "/doctor", icon: "LayoutDashboard" },
-      {
-        label: "Appointments",
-        href: "/doctor/appointments",
-        icon: "CalendarDays",
-        hasArrow: true,
-      },
-      { label: "My Schedule", href: "/doctor/schedule", icon: "Clock3" },
-      {
-        label: "Prescriptions",
-        href: "/doctor/prescriptions",
-        icon: "FileText",
-      },
-      {
-        label: "Settings",
-        href: "/doctor/settings",
-        icon: "Settings",
-        hasArrow: true,
-      },
-    ],
-  },
-];
-
-export default function DoctorLayout({
+export default async function DoctorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const role = profile?.role || user.user_metadata?.role || "patient";
+  if (role !== "doctor") redirect("/unauthorized");
+
   return (
-    <MainLayout menuGroups={doctorMenuGroups} userInitials="DR">
-      {children}
-    </MainLayout>
+    <div className="flex">
+      <Sidebar links={doctorLinks} roleLabel="Doctor" />
+      <div className="flex-1">
+        <Navbar />
+        <main className="p-6">{children}</main>
+      </div>
+    </div>
   );
 }

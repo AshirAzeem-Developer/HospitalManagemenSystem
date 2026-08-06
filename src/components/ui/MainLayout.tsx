@@ -14,7 +14,6 @@ import {
   ChevronRight,
   ChevronDown,
   UserCog,
-  SlidersHorizontal,
   CreditCard,
   LogOut,
   LayoutDashboard,
@@ -88,6 +87,10 @@ type MainLayoutProps = {
   logoSrc?: string;
   userInitials?: string;
   sidebarHeader?: React.ReactNode;
+  userName?: string;
+  userRole?: string;
+  onLogout?: () => Promise<void>;
+  profileSettingsHref?: string;
 };
 
 export default function MainLayout({
@@ -95,6 +98,10 @@ export default function MainLayout({
   menuGroups,
   logoSrc = "/Images/logo.png",
   sidebarHeader,
+  userName = "Jimmy Anderson",
+  userRole = "Administrator",
+  onLogout,
+  profileSettingsHref = "/settings/profile",
 }: MainLayoutProps) {
   const pathname = usePathname();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -313,21 +320,25 @@ export default function MainLayout({
                       className="rounded-full object-cover border border-[#E5E7EB]"
                     />
                     <div>
-                      <p className="text-sm font-semibold text-[#0A1B39]">
-                        Jimmy Anderson
-                      </p>
-                      <p className="text-xs text-[#98A2B3]">Administrator</p>
+                    <p className="text-sm font-semibold text-[#0A1B39]">
+  {userName}
+</p>
+<p className="text-xs text-[#98A2B3]">{userRole}</p>
                     </div>
                   </div>
 
                   <div className="py-2">
-                    <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
-                      <UserCog size={18} />
-                      <span>Profile Settings</span>
-                    </button>
+                    <Link
+  href={profileSettingsHref}
+  className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]"
+  onClick={() => setShowProfileMenu(false)}
+>
+  <UserCog size={18} />
+  <span>Profile Settings</span>
+</Link>
 
                     <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
-                      <SlidersHorizontal size={18} />
+  <Settings size={18} />
                       <span>Account Settings</span>
                     </button>
 
@@ -336,17 +347,19 @@ export default function MainLayout({
                         <Bell size={18} />
                         <span>Notifications</span>
                       </div>
-                     <button
+               <button
   onClick={() => setNotificationsOn(!notificationsOn)}
   className={`h-6 w-11 shrink-0 rounded-full transition-colors relative border ${
     notificationsOn
       ? "bg-[#4F46E5] border-[#4F46E5]"
-      : "bg-[#CBD0DA] border-[#CBD0DA]"
+      : "bg-white border-[#D0D5DD]"
   }`}
 >
   <span
-    className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-md transition-transform duration-200 ${
-      notificationsOn ? "translate-x-6" : "translate-x-1"
+    className={`absolute top-0.5 h-4.5 w-4.5 rounded-full transition-transform duration-200 ${
+      notificationsOn
+        ? "bg-white translate-x-[22px]"
+        : "bg-[#98A2B3] translate-x-0.5"
     }`}
   />
 </button>
@@ -360,10 +373,22 @@ export default function MainLayout({
 
                   <div className="border-t border-[#E5E7EB]" />
 
-                  <button className="flex w-full items-center gap-3 px-5 py-3 text-sm text-red-500 hover:bg-red-50">
-                    <LogOut size={18} />
-                    <span>Log Out</span>
-                  </button>
+               {onLogout ? (
+  <form action={onLogout}>
+    <button
+      type="submit"
+      className="flex w-full items-center gap-3 px-5 py-3 text-sm text-red-500 hover:bg-red-50"
+    >
+      <LogOut size={18} />
+      <span>Log Out</span>
+    </button>
+  </form>
+) : (
+  <button className="flex w-full items-center gap-3 px-5 py-3 text-sm text-red-500 hover:bg-red-50">
+    <LogOut size={18} />
+    <span>Log Out</span>
+  </button>
+)}
                 </div>
               )}
             </div>

@@ -1,17 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Camera } from "lucide-react";
-import CustomSelect from "@/components/ui/CustomSelect";
+import { updateProfileAction } from "@/features/admin/actions";
 
 const labelStyle: React.CSSProperties = {
   fontWeight: 500,
   fontSize: "14px",
   lineHeight: "21px",
   letterSpacing: "0%",
-   color: "#0A1B39",
-
+  color: "#0A1B39",
 };
 
 const inputClass =
@@ -26,35 +25,60 @@ const inputStyle: React.CSSProperties = {
 
 const rowClass = "grid grid-cols-[140px_minmax(0,1fr)] items-center gap-4";
 
-export default function ProfileForm() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+type ProfileData = {
+  full_name?: string;
+  avatar_url?: string | null;
+  country?: string | null;
+  state?: string | null;
+  city?: string | null;
+  gender?: string | null;
+} | null;
+
+export default function ProfileForm({
+  initialData,
+  userEmail,
+}: {
+  initialData: ProfileData;
+  userEmail: string;
+}) {
+  const [fullName, setFullName] = useState(initialData?.full_name || "");
+  const [country, setCountry] = useState(initialData?.country || "");
+  const [state, setState] = useState(initialData?.state || "");
+  const [city, setCity] = useState(initialData?.city || "");
+  const [gender, setGender] = useState(initialData?.gender || "");
+
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function handleSubmit(formData: FormData) {
+    setMessage(null);
+    startTransition(async () => {
+      const result = await updateProfileAction(formData);
+      if (result?.error) {
+        setMessage("Error: " + result.error);
+      } else {
+        setMessage("Profile updated successfully!");
+      }
+    });
+  }
 
   return (
-  <div className="w-full max-w-6xl">
-
+    <form action={handleSubmit} className="w-full max-w-6xl">
       <h2 className="text-base font-semibold text-[#0A1B39] mb-3">
         Basic Information
       </h2>
-
       <div className="border-b border-[#E5E7EB] mb-6" />
 
-    
+      {/* Profile Image */}
       <div className="flex items-center gap-6 mb-8">
-        <label style={labelStyle}>
-          Profile Image <span className="text-red-500">*</span>
-        </label>
-
+        <label style={labelStyle}>Profile Image</label>
         <div className="relative h-16 w-16">
           <Image
-            src="/Images/admin.png"
+            src={initialData?.avatar_url || "/Images/admin.png"}
             alt="Profile"
             fill
             className="rounded-full object-cover border border-[#E5E7EB]"
           />
-
           <button
             type="button"
             className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-[#4F46E5] shadow-sm"
@@ -64,62 +88,49 @@ export default function ProfileForm() {
         </div>
       </div>
 
+      {/* Full Name + Gender */}
       <div className="grid grid-cols-2 gap-6 mb-5">
         <div className={rowClass}>
           <label style={labelStyle}>
-            First Name <span className="text-red-500">*</span>
+            Full Name <span className="text-red-500">*</span>
           </label>
-
           <input
             type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            name="fullName"
+            placeholder="Enter full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             className={inputClass}
             style={inputStyle}
           />
         </div>
 
         <div className={rowClass}>
-          <label style={labelStyle}>
-            Last Name <span className="text-red-500">*</span>
-          </label>
-
-          <input
-            type="text"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+          <label style={labelStyle}>Gender</label>
+          <select
+            name="gender"
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
             className={inputClass}
             style={inputStyle}
-          />
+          >
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
         </div>
       </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
+      {/* Email (read-only) */}
+      <div className="grid grid-cols-2 gap-6 mb-8">
         <div className={rowClass}>
-          <label style={labelStyle}>
-            Email <span className="text-red-500">*</span>
-          </label>
-
+          <label style={labelStyle}>Email</label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={inputClass}
-            style={inputStyle}
-          />
-        </div>
-
-        
-        <div className={rowClass}>
-          <label style={labelStyle}>
-            Phone Number <span className="text-red-500">*</span>
-          </label>
-
-          <input
-            type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className={inputClass}
+            value={userEmail}
+            disabled
+            className={`${inputClass} bg-gray-50 cursor-not-allowed`}
             style={inputStyle}
           />
         </div>
@@ -131,69 +142,54 @@ export default function ProfileForm() {
 
       <div className="grid grid-cols-2 gap-6 mb-5">
         <div className={rowClass}>
-          <label style={labelStyle}>Address Line 1</label>
-
+          <label style={labelStyle}>Country</label>
           <input
             type="text"
+            name="country"
+            value={country}
+            onChange={(e) => setCountry(e.target.value)}
             className={inputClass}
             style={inputStyle}
           />
         </div>
-
         <div className={rowClass}>
-          <label style={labelStyle}>Address Line 2</label>
-
+          <label style={labelStyle}>State</label>
           <input
             type="text"
+            name="state"
+            value={state}
+            onChange={(e) => setState(e.target.value)}
             className={inputClass}
             style={inputStyle}
           />
         </div>
       </div>
 
-
-      <div className="grid grid-cols-2 gap-6 mb-5">
-        <div className={rowClass}>
-          <label style={labelStyle}>Country</label>
-
-    <CustomSelect
-    placeholder="Select"
-    options={[
-{value:"pk",label:"Pakistan"},
-{value:"usa",label:"United States"},
-{value:"uae",label:"UAE"},
-
-
-    ]}
-    />
-        </div>
-
-        <div className={rowClass}>
-          <label style={labelStyle}>State</label>
-
-    <CustomSelect
-  placeholder="Select"
-  options={[
-    { value: "sindh", label: "Sindh" },
-    { value: "punjab", label: "Punjab" },
-  ]}
-/>
-      
-        </div>
+      <div className="grid grid-cols-2 gap-6 mb-8">
         <div className={rowClass}>
           <label style={labelStyle}>City</label>
-
-      <CustomSelect
-  placeholder="Select"
-  options={[
-    { value: "karachi", label: "Karachi" },
-    { value: "lahore", label: "Lahore" },
-  ]}
-/>
+          <input
+            type="text"
+            name="city"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className={inputClass}
+            style={inputStyle}
+          />
         </div>
         <div />
       </div>
-           
+
+      {message && (
+        <p
+          className={`mb-4 text-sm ${
+            message.startsWith("Error") ? "text-red-500" : "text-green-600"
+          }`}
+        >
+          {message}
+        </p>
+      )}
+
       <div className="flex justify-end gap-3 pt-5 border-t border-[#E5E7EB]">
         <button
           type="button"
@@ -201,14 +197,14 @@ export default function ProfileForm() {
         >
           Cancel
         </button>
-
         <button
           type="submit"
-          className="rounded-lg bg-[#2E37A4] px-5 py-2 text-sm font-medium text-white hover:bg-[#252d8c] transition-colors"
+          disabled={isPending}
+          className="rounded-lg bg-[#2E37A4] px-5 py-2 text-sm font-medium text-white hover:bg-[#252d8c] transition-colors disabled:opacity-50"
         >
-          Save Changes
+          {isPending ? "Saving..." : "Save Changes"}
         </button>
       </div>
-    </div>
+    </form>
   );
 }

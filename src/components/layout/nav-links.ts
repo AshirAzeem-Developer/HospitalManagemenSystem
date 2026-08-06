@@ -1,4 +1,5 @@
-import type { MenuGroup } from "@/components/ui/MainLayout";
+import type { MenuGroup, MenuItem, SubMenuItem } from "@/components/ui/MainLayout";
+export type { MenuGroup, MenuItem, SubMenuItem };
 
 export const adminLinks: MenuGroup[] = [
   {

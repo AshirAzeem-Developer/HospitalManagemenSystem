@@ -180,11 +180,21 @@ export default function BillingTable({ invoices }: BillingTableProps) {
                   Paid
                 </Dropdown.Item>
 
-                <Dropdown.Item onSelect={() => setStatus("partially_paid")}>
+                <Dropdown.Item 
+                  onSelect={() => {
+                    setStatus("partially_paid");
+                    setPage(1);
+                  }}
+                  >
                   Partially Paid
                 </Dropdown.Item>
 
-                <Dropdown.Item onSelect={() => setStatus("unpaid")}>
+                <Dropdown.Item 
+                  onSelect={() => {
+                    setStatus("unpaid");
+                    setPage(1);
+                  }}
+                  >
                   Unpaid
                 </Dropdown.Item>
               </Dropdown.Content>

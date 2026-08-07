@@ -77,7 +77,7 @@ export const doctorLinks: MenuGroup[] = [
 
       {
         label: "Create Prescriptions",
-        href: "/doctor/prescriptions/create-prescription",
+        href: "/doctor/create-prescription",
         icon: "FileText",
       },
 

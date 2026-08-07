@@ -41,16 +41,13 @@ export interface PrescriptionListItem {
 
 export interface CreatePrescriptionInput {
   appointmentId: string;
-
   bloodPressure: string;
   temperature: number;
   pulseRate: number;
   weight: number;
   height: number;
   spo2: number;
-
   diagnosis: string;
   advice: string;
-
   medicines: Medicine[];
 }

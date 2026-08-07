@@ -100,8 +100,7 @@ export function Sidebar({
 
             <nav className="space-y-1">
               {group.items.map((item) => {
-                const Icon = iconMap[item.icon];
-                const isActive =
+const Icon = iconMap[item.icon as keyof typeof iconMap];                const isActive =
                   pathname === item.href || pathname.startsWith(item.href + "/");
                 const isExpandable = !!item.subItems?.length;
                 const isExpanded = expandedItem === item.label;

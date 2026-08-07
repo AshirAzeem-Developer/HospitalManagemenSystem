@@ -1,12 +1,15 @@
-import { Search, Grid2x2, UserPlus, Moon, Bell, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Search, Grid2x2, Moon, Settings, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { logoutAction } from "@/features/auth/actions";
 import { ProfileMenu } from "./profile-menu";
 
 export async function Navbar({
   profileSettingsHref = "/settings/profile",
+  appointmentsHref,
 }: {
   profileSettingsHref?: string;
+  appointmentsHref: string;
 }) {
   const supabase = await createClient();
   const {
@@ -16,7 +19,7 @@ export async function Navbar({
   const { data: profile } = user
     ? await supabase
         .from("profiles")
-        .select("full_name, role")
+        .select("full_name, role, avatar_url")
         .eq("id", user.id)
         .maybeSingle()
     : { data: null };
@@ -35,13 +38,13 @@ export async function Navbar({
     <header className="relative h-[78px] border-b border-[#E5E7EB] bg-white flex items-center justify-between px-8">
       {/* Search */}
       <div className="flex items-center w-[300px] h-10 rounded-lg border border-[#E5E7EB] bg-white px-3">
-        <Search size={16} className="text-[#98A2B3]" />
+        <Search size={16} className="text-[#9DA4B0]" />
         <input
           type="text"
           placeholder="Search"
-          className="ml-2 flex-1 bg-transparent outline-none text-sm placeholder:text-[#98A2B3]"
+          className="ml-2 flex-1 bg-transparent outline-none text-sm placeholder:text-[#9DA4B0]"
         />
-        <span className="text-xs text-[#98A2B3]">⌘</span>
+        <span className="text-xs text-black">⌘</span>
       </div>
 
       {/* Right Side */}
@@ -51,26 +54,28 @@ export async function Navbar({
           AI Assistance
         </button>
 
-        <button className="h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]">
+        <Link
+          href={appointmentsHref}
+          className="h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]"
+        >
           <Grid2x2 size={18} />
-        </button>
+        </Link>
 
-        <button className="h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]">
-          <UserPlus size={18} />
-        </button>
+        <Link
+          href={profileSettingsHref}
+          className="h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]"
+        >
+          <Settings size={18} />
+        </Link>
 
         <button className="h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]">
           <Moon size={18} />
         </button>
 
-        <button className="relative h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]">
-          <Bell size={18} />
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-orange-500"></span>
-        </button>
-
         <ProfileMenu
           userName={displayName}
           userRole={roleLabel}
+          avatarUrl={profile?.avatar_url ?? null}
           onLogout={logoutAction}
           profileSettingsHref={profileSettingsHref}
         />

@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { Camera } from "lucide-react";
-import { updateProfileAction } from "@/features/admin/actions";
+import { updateProfileAction, uploadAvatarAction } from "@/features/admin/actions";
 
 const labelStyle: React.CSSProperties = {
   fontWeight: 500,
@@ -50,6 +50,36 @@ export default function ProfileForm({
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
 
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(
+    initialData?.avatar_url || null
+  );
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const localPreview = URL.createObjectURL(file);
+    setAvatarPreview(localPreview);
+
+    setIsUploadingAvatar(true);
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const result = await uploadAvatarAction(formData);
+
+    setIsUploadingAvatar(false);
+
+    if (result?.error) {
+      setMessage("Error: " + result.error);
+      setAvatarPreview(initialData?.avatar_url || null);
+    } else if (result?.url) {
+      setAvatarPreview(result.url);
+      setMessage("Profile picture updated!");
+    }
+  }
+
   async function handleSubmit(formData: FormData) {
     setMessage(null);
     startTransition(async () => {
@@ -69,26 +99,33 @@ export default function ProfileForm({
       </h2>
       <div className="border-b border-[#E5E7EB] mb-6" />
 
-      {/* Profile Image */}
       <div className="flex items-center gap-6 mb-8">
         <label style={labelStyle}>Profile Image</label>
         <div className="relative h-16 w-16">
           <Image
-            src={initialData?.avatar_url || "/Images/admin.png"}
+            src={avatarPreview || "/Images/admin.png"}
             alt="Profile"
             fill
             className="rounded-full object-cover border border-[#E5E7EB]"
           />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            className="hidden"
+          />
           <button
             type="button"
-            className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-[#4F46E5] shadow-sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploadingAvatar}
+            className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-[#4F46E5] shadow-sm hover:bg-[#3d36c4] disabled:opacity-50"
           >
             <Camera size={12} className="text-white" />
           </button>
         </div>
       </div>
 
-      {/* Full Name + Gender */}
       <div className="grid grid-cols-2 gap-6 mb-5">
         <div className={rowClass}>
           <label style={labelStyle}>
@@ -122,7 +159,6 @@ export default function ProfileForm({
         </div>
       </div>
 
-      {/* Email (read-only) */}
       <div className="grid grid-cols-2 gap-6 mb-8">
         <div className={rowClass}>
           <label style={labelStyle}>Email</label>

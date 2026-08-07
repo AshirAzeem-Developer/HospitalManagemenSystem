@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import Image from "next/image";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/layout/navbar";
 import { adminLinks } from "@/components/layout/nav-links";
@@ -24,11 +25,24 @@ export default async function AdminLayout({
   const role = profile?.role || user.user_metadata?.role || "patient";
   if (role !== "admin") redirect("/unauthorized");
 
+  const clinicHeader = (
+    <Image
+      src="/Images/ClinicSelect.png"
+      alt="Trustcare Clinic"
+      width={244}
+      height={56}
+      className="w-full h-auto rounded-xl"
+      priority
+    />
+  );
+
   return (
     <div className="flex min-h-screen bg-[#F7F8FC]">
-      <Sidebar links={adminLinks} />
+      <Sidebar links={adminLinks} sidebarHeader={clinicHeader} />
       <div className="flex flex-1 flex-col">
-        <Navbar profileSettingsHref="/admin/settings/profile" />
+        <Navbar profileSettingsHref="/settings/profile" 
+        appointmentsHref="/admin/appoitments"
+        />
         <main className="flex-1 bg-[#F7F8FC] p-8">{children}</main>
         <footer className="border-t border-[#E5E7EB] bg-white px-8 py-4 text-center text-sm text-gray-500">
           © {new Date().getFullYear()} Hospital Management System. All rights reserved.

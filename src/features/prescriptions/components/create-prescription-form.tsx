@@ -36,7 +36,7 @@ export default function CreatePrescriptionForm({
 
   // Temporary fallback for testing
   const appointmentId =
-    searchParams.get("appointmentId") ?? "44444444-4444-4444-4444-444444444406";
+    searchParams.get("appointmentId") ?? "44444444-4444-4444-4444-444444444405";
 
   const {
     register,

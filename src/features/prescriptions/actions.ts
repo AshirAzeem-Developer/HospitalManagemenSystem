@@ -35,19 +35,21 @@ export async function createPrescription(
   }
 
   // Doctor
-  const { data: doctor, error: doctorError } = await supabase
-    .from("doctors")
-    .select("id")
-    .eq("profile_id", user.id)
-    .single();
+const { data: doctor, error: doctorError } = await supabase
+  .from("doctors")
+  .select("id")
+  .eq("profile_id", user.id)
+  .single();
 
-  if (doctorError || !doctor) {
-    return {
-      success: false,
-      message: "Doctor not found",
-    };
-  }
+if (doctorError || !doctor) {
+  return {
+    success: false,
+    message: "Doctor not found",
+  };
+}
 
+console.log("USER ID:", user.id);
+console.log("DOCTOR ID:", doctor.id);
   // Appointment
   const { data: appointment, error: appointmentError } = await supabase
     .from("appointments")

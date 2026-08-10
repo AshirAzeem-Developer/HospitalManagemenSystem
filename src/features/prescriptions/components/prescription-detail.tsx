@@ -1,128 +1,150 @@
-import { StaticImageData } from "next/image";
-import { Images } from "@/assets";
 import Image from "next/image";
+import { PrescriptionDetailProps } from "../types";
 
-import { Prescription } from "../types/prescription";
+export default function PrescriptionDetail({ data }: PrescriptionDetailProps) {
+  const { prescription, patient, profile, medicines } = data;
 
-interface PrescriptionDetailProps {
-  prescription: Prescription;
-}
-
-export default function PrescriptionDetail({
-  prescription,
-}: PrescriptionDetailProps) {
   return (
-    <>
-      <div className="bg-white p-5 box-border">
-        <div className="flex items-center justify-between border-b pb-3 mb-3">
-          <Image src={Images.Logo} alt="" />
-          <span className=" border py-1 px-2">{prescription.id}</span>
-        </div>
-        <div className="flex justify-between items-center border-b pb-3 mb-3">
+    <section className="space-y-6">
+      {/* Prescription Information */}
+      <div className="rounded-xl border bg-white p-6">
+        <h1 className="text-xl font-semibold">
+          Prescription #{prescription.id}
+        </h1>
+
+        <p className="mt-2 text-sm text-gray-500">
+          Created on{" "}
+          {new Date(prescription.created_at).toLocaleDateString("en-GB")}
+        </p>
+      </div>
+
+      {/* Patient Information */}
+      <div className="rounded-xl border bg-white p-6">
+        <h2 className="mb-6 text-lg font-semibold">Patient Information</h2>
+
+        <div className="flex items-center gap-4">
+          <Image
+            src={profile.avatar_url || "/Images/user.png"}
+            alt={profile.full_name}
+            width={80}
+            height={80}
+            className="rounded-full object-cover"
+          />
+
           <div>
-            <h2 className="font-bold">{prescription.clinicName}</h2>
-            <h3>{prescription.doctorName}</h3>
-            <h3>{prescription.doctorEducation}</h3>
+            <p className="text-lg font-semibold">{profile.full_name}</p>
+
+            <p className="text-sm text-gray-500">Patient ID: {patient.id}</p>
+
+            <p className="text-sm text-gray-500">
+              {profile.gender} · Blood Group: {patient.blood_group ?? "N/A"}
+            </p>
+
+            <p className="text-sm text-gray-500">
+              Date of Birth: {patient.date_of_birth}
+            </p>
           </div>
+        </div>
+      </div>
+
+      {/* Diagnosis */}
+      <div className="rounded-xl border bg-white p-6">
+        <h2 className="mb-4 text-lg font-semibold">Diagnosis</h2>
+
+        <p>{prescription.diagnosis}</p>
+      </div>
+
+      {/* Vitals */}
+      <div className="rounded-xl border bg-white p-6">
+        <h2 className="mb-5 text-lg font-semibold">Vitals</h2>
+
+        <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
           <div>
-            <p>Department: {prescription.department}</p>
-            <p>Prescribed On: {prescription.prescribedOn}</p>
-            <p>Consultation: {prescription.consultation}</p>
+            <p className="text-sm text-gray-500">Blood Pressure</p>
+            <p className="font-semibold">
+              {prescription.blood_pressure ?? "N/A"}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-500">Temperature</p>
+            <p className="font-semibold">{prescription.temperature ?? "N/A"}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-500">Pulse Rate</p>
+            <p className="font-semibold">{prescription.pulse_rate ?? "N/A"}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-500">SpO2</p>
+            <p className="font-semibold">{prescription.spo2 ?? "N/A"}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-500">Weight</p>
+            <p className="font-semibold">{prescription.weight ?? "N/A"}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-500">Height</p>
+            <p className="font-semibold">{prescription.height ?? "N/A"}</p>
           </div>
         </div>
-        <div className="mb-3">
-          <h6 className="mb-2 text-sm font-medium">PatientDetails</h6>
-          <div className="px-3 py-2 rounded flex align-items-center justify-between bg-gray-200">
-            <div className="m-0 font-semibold text-xl">
-              {prescription.patientName}
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="mb-0 text-gray-900">
-                {prescription.patientAge}/{prescription.patientGender}
-              </span>
-              <span className="mb-0 text-gray-900">
-                Blood:{prescription.patientBlood}
-              </span>
-              <span className="mb-0 text-gray-900">
-                Patient ID:{prescription.id}
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="mb-4">
-          <h6 className="mb-3 text-xl font-semibold text-center">
-            Cardiology Prescription
-          </h6>
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full border-collapse">
-              <thead className="bg-gray-100">
+      </div>
+
+      {/* Medicines */}
+      <div className="rounded-xl border bg-white p-6">
+        <h2 className="mb-5 text-lg font-semibold">Medicines</h2>
+
+        {medicines.length === 0 ? (
+          <p className="text-gray-500">No medicines prescribed.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="border-y bg-gray-50">
                 <tr>
-                  <th className="border-b px-4 py-3 text-left font-semibold">
-                    S.No
-                  </th>
-                  <th className="border-b px-4 py-3 text-left font-semibold">
-                    Medicine Name
-                  </th>
-                  <th className="border-b px-4 py-3 text-left font-semibold">
-                    Dosage
-                  </th>
-                  <th className="border-b px-4 py-3 text-left font-semibold">
-                    Frequency
-                  </th>
-                  <th className="border-b px-4 py-3 text-left font-semibold">
-                    Duration
-                  </th>
-                  <th className="border-b px-4 py-3 text-left font-semibold">
-                    Timings
-                  </th>
+                  <th className="px-4 py-3 text-left">S.No</th>
+                  <th className="px-4 py-3 text-left">Medicine</th>
+                  <th className="px-4 py-3 text-left">Dosage</th>
+                  <th className="px-4 py-3 text-left">Frequency</th>
+                  <th className="px-4 py-3 text-left">Duration</th>
+                  <th className="px-4 py-3 text-left">Timing</th>
                 </tr>
               </thead>
 
               <tbody>
-                {prescription.medicines.map((medicine) => (
-                  <tr key={medicine.sno} className="border-b hover:bg-gray-50">
-                    <td className="px-4 py-3">{medicine.sno}</td>
-                    <td className="px-4 py-3">{medicine.medicineName}</td>
+                {medicines.map((medicine, index) => (
+                  <tr key={medicine.id} className="border-b">
+                    <td className="px-4 py-3">{index + 1}</td>
+
+                    <td className="px-4 py-3 font-medium">
+                      {medicine.medicine_name}
+                    </td>
+
                     <td className="px-4 py-3">{medicine.dosage}</td>
+
                     <td className="px-4 py-3">{medicine.frequency}</td>
+
                     <td className="px-4 py-3">{medicine.duration}</td>
-                    <td className="px-4 py-3">{medicine.timings}</td>
+
+                    <td className="px-4 py-3">{medicine.timing}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-        <div className="mt-8 border-b pb-5">
-          <h3 className="mb-2 text-lg font-semibold">Advice</h3>
-
-          <p className="leading-7 text-gray-600">
-            {prescription.patientAdvice}
-          </p>
-        </div>
-
-        <div className="mt-6 flex flex-col justify-between gap-6 border-b pb-6 md:flex-row md:items-end">
-          <div>
-            <h3 className="mb-2 text-lg font-semibold">Follow Up</h3>
-
-            <p className="text-gray-600">{prescription.patientFollowUp}</p>
-          </div>
-
-          <div className="text-center">
-            <Image
-              src={prescription.doctorSignature}
-              alt="Doctor Signature"
-              className="mx-auto mb-2"
-            />
-
-            <h4 className="font-semibold">{prescription.doctorName}</h4>
-
-            <p className="text-sm text-gray-500">
-              {prescription.doctorEducation}
-            </p>
-          </div>
-        </div>
+        )}
       </div>
-    </>
+
+      {/* Advice */}
+      <div className="rounded-xl border bg-white p-6">
+        <h2 className="mb-3 text-lg font-semibold">Advice</h2>
+
+        <p className="text-gray-600">
+          {prescription.advice || "No advice provided."}
+        </p>
+      </div>
+    </section>
   );
 }

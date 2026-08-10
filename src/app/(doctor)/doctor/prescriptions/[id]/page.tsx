@@ -1,5 +1,5 @@
 import PrescriptionDetail from "@/features/prescriptions/components/prescription-detail";
-import { prescriptionDetail } from "@/features/prescriptions/data/prescription-detail";
+import { getPrescriptionById } from "@/features/prescriptions/actions";
 import { notFound } from "next/navigation";
 
 export default async function PrescriptionDetailPage({
@@ -9,14 +9,11 @@ export default async function PrescriptionDetailPage({
 }) {
   const { id } = await params;
 
-  const prescription = prescriptionDetail.find((pres) => pres.id === id);
-  console.log(prescription);
-  if (!prescription) {
-    return notFound();
+  const result = await getPrescriptionById(id);
+
+  if (!result.success || !result.data) {
+    notFound();
   }
-  return (
-    <>
-      <PrescriptionDetail prescription={prescription} />
-    </>
-  );
+
+  return <PrescriptionDetail data={result.data} />;
 }

@@ -16,16 +16,10 @@ import Button from "@/components/ui/button";
 import { CreatePrescriptionInput, CreatePrescriptionSchema } from "../schema";
 
 import { createPrescription } from "../actions";
+import { Patient } from "../types";
 
 interface CreatePrescriptionFormProps {
-  patient: {
-    image: string | StaticImageData | null;
-    name: string;
-    id: string;
-    age: number;
-    gender: string;
-    bloodGroup: string | null;
-  };
+  patient: Patient;
 }
 
 export default function CreatePrescriptionForm({
@@ -65,16 +59,7 @@ export default function CreatePrescriptionForm({
 
       advice: "",
 
-      medicines: [
-        {
-          medicineName: "",
-          dosage: "",
-          frequency: "",
-          duration: "",
-          timing: "after_meal",
-          instructions: "",
-        },
-      ],
+      medicines: [],
     },
   });
 

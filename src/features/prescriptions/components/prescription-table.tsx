@@ -1,14 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import Image, { StaticImageData } from "next/image";
-
-import { FiFilter, FiMoreVertical, FiEye, FiTrash2 } from "react-icons/fi";
-import { IoChevronDown } from "react-icons/io5";
-import { FaL } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 
-import { PrescriptionListItem } from "../types/prescription";
+import { FiFilter, FiMoreVertical, FiEye, FiTrash2 } from "react-icons/fi";
+
+import { IoChevronDown } from "react-icons/io5";
+
+interface PrescriptionListItem {
+  id: string;
+  patientName: string;
+  patientImage: string | null;
+  prescribedOn: string;
+}
 
 interface PrescriptionTableProps {
   prescriptions: PrescriptionListItem[];
@@ -18,23 +22,29 @@ export default function PrescriptionTable({
   prescriptions,
 }: PrescriptionTableProps) {
   const [showExportMenu, setShowExportMenu] = useState(false);
+
   const [search, setSearch] = useState("");
-  const router = useRouter();
+
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
+  const router = useRouter();
+
+  // Search
   const filteredPrescriptions = prescriptions.filter(
     (prescription) =>
       prescription.patientName.toLowerCase().includes(search.toLowerCase()) ||
       prescription.id.toLowerCase().includes(search.toLowerCase()),
   );
+
   return (
-    <div className="rounded-xl border bg-white shadow-sm">
+    <div className="rounded-xl bg-white shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between border-b p-6">
-        <h2 className="text-3xl font-bold text-slate-900">Prescriptions</h2>
+        <h2 className="text-xl font-semibold text-slate-800">Prescriptions</h2>
 
         <div className="relative">
           <button
+            type="button"
             onClick={() => setShowExportMenu(!showExportMenu)}
             className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50"
           >
@@ -47,8 +57,9 @@ export default function PrescriptionTable({
           </button>
 
           {showExportMenu && (
-            <div className="absolute right-0 mt-2 w-48 overflow-hidden rounded-lg border bg-white shadow-lg z-10">
+            <div className="absolute right-0 z-10 mt-2 w-48 overflow-hidden rounded-lg border bg-white shadow-lg">
               <button
+                type="button"
                 className="w-full px-4 py-3 text-left hover:bg-gray-100"
                 onClick={() => {
                   console.log("Download PDF");
@@ -59,13 +70,14 @@ export default function PrescriptionTable({
               </button>
 
               <button
+                type="button"
                 className="w-full px-4 py-3 text-left hover:bg-gray-100"
                 onClick={() => {
                   console.log("Download Excel");
                   setShowExportMenu(false);
                 }}
               >
-                Download as Excel
+                Download As Excel
               </button>
             </div>
           )}
@@ -83,12 +95,18 @@ export default function PrescriptionTable({
         />
 
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50"
+          >
             <FiFilter />
             Filters
           </button>
 
-          <button className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50"
+          >
             Sort By : Recent
             <IoChevronDown />
           </button>
@@ -120,40 +138,49 @@ export default function PrescriptionTable({
                 key={prescription.id}
                 className="border-b transition hover:bg-gray-50"
               >
+                {/* Prescription ID */}
                 <td className="px-6 py-5 font-medium text-indigo-900">
                   #{prescription.id}
                 </td>
 
+                {/* Patient */}
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-3">
-                    <Image
-                      src={prescription.patientImage}
-                      alt={prescription.patientName}
-                      width={42}
-                      height={42}
-                      className="rounded-full object-cover"
-                    />
+                    {prescription.patientImage ? (
+                      <img
+                        src={prescription.patientImage}
+                        alt={prescription.patientName}
+                        width={42}
+                        height={42}
+                        className="h-[42px] w-[42px] rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-500">
+                        ?
+                      </div>
+                    )}
 
                     <span
-                      onClick={() => {
-                        router.push(`/doctor/prescriptions/${prescription.id}`);
-                      }}
-                      className=" cursor-pointer hover:text-teal-700 font-medium text-slate-800"
+                      onClick={() =>
+                        router.push(`/doctor/prescriptions/${prescription.id}`)
+                      }
+                      className="cursor-pointer font-medium text-slate-800 hover:text-teal-700"
                     >
                       {prescription.patientName}
                     </span>
                   </div>
                 </td>
 
+                {/* Date */}
                 <td className="px-6 py-5 text-gray-500">
                   {prescription.prescribedOn}
                 </td>
 
+                {/* Menu */}
                 <td className="px-6 py-5 text-center">
-                  {/* 3 dots wala kam hwa hw yhan edit and delete */}
-
                   <div className="relative">
                     <button
+                      type="button"
                       onClick={() =>
                         setOpenMenu(
                           openMenu === prescription.id ? null : prescription.id,
@@ -166,14 +193,15 @@ export default function PrescriptionTable({
 
                     {openMenu === prescription.id && (
                       <div className="absolute right-0 top-12 z-10 w-56 rounded-xl border bg-white py-2 shadow-lg">
+                        {/* View */}
                         <button
+                          type="button"
                           className="flex w-full items-center gap-3 px-5 py-3 text-left text-gray-700 hover:bg-gray-100"
                           onClick={() => {
-                            // console.log("View", prescription.id);
-
                             router.push(
                               `/doctor/prescriptions/${prescription.id}`,
                             );
+
                             setOpenMenu(null);
                           }}
                         >
@@ -181,10 +209,13 @@ export default function PrescriptionTable({
                           View
                         </button>
 
+                        {/* Delete */}
                         <button
+                          type="button"
                           className="flex w-full items-center gap-3 px-5 py-3 text-left text-red-600 hover:bg-red-50"
                           onClick={() => {
                             console.log("Delete", prescription.id);
+
                             setOpenMenu(null);
                           }}
                         >
@@ -199,6 +230,13 @@ export default function PrescriptionTable({
             ))}
           </tbody>
         </table>
+
+        {/* No search result */}
+        {filteredPrescriptions.length === 0 && (
+          <div className="p-8 text-center text-gray-500">
+            No prescriptions found.
+          </div>
+        )}
       </div>
     </div>
   );

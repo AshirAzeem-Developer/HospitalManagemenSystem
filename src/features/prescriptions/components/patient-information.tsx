@@ -1,15 +1,9 @@
 import Image, { StaticImageData } from "next/image";
 import { Images } from "@/assets";
+import { Patient } from "../types";
 
 interface PatientInformationProps {
-  patient: {
-    image: string | StaticImageData | null;
-    name: string;
-    id: string;
-    age: number;
-    gender: string;
-    bloodGroup: string | null;
-  };
+  patient: Patient;
 }
 
 export default function PatientInformation({
@@ -26,10 +20,10 @@ export default function PatientInformation({
         <div className="flex justify-center lg:block">
           <Image
             src={patient.image ?? Images.User1}
-            alt={patient.name}
+            alt={patient.full_name}
             width={110}
             height={110}
-            className="rounded-full border object-cover"
+            className="rounded-full border object-contain"
           />
         </div>
 
@@ -37,7 +31,7 @@ export default function PatientInformation({
         <div className="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <p className="text-sm text-slate-500">Patient Name</p>
-            <p className="font-semibold text-slate-900">{patient.name}</p>
+            <p className="font-semibold text-slate-900">{patient.full_name}</p>
           </div>
 
           <div>
@@ -48,13 +42,15 @@ export default function PatientInformation({
           <div>
             <p className="text-sm text-slate-500">Age / Gender</p>
             <p className="font-semibold text-slate-900">
-              {patient.age} Years / {patient.gender}
+              {patient.date_of_birth} / {patient.gender}
             </p>
           </div>
 
           <div>
             <p className="text-sm text-slate-500">Blood Group</p>
-            <p className="font-semibold text-slate-900">{patient.bloodGroup}</p>
+            <p className="font-semibold text-slate-900">
+              {patient.blood_group}
+            </p>
           </div>
 
           <div>

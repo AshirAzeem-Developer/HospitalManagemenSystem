@@ -1,31 +1,21 @@
-import Table from "@/components/ui/table";
-
-const columns = [
-    { key: "pateint", label: "Patient" },
-    { key: "phone", label: "Phone" },
-    { key: "doctor", label: "Doctor" },
-    { key: "Address", label: "Address" },
-    { key: "last_visit", label: "Last Visit" },
-    { key: "status", label: "Status" },
-];
+import { Card } from "@/components/ui/card";
+// import Table from "@/components/ui/table";
 
 
-const data = [
-  {
-    id: 1,
-    pateint: "Raza",
-    phone: "03325672",
-    doctor: "Dr Ahmed",
-    Address: "Miami, Florida",
-    last_visit: "30 Apr 2025",
-    status: "Pending",
-  },
-];
-
-export default function PatientPage() {
+export default function PatientDashboardPage() {
   return (
-    <div className="p-6">
-      <Table columns={columns} data={data} />
+    <>
+
+    <div>
+      <h1 className="text-xl font-semibold text-slate-900">Dashboard</h1>
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card label="Upcoming Appointment" value="—" hint="Wired up in Day 4" />
+        <Card label="Recent Bill" value="—" hint="Wired up in Day 4" />
+      </div>
     </div>
+    {/* <div className="p-6">
+      < Table columns={columns} data={data} />
+    </div> */}
+    </>
   );
 }

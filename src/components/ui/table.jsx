@@ -2,7 +2,7 @@ export default function Table({ columns, data }) {
   return (
     <div className="w-full bg-white border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full min-w-[900px] border-collapse">
           <thead>
             <tr className="border-b border-gray-200">
               {columns.map((column) => (

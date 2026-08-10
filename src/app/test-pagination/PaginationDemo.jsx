@@ -1,6 +1,6 @@
 'use client'
 
-import { usePagination } from '@/hooks/usePagination'
+import usePagination from '@/hooks/usePagination'
 import SearchBar from '@/components/ui/SearchBar'
 import PaginationControls from '@/components/ui/PaginationControls'
 

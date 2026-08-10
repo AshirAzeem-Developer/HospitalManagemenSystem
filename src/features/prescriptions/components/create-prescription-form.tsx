@@ -19,7 +19,7 @@ import { createPrescription } from "../actions";
 import { Patient } from "../types";
 
 interface CreatePrescriptionFormProps {
-  patient: Patient;
+  patient: Patient
 }
 
 export default function CreatePrescriptionForm({

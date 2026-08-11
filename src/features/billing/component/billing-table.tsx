@@ -1,114 +1,127 @@
 "use client";
 
+import Link from "next/link";
 import Table from "@/components/ui/table";
 import SearchBar from "@/components/ui/SearchBar";
 import PaginationControls from "@/components/ui/PaginationControls";
 import { Badge } from "@/components/ui/badge";
 import { Dropdown } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteInvoiceAction } from "../actions";
 
-const columns = [
-  {
-    key: "invoice_number",
-    label: "Invoice ID",
-  },
-  {
-    key: "patient",
-    label: "Patient",
-    render: (row: any) => (
-      <div className="flex items-center gap-3">
-        <img
-          src={row.patients.profiles.avatar_url}
-          alt={row.patients.profiles.full_name}
-          className="w-8 h-8 rounded-full object-cover"
-        />
-        <span className="text-sm font-semibold text-[#0A1B39]">
-          {row.patients.profiles.full_name}
-        </span>
-      </div>
-    ),
-  },
-  {
-    key: "issued_date",
-    label: "Issued Date",
-    render: (row: any) =>
-      new Date(row.issued_date).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
-  },
-  {
-    key: "due_date",
-    label: "Due Date",
-    render: (row: any) =>
-      new Date(row.due_date).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
-  },
-  {
-    key: "total",
-    label: "Amount",
-    render: (row: any) => (
-      <span className="font-semibold text-[#0A1B39]">
-        ${Number(row.total)}
-      </span>
-    ),
-  },
-  {
-    key: "status",
-    label: "Status",
-    render: (row: any) => {
-      if (row.status === "paid") return <Badge color="green">Paid</Badge>;
-
-      if (row.status === "partially_paid")
-        return <Badge color="yellow">Partially Paid</Badge>;
-
-      return <Badge color="red">Unpaid</Badge>;
-    },
-  },
-  {
-    key: "action",
-    render: (row: any) => (
-      <Dropdown>
-        <Dropdown.Trigger className="flex h-8 w-8 items-center justify-center ml-1 rounded-md border border-[#E7E8EB] hover:bg-gray-50">
-          ⋮
-        </Dropdown.Trigger>
-
-        <Dropdown.Content align="right">
-          <Dropdown.Item onSelect={() => console.log(row.id)}>
-            View
-          </Dropdown.Item>
-
-          <Dropdown.Item onSelect={() => console.log(row.id)}>
-            Edit
-          </Dropdown.Item>
-
-          <Dropdown.Item
-            destructive
-            onSelect={() => deleteInvoiceAction(row.id)}
-          >
-            Delete
-          </Dropdown.Item>
-        </Dropdown.Content>
-      </Dropdown>
-    ),
-  },
-];
 
 type BillingTableProps = {
   invoices: any[];
 };
 
 export default function BillingTable({ invoices }: BillingTableProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
+
+  const columns = [
+    {
+      key: "invoice_number",
+      label: "Invoice ID",
+    },
+    {
+      key: "patient",
+      label: "Patient",
+      render: (row: any) => (
+        <div className="flex items-center gap-3">
+          <img
+            src={row.patients.profiles.avatar_url}
+            alt={row.patients.profiles.full_name}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+          <span className="text-sm font-semibold text-[#0A1B39]">
+            {row.patients.profiles.full_name}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: "issued_date",
+      label: "Issued Date",
+      render: (row: any) =>
+        new Date(row.issued_date).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }),
+    },
+    {
+      key: "due_date",
+      label: "Due Date",
+      render: (row: any) =>
+        new Date(row.due_date).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        }),
+    },
+    {
+      key: "total",
+      label: "Amount",
+      render: (row: any) => (
+        <span className="font-semibold text-[#0A1B39]">
+          ${Number(row.total || 0).toFixed(2)}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (row: any) => {
+        if (row.status === "paid") return <Badge color="green">Paid</Badge>;
+
+        if (row.status === "partially_paid")
+          return <Badge color="yellow">Partially Paid</Badge>;
+
+        return <Badge color="red">Unpaid</Badge>;
+      },
+    },
+    {
+      key: "action",
+      render: (row: any) => (
+        <Dropdown>
+          <Dropdown.Trigger className="flex h-8 w-8 items-center justify-center ml-1 rounded-md border border-[#E7E8EB] hover:bg-gray-50">
+            ⋮
+          </Dropdown.Trigger>
+
+          <Dropdown.Content align="right">
+            <Dropdown.Item
+              onSelect={() => router.push(`/admin/billing/${row.id}`)}
+            >
+              View
+            </Dropdown.Item>
+
+            <Dropdown.Item
+              onSelect={() => {
+                router.push(`/admin/billing/new?edit=${row.id}`);
+              }}
+            >
+              Edit
+            </Dropdown.Item>
+
+            <Dropdown.Item
+              destructive
+              onSelect={async () => {
+                await deleteInvoiceAction(row.id);
+                router.refresh();
+              }}
+            >
+              Delete
+            </Dropdown.Item>
+          </Dropdown.Content>
+        </Dropdown>
+      ),
+    },
+  ];
 
   const filteredInvoices = invoices.filter((invoice) => {
     const searchMatch =
@@ -180,21 +193,21 @@ export default function BillingTable({ invoices }: BillingTableProps) {
                   Paid
                 </Dropdown.Item>
 
-                <Dropdown.Item 
+                <Dropdown.Item
                   onSelect={() => {
                     setStatus("partially_paid");
                     setPage(1);
                   }}
-                  >
+                >
                   Partially Paid
                 </Dropdown.Item>
 
-                <Dropdown.Item 
+                <Dropdown.Item
                   onSelect={() => {
                     setStatus("unpaid");
                     setPage(1);
                   }}
-                  >
+                >
                   Unpaid
                 </Dropdown.Item>
               </Dropdown.Content>

@@ -50,7 +50,7 @@ export default function Input(props: InputProps) {
         onChange={onChange}
         className={`
           w-full
-          h-11
+          h-9
           rounded-md
           border
           border-gray-200

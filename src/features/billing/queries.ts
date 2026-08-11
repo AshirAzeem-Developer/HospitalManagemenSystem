@@ -1,4 +1,4 @@
-// queries.ts => defines database queries (CRUD) for invoices, invoice items, and payments.
+
 import { createClient } from "@/lib/supabase/server";
 
 import type {
@@ -10,32 +10,62 @@ import type {
   NewPayment,
 } from "./types";
 
-// invoice
+
+// INVOICES
+
 export async function getInvoices(): Promise<Invoice[]> {
   const supabase = await createClient();
+
   const { data, error } = await supabase.from("invoices").select(`
     *,
     patients(
-     profile_id,
-    profiles(
-     full_name,
-     avatar_url
+      profile_id,
+      profiles(
+        full_name,
+        avatar_url
       )
-     )
+    )
   `);
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  return data ?? [];
+}
+
+export async function getInvoiceItemsByInvoiceId(
+  invoiceId: string
+): Promise<InvoiceItems[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("invoice_items")
+    .select("*")
+    .eq("invoice_id", invoiceId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
 }
 
 export async function getInvoiceById(id: string): Promise<Invoice> {
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("invoices")
-    .select("*")
+    .select(`
+      *,
+      patients(
+        profile_id,
+        profiles(
+          full_name,
+          avatar_url
+        )
+      )
+    `)
     .eq("id", id)
     .single();
 
@@ -46,8 +76,11 @@ export async function getInvoiceById(id: string): Promise<Invoice> {
   return data;
 }
 
-export async function createInvoice(invoice: NewInvoice): Promise<Invoice> {
+export async function createInvoice(
+  invoice: NewInvoice
+): Promise<Invoice> {
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("invoices")
     .insert(invoice)
@@ -66,6 +99,7 @@ export async function updateInvoice(
   id: string
 ): Promise<Invoice> {
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("invoices")
     .update(invoice)
@@ -82,27 +116,39 @@ export async function updateInvoice(
 
 export async function deleteInvoice(id: string): Promise<void> {
   const supabase = await createClient();
-  const { error } = await supabase.from("invoices").delete().eq("id", id);
+
+  const { error } = await supabase
+    .from("invoices")
+    .delete()
+    .eq("id", id);
 
   if (error) {
     throw new Error(error.message);
   }
 }
 
-// invoice_items
+
+// INVOICE ITEMS
+
 export async function getInvoiceItems(): Promise<InvoiceItems[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("invoice_items").select("*");
+
+  const { data, error } = await supabase
+    .from("invoice_items")
+    .select("*");
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  return data ?? [];
 }
 
-export async function getInvoiceItemById(id: string): Promise<InvoiceItems> {
+export async function getInvoiceItemById(
+  id: string
+): Promise<InvoiceItems> {
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("invoice_items")
     .select("*")
@@ -120,6 +166,7 @@ export async function createInvoiceItem(
   invoice: NewInvoiceItems
 ): Promise<InvoiceItems> {
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("invoice_items")
     .insert(invoice)
@@ -138,6 +185,7 @@ export async function updateInvoiceItem(
   id: string
 ): Promise<InvoiceItems> {
   const supabase = await createClient();
+
   const { data, error } = await supabase
     .from("invoice_items")
     .update(invoice)
@@ -154,32 +202,81 @@ export async function updateInvoiceItem(
 
 export async function deleteInvoiceItem(id: string): Promise<void> {
   const supabase = await createClient();
-  const { error } = await supabase.from("invoice_items").delete().eq("id", id);
+
+  const { error } = await supabase
+    .from("invoice_items")
+    .delete()
+    .eq("id", id);
 
   if (error) {
     throw new Error(error.message);
   }
 }
 
-// payments
+
+// PAYMENTS
+
 export async function getPayments(): Promise<Payment[]> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase.from("payments").select("*");
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data;
-}
-
-export async function getPaymentById(id: string): Promise<Payment> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("payments")
-    .select("*")
+    .select(`
+      *,
+      invoices (
+        id,
+        invoice_number
+      )
+    `)
+    .order("payment_date", { ascending: false });
+
+  if (error) {
+    console.error("GET PAYMENTS ERROR:", error);
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+}
+
+export async function getPaymentsByInvoiceId(
+  invoiceId: string
+): Promise<Payment[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("payments")
+    .select(`
+      *,
+      invoices (
+        id,
+        invoice_number
+      )
+    `)
+    .eq("invoice_id", invoiceId)
+    .order("payment_date", { ascending: false });
+
+  if (error) {
+    console.error("GET INVOICE PAYMENTS ERROR:", error);
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
+}
+
+export async function getPaymentById(
+  id: string
+): Promise<Payment> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("payments")
+    .select(`
+      *,
+      invoices (
+        id,
+        invoice_number
+      )
+    `)
     .eq("id", id)
     .single();
 
@@ -190,7 +287,9 @@ export async function getPaymentById(id: string): Promise<Payment> {
   return data;
 }
 
-export async function createPayment(payment: NewPayment): Promise<Payment> {
+export async function createPayment(
+  payment: NewPayment
+): Promise<Payment> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -226,10 +325,15 @@ export async function updatePayment(
   return data;
 }
 
-export async function deletePayment(id: string): Promise<void> {
+export async function deletePayment(
+  id: string
+): Promise<void> {
   const supabase = await createClient();
 
-  const { error } = await supabase.from("payments").delete().eq("id", id);
+  const { error } = await supabase
+    .from("payments")
+    .delete()
+    .eq("id", id);
 
   if (error) {
     throw new Error(error.message);

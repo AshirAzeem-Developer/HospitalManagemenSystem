@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { PrescriptionDetailProps } from "../types";
+import PatientInformation from "./patient-information";
 
 export default function PrescriptionDetail({ data }: PrescriptionDetailProps) {
   const { prescription, patient, profile, medicines } = data;
@@ -19,33 +20,11 @@ export default function PrescriptionDetail({ data }: PrescriptionDetailProps) {
       </div>
 
       {/* Patient Information */}
-      <div className="rounded-xl border bg-white p-6">
-        <h2 className="mb-6 text-lg font-semibold">Patient Information</h2>
-
-        <div className="flex items-center gap-4">
-          <Image
-            src={profile.avatar_url || "/Images/user.png"}
-            alt={profile.full_name}
-            width={80}
-            height={80}
-            className="rounded-full object-cover"
-          />
-
-          <div>
-            <p className="text-lg font-semibold">{profile.full_name}</p>
-
-            <p className="text-sm text-gray-500">Patient ID: {patient.id}</p>
-
-            <p className="text-sm text-gray-500">
-              {profile.gender} · Blood Group: {patient.blood_group ?? "N/A"}
-            </p>
-
-            <p className="text-sm text-gray-500">
-              Date of Birth: {patient.date_of_birth}
-            </p>
-          </div>
-        </div>
-      </div>
+      <PatientInformation
+        patient={patient}
+        profile={profile}
+        prescriptionDate={prescription.created_at}
+      />
 
       {/* Diagnosis */}
       <div className="rounded-xl border bg-white p-6">

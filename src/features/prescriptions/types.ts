@@ -53,6 +53,8 @@ export interface CreatePrescriptionForm {
   medicines: PrescriptionItemForm[];
 }
 
+
+// Used src\app\(doctor)\doctor\create-prescription\page.tsx
 export interface Patient {
   image: string | StaticImageData | null;
   full_name: string;
@@ -61,7 +63,17 @@ export interface Patient {
   gender: string;
   blood_group: string | null;
 }
+export interface PrescriptionPatient {
+  id: string;
+  date_of_birth: string;
+  blood_group: string | null;
+}
 
+export interface PrescriptionProfile {
+  full_name: string;
+  gender: string;
+  avatar_url: string | null;
+}
 // Used In prescription-detail.tsx 
 export interface PrescriptionDetailProps {
   data: {
@@ -78,17 +90,9 @@ export interface PrescriptionDetailProps {
       created_at: string;
     };
 
-    patient: {
-      id: string;
-      date_of_birth: string;
-      blood_group: string | null;
-    };
+    patient: PrescriptionPatient
 
-    profile: {
-      full_name: string;
-      gender: string;
-      avatar_url: string | null;
-    };
+    profile: PrescriptionProfile
 
     medicines: {
       id: string;

@@ -19,7 +19,7 @@ import { createPrescription } from "../actions";
 import { Patient } from "../types";
 
 interface CreatePrescriptionFormProps {
-  patient: Patient
+  patient: Patient;
 }
 
 export default function CreatePrescriptionForm({
@@ -84,7 +84,6 @@ export default function CreatePrescriptionForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <PatientInformation patient={patient} />
-
       <VitalsForm register={register} errors={errors} />
 
       <DiagnosisForm register={register} />
@@ -94,8 +93,12 @@ export default function CreatePrescriptionForm({
       <AdviceForm register={register} />
 
       <div className="flex justify-end gap-3">
-        <Button type="button" variant="ghost" text="Cancel" />
-
+        <Button
+          type="button"
+          variant="ghost"
+          text="Cancel"
+          onClick={() => router.push(`/doctor/prescriptions`)}
+        />
         <Button
           type="submit"
           variant="primary"

@@ -1,14 +1,30 @@
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import { Images } from "@/assets";
-import { Patient } from "../types";
+
+import { Patient, PrescriptionPatient, PrescriptionProfile } from "../types";
 
 interface PatientInformationProps {
-  patient: Patient;
+  patient: Patient | PrescriptionPatient;
+  profile?: PrescriptionProfile;
+  prescriptionDate?: string;
 }
 
 export default function PatientInformation({
   patient,
+  profile,
+  prescriptionDate,
 }: PatientInformationProps) {
+  const name =
+    "full_name" in patient
+      ? patient.full_name
+      : (profile?.full_name ?? "Unknown Patient");
+
+  const gender =
+    "gender" in patient ? patient.gender : (profile?.gender ?? "N/A");
+
+  const image =
+    "image" in patient ? patient.image : (profile?.avatar_url ?? null);
+
   return (
     <div className="rounded-xl border bg-white p-6 shadow-sm">
       <h2 className="mb-6 text-xl font-semibold text-slate-900">
@@ -19,8 +35,8 @@ export default function PatientInformation({
         {/* Patient Image */}
         <div className="flex justify-center lg:block">
           <Image
-            src={patient.image ?? Images.User1}
-            alt={patient.full_name}
+            src={image || Images.User1}
+            alt={name}
             width={110}
             height={110}
             className="rounded-full border object-contain"
@@ -31,7 +47,7 @@ export default function PatientInformation({
         <div className="grid flex-1 grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <p className="text-sm text-slate-500">Patient Name</p>
-            <p className="font-semibold text-slate-900">{patient.full_name}</p>
+            <p className="font-semibold text-slate-900">{name}</p>
           </div>
 
           <div>
@@ -42,23 +58,25 @@ export default function PatientInformation({
           <div>
             <p className="text-sm text-slate-500">Age / Gender</p>
             <p className="font-semibold text-slate-900">
-              {patient.date_of_birth} / {patient.gender}
+              {patient.date_of_birth} / {gender}
             </p>
           </div>
 
           <div>
             <p className="text-sm text-slate-500">Blood Group</p>
             <p className="font-semibold text-slate-900">
-              {patient.blood_group}
+              {patient.blood_group ?? "N/A"}
             </p>
           </div>
 
-          <div>
-            <p className="text-sm text-slate-500">Prescription Date</p>
-            <p className="font-semibold text-slate-900">
-              {new Date().toLocaleDateString("en-GB")}
-            </p>
-          </div>
+          {prescriptionDate && (
+            <div>
+              <p className="text-sm text-slate-500">Prescription Date</p>
+              <p className="font-semibold text-slate-900">
+                {new Date(prescriptionDate).toLocaleDateString("en-GB")}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -128,6 +128,7 @@ export default async function PrescriptionsPage() {
         id: prescription.id,
         patientName: profile?.full_name ?? "Unknown Patient",
         patientImage: profile?.avatar_url ?? null,
+        prescribedOnRaw: prescription.created_at,
         prescribedOn: new Date(
           prescription.created_at,
         ).toLocaleDateString("en-GB"),

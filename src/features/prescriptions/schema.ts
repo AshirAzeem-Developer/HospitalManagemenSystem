@@ -45,3 +45,9 @@ export const CreatePrescriptionSchema = z.object({
 export type CreatePrescriptionInput = z.infer<
   typeof CreatePrescriptionSchema
 >;
+
+export const UpdatePrescriptionSchema = CreatePrescriptionSchema.omit({
+  appointmentId: true,
+});
+
+export type UpdatePrescriptionInput = z.infer<typeof UpdatePrescriptionSchema>;

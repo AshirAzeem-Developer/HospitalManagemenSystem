@@ -32,7 +32,7 @@ export async function Navbar({
     : "User";
 
   return (
-    <header className="relative h-[78px] border-b border-[#E5E7EB] bg-white flex items-center justify-between px-8">
+    <header className="relative h-[78px] border-b border-[#E5E7EB] bg-white flex items-center justify-between p-8">
       {/* Search */}
       <div className="flex items-center w-[300px] h-10 rounded-lg border border-[#E5E7EB] bg-white px-3">
         <Search size={16} className="text-[#98A2B3]" />

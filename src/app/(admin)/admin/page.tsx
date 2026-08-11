@@ -39,11 +39,16 @@ export default function AdminDashboardPage() {
     <div>
       <h1 className="text-xl font-semibold text-slate-900">Dashboard</h1>
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+<<<<<<< HEAD
         {stats.map((stat,key) => (
+=======
+        {stats.map((stat,i) => (
+>>>>>>> origin/develop
           
             <DashboardStatCard
               key={key}
               title={stat.title}
+              key={stat.title || i}
               value={stat.value}
               percentage={stat.percentage}
               icon={stat.icon}

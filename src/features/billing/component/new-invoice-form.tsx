@@ -59,10 +59,6 @@ export default function NewInvoiceForm({
   const [discount, setDiscount] = useState(0);
   const [roundOff, setRoundOff] = useState(false);
 
-  /*
-   * EDIT MODE:
-   * Existing invoice + existing invoice items database se load karo.
-   */
   useEffect(() => {
     if (!editId) {
       return;
@@ -92,10 +88,6 @@ export default function NewInvoiceForm({
           invoice?.patients?.profiles?.full_name || ""
         );
 
-        /*
-         * DB items ko form ke string format mein convert karo.
-         * IMPORTANT: id preserve karna hai.
-         */
         const formattedItems: InvoiceItem[] =
           invoiceItems.map((item) => ({
             id: item.id,
@@ -142,11 +134,7 @@ export default function NewInvoiceForm({
         item.item_name.trim() !== ""
     );
 
-    /*
-     * =========================
-     * EDIT EXISTING INVOICE
-     * =========================
-     */
+
     if (isEditMode && editId) {
       /*
        * Invoice update
@@ -167,26 +155,18 @@ export default function NewInvoiceForm({
         notes: billingAddress || null,
       });
 
-      /*
-       * DB mein existing items lao
-       */
+      
       const existingItems =
         await getInvoiceItemsByInvoiceIdAction(
           editId
         );
 
-      /*
-       * Form mein jo existing items abhi hain
-       * unki IDs
-       */
+     
       const currentItemIds = validItems
         .filter((item) => item.id)
         .map((item) => item.id);
 
-      /*
-       * Jo DB items form se remove ho chuke hain
-       * unko delete karo
-       */
+     
       for (const existingItem of existingItems) {
         if (
           !currentItemIds.includes(
@@ -199,10 +179,7 @@ export default function NewInvoiceForm({
         }
       }
 
-      /*
-       * Existing items update
-       * New items create
-       */
+     
       for (const item of validItems) {
         const itemData = {
           item_name: item.item_name,
@@ -219,9 +196,7 @@ export default function NewInvoiceForm({
           ),
         };
 
-        /*
-         * Existing DB item
-         */
+       
         if (item.id) {
           await updateInvoiceItemAction(
             item.id,
@@ -229,9 +204,7 @@ export default function NewInvoiceForm({
           );
         }
 
-        /*
-         * New item added while editing
-         */
+       
         else {
           await createInvoiceItemAction({
             invoice_id: editId,
@@ -248,20 +221,13 @@ export default function NewInvoiceForm({
         }
       }
 
-      /*
-       * Back to invoice list
-       */
+  
       router.push("/admin/billing");
       router.refresh();
 
       return;
     }
 
-    /*
-     * =========================
-     * CREATE NEW INVOICE
-     * =========================
-     */
 
     const invoiceData = {
       appointment_id: null,

@@ -249,52 +249,95 @@ export async function updatePatient(
 
 }
 
+
 export async function deletePatient(id: string) {
   const supabase = await createClient();
 
-  // Get patient (profile_id)
-  const { data: patient, error: patientError } = await supabase
-    .from("patients")
-    .select("profile_id")
-    .eq("id", id)
-    .single();
+  try {
+    // 1. Get patient (profile_id)
+    const { data: patient, error: patientError } =
+      await supabase
+        .from("patients")
+        .select("profile_id")
+        .eq("id", id)
+        .single();
 
-  if (patientError) {
-    throw new Error(patientError.message);
+    if (patientError) {
+      throw new Error(patientError.message);
+    }
+
+    // 2. Patient record delete
+    const { error: deletePatientError } =
+      await supabase
+        .from("patients")
+        .delete()
+        .eq("id", id);
+
+    if (deletePatientError) {
+      throw new Error(deletePatientError.message);
+    }
+
+    // 3. Profile delete
+    const { error: profileError } =
+      await supabaseAdmin
+        .from("profiles")
+        .delete()
+        .eq("id", patient.profile_id);
+
+    if (profileError) {
+      // Patient profile is linked with activity logs
+      if (
+        profileError.message.includes(
+          "activity_logs_actor_id_fkey"
+        )
+      ) {
+        return {
+          success: false,
+          error:
+            "This patient cannot be deleted because their profile is linked to activity records.",
+        };
+      }
+
+      throw new Error(profileError.message);
+    }
+
+    // 4. Auth user delete
+    const { error: authError } =
+      await supabaseAdmin.auth.admin.deleteUser(
+        patient.profile_id
+      );
+
+    if (authError) {
+      throw new Error(authError.message);
+    }
+
+    return {
+      success: true,
+    };
+  } catch (error: any) {
+    // Expected activity-log dependency error
+    if (
+      error?.message?.includes(
+        "activity_logs_actor_id_fkey"
+      )
+    ) {
+      return {
+        success: false,
+        error:
+          "This patient cannot be deleted because their profile is linked to activity records.",
+      };
+    }
+
+    return {
+      success: false,
+      error:
+        error?.message ||
+        "Unable to delete this patient. Please try again.",
+    };
   }
+}
 
-  // 2. Patient record delete karo
-  const { error: deletePatientError } = await supabase
-    .from("patients")
-    .delete()
-    .eq("id", id);
 
-  if (deletePatientError) {
-    throw new Error(deletePatientError.message);
-  }
-
-  // 3. Profile delete karo
-  const { error: profileError } = await supabaseAdmin
-    .from("profiles")
-    .delete()
-    .eq("id", patient.profile_id);
-
-  if (profileError) {
-    throw new Error(profileError.message);
-  }
-
-  // 4. Auth user delete karo
-  const { error: authError } =
-    await supabaseAdmin.auth.admin.deleteUser(
-      patient.profile_id
-    );
-
-  if (authError) {
-    throw new Error(authError.message);
-  }
-
-  return { success: true };
-}  
 
 export type Doctor = {
   id: string;
@@ -739,4 +782,87 @@ export async function getPatientDetail(id: string) {
   );
 
   return patientData;
+}
+
+// pateint grid view
+export async function getPatientsForGrid() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("patients")
+    .select(`
+      id,
+      blood_group,
+      stay_address,
+      profile:profiles (
+        full_name,
+        gender,
+        avatar_url
+      )
+    `);
+
+  if (error) {
+    console.error("GET PATIENTS FOR GRID ERROR:", error);
+    throw new Error(error.message);
+  }
+
+  const updatedPatients = await Promise.all(
+    data.map(async (patient: any) => {
+      // Profile relation ko object mein normalize karo
+      const profile = Array.isArray(patient.profile)
+        ? patient.profile[0]
+        : patient.profile;
+
+      // Patient image
+      if (profile?.avatar_url) {
+        const path = profile.avatar_url.split("/images/")[1];
+
+        if (path) {
+          const { data: image } = await supabase.storage
+            .from("images")
+            .createSignedUrl(
+              path,
+              60 * 60 * 24 * 365 * 5
+            );
+
+          if (image?.signedUrl) {
+            profile.avatar_url = image.signedUrl;
+          }
+        }
+      }
+
+      // Last visit
+      const { data: latestAppointment } = await supabase
+        .from("appointments")
+        .select("appointment_date")
+        .eq("patient_id", patient.id)
+        .order("appointment_date", {
+          ascending: false,
+        })
+        .limit(1)
+        .maybeSingle();
+
+      const last_visit = latestAppointment?.appointment_date
+        ? new Date(
+            latestAppointment.appointment_date
+          ).toLocaleDateString("en-US", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "—";
+
+      return {
+        id: patient.id,
+        profile: profile ?? null,
+        blood_group: patient.blood_group ?? "—",
+        stay_address: patient.stay_address ?? "—",
+        last_visit,
+      };
+    })
+  );
+
+  console.log("GRID PATIENTS:", updatedPatients);
+
+  return updatedPatients;
 }

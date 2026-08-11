@@ -1,10 +1,17 @@
+import type { InputHTMLAttributes } from "react";
+
+type FormInputProps = InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  required?: boolean;
+};
+
 export default function FormInput({
   label,
   required = false,
   type = "text",
   placeholder = "",
   ...props
-}) {
+}: FormInputProps) {
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-slate-700">

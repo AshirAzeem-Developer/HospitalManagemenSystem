@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "src/components/ui/table.jsx", "src/app/(patient)/patient/page.jsx"  ],
+, "src/components/ui/table.tsx", "src/app/(patient)/patient/page.jsx"  ],
   "exclude": ["node_modules"]
 }

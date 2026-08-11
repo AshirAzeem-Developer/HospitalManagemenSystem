@@ -1,18 +1,22 @@
 "use client";
 
+type SearchProps = {
+  search: string;
+  setSearch: (value: string) => void;
+};
+
 export default function Search({
   search,
-  setSearch
-}) {
-
+  setSearch,
+}: SearchProps) {
   return (
     <input
       type="text"
       placeholder="Search patients..."
       value={search}
-      onChange={(e)=>setSearch(e.target.value)}
-       className="
-           h-10
+      onChange={(e) => setSearch(e.target.value)}
+      className="
+        h-10
         w-full
         sm:w-64
         rounded-md
@@ -21,7 +25,8 @@ export default function Search({
         px-3
         text-sm
         outline-none
-        focus:border-slate-500"
+        focus:border-slate-500
+      "
     />
   );
 }

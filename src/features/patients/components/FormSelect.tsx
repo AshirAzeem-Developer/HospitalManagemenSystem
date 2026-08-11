@@ -1,9 +1,22 @@
+import type { SelectHTMLAttributes } from "react";
+
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
+type FormSelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
+  label: string;
+  required?: boolean;
+  options?: SelectOption[];
+};
+
 export default function FormSelect({
   label,
   required = false,
   options = [],
   ...props
-}) {
+}: FormSelectProps) {
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-slate-700">
@@ -49,9 +62,14 @@ export default function FormSelect({
           stroke="currentColor"
           strokeWidth={2}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </div>
     </div>
   );
 }
+

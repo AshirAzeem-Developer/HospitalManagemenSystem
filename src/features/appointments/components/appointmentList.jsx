@@ -15,7 +15,6 @@ export default function AppointmentsList({
 }) {
   const [allDoctors, setAllDoctors] = useState([]);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
-  const [isDocDropdownOpen, setIsDocDropdownOpen] = useState(false); // Custom dropdown state
 
   const [sidebar, setSidebar] = useState({
     isOpen: false,
@@ -45,7 +44,6 @@ export default function AppointmentsList({
 
   const openSidebar = (mode, appointmentData) => {
     setSidebar({ isOpen: true, mode: mode, data: appointmentData });
-    setIsDocDropdownOpen(false);
     
     if (mode === "edit") {
       setEditFormData(appointmentData);
@@ -63,7 +61,6 @@ export default function AppointmentsList({
   const closeSidebar = () => {
     setSidebar({ isOpen: false, mode: "view", data: null });
     setEditFormData({});
-    setIsDocDropdownOpen(false);
   };
 
   const handleInputChange = (e) => {
@@ -81,7 +78,6 @@ export default function AppointmentsList({
       doctorId: docId,
       doctorName: docName
     }));
-    setIsDocDropdownOpen(false);
   };
 
   const handleSave = () => {
@@ -227,26 +223,20 @@ export default function AppointmentsList({
                     <p className="text-sm font-medium text-slate-800 mt-1">{sidebar.data.patientName || "N/A"}</p>
                   </div>
 
-                  {/* CUSTOM SCROLLABLE DOCTOR DROPDOWN */}
+                  {/* CUSTOM SCROLLABLE DOCTOR DROPDOWN UPDATED */}
                   <div>
                     <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Doctor</label>
                     {sidebar.mode === "edit" ? (
-                      <div className="relative mt-1">
-                        {/* Selector Box */}
-                        <button
-                          type="button"
-                          onClick={() => setIsDocDropdownOpen(!isDocDropdownOpen)}
-                          className="w-full flex items-center justify-between px-3 py-2 border border-slate-200 rounded-md bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-left cursor-pointer"
-                        >
-                          <span className="truncate">
-                            {editFormData.doctorName || "Select a Doctor"}
-                          </span>
-                          <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isDocDropdownOpen ? "rotate-180" : ""}`} />
-                        </button>
-
-                        {/* Scrollable Options List */}
-                        {isDocDropdownOpen && (
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-md shadow-xl max-h-48 overflow-y-auto z-50 divide-y divide-slate-100">
+                      <div className="mt-1 [&>div]:w-full">
+                        <Dropdown>
+                          <Dropdown.Trigger className="w-full flex items-center justify-between px-3 py-2 border border-slate-200 rounded-md bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-left cursor-pointer">
+                            <span className="truncate">
+                              {editFormData.doctorName || "Select a Doctor"}
+                            </span>
+                            <ChevronDown className="w-4 h-4 text-slate-500 shrink-0" />
+                          </Dropdown.Trigger>
+                          
+                          <Dropdown.Content className="w-full max-h-48 overflow-y-auto divide-y divide-slate-100">
                             {loadingDoctors ? (
                               <div className="p-3 text-xs text-slate-500 text-center">Loading doctors...</div>
                             ) : allDoctors && allDoctors.length > 0 ? (
@@ -256,23 +246,23 @@ export default function AppointmentsList({
                                 const isSelected = String(editFormData.doctorId) === String(docId);
                                 
                                 return (
-                                  <div
+                                  <Dropdown.Item 
                                     key={docId}
-                                    onClick={() => selectDoctor(doc)}
+                                    onSelect={() => selectDoctor(doc)}
                                     className={`px-3 py-2 text-sm cursor-pointer transition-colors flex items-center justify-between hover:bg-blue-50 ${
                                       isSelected ? "bg-blue-50 font-semibold text-blue-600" : "text-slate-700"
                                     }`}
                                   >
                                     <span className="truncate">{name}</span>
                                     {isSelected && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
-                                  </div>
+                                  </Dropdown.Item>
                                 );
                               })
                             ) : (
                               <div className="p-3 text-xs text-slate-500 text-center">No doctors found in Database</div>
                             )}
-                          </div>
-                        )}
+                          </Dropdown.Content>
+                        </Dropdown>
                       </div>
                     ) : (
                       <p className="text-sm font-medium text-slate-800 mt-1">{sidebar.data.doctorName}</p>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MoreVertical, Eye, Edit, Trash2, X } from "lucide-react";
 import { getDoctors } from "../appointmentActions/appointmentAction";
+import { Dropdown } from "@/components/ui/select"; 
 
 export default function PatientAppointmentList({ 
   appointments = [], 
@@ -21,7 +22,7 @@ export default function PatientAppointmentList({
     data: null    
   });
 
-  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null); // Table ke purane dropdown ke liye
   const [editFormData, setEditFormData] = useState({});
 
   // Fetch Doctors from Database
@@ -37,7 +38,6 @@ export default function PatientAppointmentList({
         .catch((err) => console.error("Error fetching doctors:", err))
         .finally(() => setLoadingDoctors(false));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doctorsList?.length]);
 
   const availableDoctors = allDoctors.length > 0 
@@ -95,6 +95,7 @@ export default function PatientAppointmentList({
 
   return (
     <div className="w-full relative">
+      {/* Purana Table (Koi Changes Nahi) */}
       <div className="w-full min-h-[220px] overflow-x-auto bg-white rounded-lg border border-slate-200 shadow-sm">
         <table className="w-full text-left text-sm text-slate-600">
           <thead className="border-b border-slate-200 bg-slate-50/50 text-slate-500">
@@ -233,28 +234,39 @@ export default function PatientAppointmentList({
               {sidebar.data && (
                 <div className="space-y-4">
                   
-                  {/* Doctor Name - Original Native Dropdown with DB Doctors */}
+                  {/* Doctor Name - Yahan siraf Custom Dropdown laga hai, Width & Scroll ke sath */}
                   <div>
                     <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Doctor Name</label>
                     {sidebar.mode === "edit" ? (
-                      <select 
-                        name="doctorName"
-                        value={editFormData.doctorName || ""}
-                        onChange={handleInputChange}
-                        className="cursor-pointer w-full mt-1 px-3 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 bg-white"
-                      >
-                        <option value="" disabled>
-                          {loadingDoctors ? "Loading doctors..." : "Select a Doctor"}
-                        </option>
-                        {availableDoctors.map((doc, idx) => {
-                          const docName = typeof doc === 'string' 
-                            ? doc 
-                            : (doc.profile?.full_name || doc.name || doc.doctorName || doc.fullName || "");
-                          return (
-                            <option key={idx} value={docName}>{docName}</option>
-                          );
-                        })}
-                      </select>
+                      <div className="mt-1 [&>div]:w-full">
+                        <Dropdown>
+                          <Dropdown.Trigger className="cursor-pointer w-full flex items-center justify-between px-3 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 bg-white text-left">
+                            <span className="truncate">
+                              {editFormData.doctorName || (loadingDoctors ? "Loading doctors..." : "Select a Doctor")}
+                            </span>
+                            <svg className="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                          </Dropdown.Trigger>
+                          
+                          {/* Scroll lagaya gaya hai max-h-40 aur overflow-y-auto ke zariye */}
+                          <Dropdown.Content className="w-full max-h-40 overflow-y-auto">
+                            {availableDoctors.map((doc, idx) => {
+                              const docName = typeof doc === 'string' 
+                                ? doc 
+                                : (doc.profile?.full_name || doc.name || doc.doctorName || doc.fullName || "");
+                              return (
+                                <Dropdown.Item 
+                                  key={idx}
+                                  onSelect={() => handleInputChange({ target: { name: 'doctorName', value: docName } })}
+                                >
+                                  {docName}
+                                </Dropdown.Item>
+                              );
+                            })}
+                          </Dropdown.Content>
+                        </Dropdown>
+                      </div>
                     ) : (
                       <p className="text-sm font-medium text-slate-800 mt-0.5">{sidebar.data.doctorName}</p>
                     )}

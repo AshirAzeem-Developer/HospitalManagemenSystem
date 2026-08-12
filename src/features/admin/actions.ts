@@ -67,8 +67,22 @@ export async function uploadAvatarAction(formData: FormData) {
     return { error: "Image must be under 2MB" };
   }
 
-  const fileExt = file.name.split(".").pop();
-  const filePath = `${user.id}/avatar.${fileExt}`;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const role = profile?.role || "patient";
+  const fullName = profile?.full_name || "user";
+
+  const roleFolder =
+    role === "admin" ? "Admin" : role === "doctor" ? "Doctors" : "Patients";
+
+  const safeName = fullName.trim().replace(/[^a-zA-Z0-9 ]/g, "");
+  const shortId = user.id.slice(0, 8);
+
+  const filePath = `${roleFolder}/${safeName}-${shortId}.png`;
 
   const { error: uploadError } = await supabase.storage
     .from("images")
@@ -99,5 +113,6 @@ export async function uploadAvatarAction(formData: FormData) {
   }
 
   revalidatePath("/settings/profile");
+  revalidatePath("/", "layout");
   return { success: true, url: signedData.signedUrl };
 }

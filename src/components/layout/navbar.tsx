@@ -1,16 +1,15 @@
 import Link from "next/link";
-import { Search, Grid2x2, Moon, Settings, Sparkles } from "lucide-react";
+import { Search, Moon, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { logoutAction } from "@/features/auth/actions";
 import { ProfileMenu } from "./profile-menu";
 
 export async function Navbar({
   profileSettingsHref = "/settings/profile",
-  appointmentsHref,
 }: {
   profileSettingsHref?: string;
-  appointmentsHref: string;
 }) {
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -35,42 +34,30 @@ export async function Navbar({
     : "User";
 
   return (
-    <header className="relative h-[78px] border-b border-[#E5E7EB] bg-white flex items-center justify-between px-8">
-      {/* Search */}
-      <div className="flex items-center w-[300px] h-10 rounded-lg border border-[#E5E7EB] bg-white px-3">
-        <Search size={16} className="text-[#9DA4B0]" />
-        <input
-          type="text"
-          placeholder="Search"
-          className="ml-2 flex-1 bg-transparent outline-none text-sm placeholder:text-[#9DA4B0]"
-        />
-        <span className="text-xs text-black">⌘</span>
-      </div>
+<header className="relative h-[78px] border-b border-[#E5E7EB] dark:border-[#2A3850] bg-white dark:bg-[#0A162A] flex items-center justify-between px-4 md:px-8 gap-2">  {/* Search */}
+<div className="hidden sm:flex items-center w-full max-w-[300px] h-10 rounded-lg border border-[#E5E7EB] dark:border-[#3A4A63] bg-white dark:bg-[#121C31] px-3">
+  <Search size={16} className="text-[#9DA4B0] dark:text-[#94A3B8]" />
+  <input
+    type="text"
+    placeholder="Search"
+    className="ml-2 flex-1 bg-transparent outline-none text-sm text-[#0A1B39] dark:text-[#F8FAFC] placeholder:text-[#9DA4B0] dark:placeholder:text-[#94A3B8]"
+  />
+  <span className="text-xs text-black dark:text-[#CBD5E1]">⌘</span>
+</div>
 
-      {/* Right Side */}
-      <div className="flex items-center gap-3">
-        <button className="flex items-center gap-2 rounded-lg bg-[#4F46E5] px-4 py-2 text-sm font-medium text-white">
-          <Sparkles size={16} />
-          AI Assistance
-        </button>
+  <div className="flex items-center gap-2 md:gap-3 ml-auto">
+    
 
-        <Link
-          href={appointmentsHref}
-          className="h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]"
-        >
-          <Grid2x2 size={18} />
-        </Link>
+    <Link
+  href={profileSettingsHref}
+  className="h-10 w-10 rounded-full border border-[#E5E7EB] dark:border-[#3A4A63] flex items-center justify-center hover:bg-[#F7F8FC] dark:hover:bg-[#18243A] text-[#0A1B39] dark:text-[#CBD5E1]"
+>
+  <Settings size={18} />
+</Link>
 
-        <Link
-          href={profileSettingsHref}
-          className="h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]"
-        >
-          <Settings size={18} />
-        </Link>
-
-        <button className="h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]">
-          <Moon size={18} />
-        </button>
+<button className="h-10 w-10 rounded-full border border-[#E5E7EB] flex items-center justify-center hover:bg-[#F7F8FC]">
+  <Moon size={18} />
+</button>
 
         <ProfileMenu
           userName={displayName}

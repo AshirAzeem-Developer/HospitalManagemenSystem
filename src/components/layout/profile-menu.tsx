@@ -5,11 +5,8 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   UserCog,
-  Settings,
-  CreditCard,
   LogOut,
   History,
-  HelpCircle,
 } from "lucide-react";
 
 export function ProfileMenu({
@@ -84,9 +81,9 @@ export function ProfileMenu({
               <span>Profile Settings</span>
             </Link>
 
-            {isAdmin ? (
+            {isAdmin && (
               <>
-                <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
+                {/* <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
                   <Settings size={18} />
                   <span>Account Settings</span>
                 </button>
@@ -94,9 +91,16 @@ export function ProfileMenu({
                 <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
                   <CreditCard size={18} />
                   <span>Transactions</span>
+                </button> */}
+
+                <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
+                  <History size={18} />
+                  <span>Activity Logs</span>
                 </button>
               </>
-            ) : (
+            )}
+
+            {/* {!isAdmin && (
               <>
                 <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
                   <History size={18} />
@@ -108,7 +112,7 @@ export function ProfileMenu({
                   <span>Help & Support</span>
                 </button>
               </>
-            )}
+            )} */}
           </div>
 
           <div className="border-t border-[#E5E7EB]" />

@@ -24,18 +24,16 @@ export default async function PatientLayout({
   const role = profile?.role || user.user_metadata?.role || "patient";
   if (role !== "patient") redirect("/unauthorized");
 
-  return (
-    <div className="flex min-h-screen bg-[#F7F8FC]">
-      <Sidebar links={patientLinks} />
+ return (
+<div className="flex flex-col md:flex-row min-h-screen bg-[#F7F8FC] dark:bg-[#091326]">
+  <Sidebar links={patientLinks} />
 
-      <div className="flex flex-1 flex-col">
-        <Navbar profileSettingsHref="/settings/profile" 
-        appointmentsHref="/patient/appointments"
-        />
-        <main className="flex-1 bg-[#F7F8FC] p-8">{children}</main>
-        <footer className="border-t border-[#E5E7EB] bg-white px-8 py-4 text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} Hospital Management System. All rights reserved.
-        </footer>
+      <div className="flex flex-1 flex-col pt-[64px] md:pt-0">
+        <Navbar profileSettingsHref="/settings/profile" />
+<main className="flex-1 bg-[#F7F8FC] dark:bg-gray-950 p-4 md:p-8">{children}</main>
+   <footer className="border-t border-[#E5E7EB] dark:border-[#2A3850] bg-white dark:bg-[#0A162A] px-4 md:px-8 py-4 text-center text-sm text-gray-500 dark:text-[#94A3B8]">
+   © {new Date().getFullYear()} SafeHeal. All rights reserved.
+</footer>
       </div>
     </div>
   );

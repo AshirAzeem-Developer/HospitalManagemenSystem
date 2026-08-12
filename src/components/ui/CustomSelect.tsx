@@ -68,7 +68,7 @@ export default function CustomSelect({
   };
     return (
     <div className="relative w-full" ref={selectRef}>
-      {/* Select Box */}
+    
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -94,7 +94,6 @@ export default function CustomSelect({
         />
       </button>
 
-      {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-[#E7E8EB] bg-white shadow-lg">
           {options.map((option) => {

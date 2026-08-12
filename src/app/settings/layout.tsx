@@ -28,28 +28,23 @@ export default async function SettingsLayout({
   const links =
     role === "admin" ? adminLinks : role === "doctor" ? doctorLinks : patientLinks;
 
-  const appointmentsHref =
-    role === "admin"
-      ? "/admin/appointments"
-      : role === "doctor"
-      ? "/doctor/appointments"
-      : "/patient/appointments";
-
- return (
-    <div className="flex min-h-screen bg-[#F7F8FC]">
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#F7F8FC] dark:bg-[#091326] max-w-full overflow-x-hidden">
       <Sidebar links={links} />
-      <div className="flex flex-1 flex-col">
-        <Navbar
-          profileSettingsHref="/settings/profile"
-          appointmentsHref={appointmentsHref}
-        />
-        <main className="flex-1 p-8 bg-[#F7F8FC]">
+      
+      <div className="flex flex-1 flex-col pt-[64px] md:pt-0 min-w-0 max-w-full">
+        <Navbar profileSettingsHref="/settings/profile" />
+      
+        <main className="flex-1 p-4 md:p-8 bg-[#F7F8FC] dark:bg-[#091326] w-full max-w-full overflow-x-hidden [&_form]:max-w-full [&_input]:max-w-full [&_select]:max-w-full">
           <SettingsPanel baseHref="/settings" showOtherCategories={role === "admin"}>
-            {children}
+            <div className="w-full max-w-full overflow-hidden">
+              {children}
+            </div>
           </SettingsPanel>
         </main>
-        <footer className="border-t border-[#E5E7EB] bg-white px-8 py-4 text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} Hospital Management System. All rights reserved.
+        
+        <footer className="border-t border-[#E5E7EB] dark:border-[#2A3850] bg-white dark:bg-[#0A162A] px-4 md:px-8 py-4 text-center text-sm text-gray-500 dark:text-[#94A3B8]">
+          © {new Date().getFullYear()} SafeHeal. All rights reserved.
         </footer>
       </div>
     </div>

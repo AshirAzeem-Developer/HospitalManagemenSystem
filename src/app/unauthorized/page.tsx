@@ -5,7 +5,7 @@ export default function UnauthorizedPage() {
     <div className="flex h-screen flex-col items-center justify-center gap-3 text-center">
       <h1 className="text-2xl font-semibold text-slate-900">Access denied</h1>
       <p className="text-sm text-slate-500">
-        You don&apos;t have permission to view this page.
+        You don't have permission to view this page.
       </p>
       <Link
         href="/login"

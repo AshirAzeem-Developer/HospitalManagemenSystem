@@ -49,8 +49,9 @@ export default function PendingAppointmentsPage({ initialAppointments = [] }) {
     return appointmentFilterLogic(data, searchTerm, { ...activeFilters, status: "pending" }, sortOrder);
   }, []);
 
-  const handleConfirmAppointment = async (id, updatedData) => {
-    const res = await updateAppointmentAction(id, { ...updatedData, status: "confirmed" });
+  // UPDATE: Yahan se hardcoded 'confirmed' hata diya hai taake cancel/confirm dono chal sakein
+  const handleUpdateAppointment = async (id, updatedData) => {
+    const res = await updateAppointmentAction(id, updatedData);
     return res;
   };
 
@@ -59,22 +60,35 @@ export default function PendingAppointmentsPage({ initialAppointments = [] }) {
     return res;
   };
 
-  // Wrapper to pass custom title "Appointment Requests" to AppointmentHeader
   const CustomHeaderWrapper = useCallback((props) => (
     <AppointmentHeader title="Appointment Requests" {...props} />
   ), []);
 
-  // Memoized List Wrapper
   const CustomListWrapper = useCallback((props) => (
     <PendingAppointmentsList 
       appointments={props.data} 
       onConfirm={async (id) => {
         const itemToUpdate = props.data.find(app => app.id === id);
         if (itemToUpdate) {
+          // Tick click hone par status: 'confirmed' bheje ga
           await props.onEdit({ ...itemToUpdate, status: "confirmed" });
         }
       }} 
-      onDelete={props.onDelete} 
+      
+      // Cross click hone par ab delete nahi hoga, balke status: 'cancelled' bheje ga
+      onCancel={async (id) => {
+        const itemToUpdate = props.data.find(app => app.id === id);
+        if (itemToUpdate) {
+          await props.onEdit({ ...itemToUpdate, status: "cancelled" });
+        }
+      }}
+      // (Fallback) Agar child component purana `onDelete` use kar raha hai tab bhi cancel hi hoga
+      onDelete={async (id) => {
+        const itemToUpdate = props.data.find(app => app.id === id);
+        if (itemToUpdate) {
+          await props.onEdit({ ...itemToUpdate, status: "cancelled" });
+        }
+      }} 
     />
   ), []);
 
@@ -93,7 +107,7 @@ export default function PendingAppointmentsPage({ initialAppointments = [] }) {
         HeaderComponent={CustomHeaderWrapper}
         ListComponent={CustomListWrapper}
         filterSortLogic={pendingOnlyFilterLogic}
-        onEditAction={handleConfirmAppointment}
+        onEditAction={handleUpdateAppointment} 
         onDeleteAction={handleDeleteAppointment}
         listPropName="data" 
       />

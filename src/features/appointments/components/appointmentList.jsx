@@ -24,7 +24,6 @@ export default function AppointmentsList({
 
   const [editFormData, setEditFormData] = useState({});
 
-  // Render loop control logic
   useEffect(() => {
     if (doctorsList && doctorsList.length > 0) {
       setAllDoctors(doctorsList);
@@ -43,6 +42,10 @@ export default function AppointmentsList({
   }, [doctorsList?.length]);
 
   const openSidebar = (mode, appointmentData) => {
+    if (mode === "edit" && appointmentData?.status?.toLowerCase() === "completed") {
+      mode = "view";
+    }
+
     setSidebar({ isOpen: true, mode: mode, data: appointmentData });
     
     if (mode === "edit") {
@@ -68,7 +71,6 @@ export default function AppointmentsList({
     setEditFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Custom Dropdown se doctor select karne ka handler
   const selectDoctor = (doc) => {
     const docId = doc.id || doc._id;
     const docName = doc.profile?.full_name || doc.name || doc.doctorName || "";
@@ -108,7 +110,8 @@ export default function AppointmentsList({
 
   return (
     <div className="w-full relative">
-      <div className="w-full overflow-x-auto min-h-[220px]">
+      {/* YAHAN TABDEELI KI HAI: pb-28 aur min-h-[300px] add kiya hai taake last row ka dropdown baghair scroll ke khul sake */}
+      <div className="w-full overflow-x-auto min-h-[300px] pb-28">
         <table className="w-full text-left text-sm text-slate-600">
           <thead className="border-b border-slate-200 bg-slate-50/50 text-slate-500">
             <tr>
@@ -122,6 +125,8 @@ export default function AppointmentsList({
           <tbody className="divide-y divide-slate-200">
             {appointments.map((appointment, index) => {
               const uniqueKey = appointment?.id ? `app-${appointment.id}` : `app-idx-${index}`;
+              const isCompleted = appointment.status?.toLowerCase() === "completed";
+
               return (
                 <tr key={uniqueKey} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4">
@@ -179,11 +184,15 @@ export default function AppointmentsList({
                             <Eye className="h-4 w-4 text-blue-600" /><span>View</span>
                           </div>
                         </Dropdown.Item>
-                        <Dropdown.Item className="cursor-pointer" onSelect={() => openSidebar("edit", appointment)}>
-                          <div className="flex items-center gap-2">
-                            <Edit className="h-4 w-4 text-green-600" /><span>Edit</span>
-                          </div>
-                        </Dropdown.Item>
+                        
+                        {!isCompleted && (
+                          <Dropdown.Item className="cursor-pointer" onSelect={() => openSidebar("edit", appointment)}>
+                            <div className="flex items-center gap-2">
+                              <Edit className="h-4 w-4 text-green-600" /><span>Edit</span>
+                            </div>
+                          </Dropdown.Item>
+                        )}
+
                         <Dropdown.Item className="cursor-pointer" destructive={true} onSelect={() => {
                           if(window.confirm("Delete this appointment?")) if(onDelete) onDelete(appointment.id);
                         }}>
@@ -201,7 +210,7 @@ export default function AppointmentsList({
         </table>
       </div>
 
-      {/* Sidebar View / Edit Drawer */}
+      {/* Sidebar View / Edit Drawer (Code same as before) */}
       {sidebar.isOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={closeSidebar}></div>
@@ -223,7 +232,6 @@ export default function AppointmentsList({
                     <p className="text-sm font-medium text-slate-800 mt-1">{sidebar.data.patientName || "N/A"}</p>
                   </div>
 
-                  {/* CUSTOM SCROLLABLE DOCTOR DROPDOWN UPDATED */}
                   <div>
                     <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Doctor</label>
                     {sidebar.mode === "edit" ? (

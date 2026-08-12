@@ -4,7 +4,8 @@ import Image from "next/image";
 import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge"; 
 
-export default function PendingAppointmentsList({ appointments, onDelete, onConfirm }) {
+// Yahan onDelete ki jagah onCancel add kiya gaya hai
+export default function PendingAppointmentsList({ appointments, onCancel, onConfirm }) {
   
   const getBadgeColor = (status) => {
     const s = status?.toLowerCase();
@@ -103,7 +104,8 @@ export default function PendingAppointmentsList({ appointments, onDelete, onConf
                   {/* Action Column */}
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-3">
-                      {/* Confirm Button with Confirmation Prompt */}
+                      
+                      {/* Confirm Button */}
                       <button 
                         onClick={() => {
                           if (window.confirm("Are you sure you want to approve this appointment?")) {
@@ -116,18 +118,19 @@ export default function PendingAppointmentsList({ appointments, onDelete, onConf
                         <Check className="h-5 w-5" />
                       </button>
 
-                      {/* Delete Button */}
+                      {/* Cancel Button (Status change to cancel instead of delete) */}
                       <button 
                         onClick={() => {
-                          if (window.confirm("Are you sure you want to delete this appointment?")) {
-                            if (onDelete) onDelete(appointment.id);
+                          if (window.confirm("Are you sure you want to cancel this appointment?")) {
+                            if (onCancel) onCancel(appointment.id);
                           }
                         }}
                         className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-full transition-colors"
-                        title="Delete Appointment"
+                        title="Cancel Appointment"
                       >
                         <X className="h-5 w-5" />
                       </button>
+
                     </div>
                   </td>
                 </tr>

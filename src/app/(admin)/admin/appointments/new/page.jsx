@@ -88,7 +88,7 @@ export default function NewAppointmentPage() {
               <label className="text-sm font-semibold text-gray-800">
                 Patient <span className="text-red-500">*</span>
               </label>
-              <Link href="/admin/patients/new" className="flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 transition">
+              <Link href="/admin/patients/NewPatient " className="flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 transition">
                 <FiPlus className="mr-1" /> Add New
               </Link>
             </div>

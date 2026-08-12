@@ -186,14 +186,41 @@ export async function deleteAppointmentAction(id) {
 export async function createAppointmentAction(appointmentData) {
   const supabase = await createClient();
 
+  let finalPatientId = appointmentData.patientId;
+
+  // Agar frontend se patientId nahi aaya (yani Patient khud form fill kar raha hai)
+  if (!finalPatientId) {
+    // 1. Logged-in user ka session get karein
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return { success: false, message: "User not authenticated." };
+    }
+
+    // 2. Auth user_id ke zariye 'patients' table se patient ki real ID nikalien
+    const { data: patientRecord, error: patientError } = await supabase
+      .from("patients")
+      .select("id")
+      .eq("profile_id", user.id)
+      .single();
+
+    if (patientError || !patientRecord) {
+      console.error("Patient profile not found:", patientError?.message);
+      return { success: false, message: "Patient profile not found." };
+    }
+
+    // 3. ID ko finalPatientId mein set kar dein
+    finalPatientId = patientRecord.id;
+  }
+
   const insertPayload = {
-    patient_id: appointmentData.patientId,
+    patient_id: finalPatientId, // Backend ne secure way mein ID yahan dal di
     doctor_id: appointmentData.doctorId,
     appointment_date: appointmentData.date,
     time_slot: appointmentData.time,
     status: appointmentData.status || 'pending',
     reason_of_visit: appointmentData.reason 
-    };
+  };
 
   const { error } = await supabase
     .from("appointments")
@@ -204,6 +231,9 @@ export async function createAppointmentAction(appointmentData) {
     return { success: false, message: error.message };
   }
 
+  // Cache paths ko refresh karein dono dashboard ke liye
   revalidatePath("/admin/appointments"); 
+  revalidatePath("/patient/appointments"); 
+  
   return { success: true, message: "Appointment created successfully!" };
 }

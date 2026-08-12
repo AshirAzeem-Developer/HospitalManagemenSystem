@@ -3,26 +3,25 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Eye, Edit, Trash2, X } from "lucide-react";
+import { MoreVertical, Eye, Edit, X, FileText } from "lucide-react";
 import { getDoctors } from "../appointmentActions/appointmentAction";
-import { Dropdown } from "@/components/ui/select"; 
+import { Dropdown } from "@/components/ui/select";
 
-export default function PatientAppointmentList({ 
-  appointments = [], 
-  doctorsList = [], 
-  onDelete, 
-  onEdit 
+export default function PatientAppointmentList({
+  appointments = [],
+  doctorsList = [],
+  onEdit,
 }) {
   const [allDoctors, setAllDoctors] = useState([]);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
 
   const [sidebar, setSidebar] = useState({
     isOpen: false,
-    mode: "view", 
-    data: null    
+    mode: "view",
+    data: null,
   });
 
-  const [activeDropdown, setActiveDropdown] = useState(null); // Table ke purane dropdown ke liye
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const [editFormData, setEditFormData] = useState({});
 
   // Fetch Doctors from Database
@@ -40,11 +39,22 @@ export default function PatientAppointmentList({
     }
   }, [doctorsList?.length]);
 
-  const availableDoctors = allDoctors.length > 0 
-    ? allDoctors 
-    : Array.from(new Set(appointments.map((a) => a.doctorName).filter(Boolean)));
+  const availableDoctors =
+    allDoctors.length > 0
+      ? allDoctors
+      : Array.from(
+          new Set(appointments.map((a) => a.doctorName).filter(Boolean)),
+        );
 
   const openSidebar = (mode, appointmentData) => {
+    const status = appointmentData?.status?.toLowerCase();
+
+    // SIRF "pending" status par Edit allow karna hai
+    if (mode === "edit" && status !== "pending") {
+      alert("You can only edit pending appointments.");
+      return;
+    }
+
     setSidebar({ isOpen: true, mode: mode, data: appointmentData });
     if (mode === "edit") {
       setEditFormData(appointmentData);
@@ -64,7 +74,8 @@ export default function PatientAppointmentList({
 
   const handleSave = () => {
     if (onEdit) {
-      onEdit(editFormData); 
+      // Yeh poora object (Date, Time, Doctor name) parent ko bhej dega
+      onEdit(editFormData);
     }
     closeSidebar();
   };
@@ -87,46 +98,78 @@ export default function PatientAppointmentList({
 
   if (!appointments || appointments.length === 0) {
     return (
-      <div className="p-8 text-center text-slate-500 bg-white rounded-md border border-slate-200 shadow-sm">
-        No appointments found.
+      <div className="flex flex-col items-center justify-center p-12 bg-white rounded-xl border border-slate-200 shadow-sm text-center">
+        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+          <FileText className="w-8 h-8 text-slate-400" />
+        </div>
+        <p className="text-slate-500 font-medium text-sm">
+          No appointments found.
+        </p>
       </div>
     );
   }
 
   return (
     <div className="w-full relative">
-      {/* Purana Table (Koi Changes Nahi) */}
-      <div className="w-full min-h-[220px] overflow-x-auto bg-white rounded-lg border border-slate-200 shadow-sm">
+      <div className="w-full min-h-[220px] overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm">
         <table className="w-full text-left text-sm text-slate-600">
-          <thead className="border-b border-slate-200 bg-slate-50/50 text-slate-500">
+          <thead className="border-b border-slate-200 bg-slate-50/80 text-slate-500">
             <tr>
-              <th className="px-6 py-4 font-medium">Date & Time</th>
-              <th className="px-6 py-4 font-medium">Doctor</th>
-              <th className="px-6 py-4 font-medium">Status</th>
-              <th className="px-6 py-4 font-medium">Prescription</th>
-              <th className="px-6 py-4 font-medium text-right">Action</th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Date & Time
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Doctor
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Status
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Prescription
+              </th>
+              <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">
+                Action
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-slate-100">
             {appointments.map((appointment, index) => {
-              const uniqueKey = appointment?.id ? `app-${appointment.id}` : `app-idx-${index}`;
+              const uniqueKey = appointment?.id
+                ? `app-${appointment.id}`
+                : `app-idx-${index}`;
               const isMenuOpen = activeDropdown === appointment.id;
-              
-              const openUpwards = (appointments.length >= 3 && index >= appointments.length - 2) || (appointments.length === 2 && index === 1);
+
+              const currentStatus = appointment.status?.toLowerCase();
+              // Edit button sirf "pending" ke liye show hoga
+              const isEditable = currentStatus === "pending";
+
+              const openUpwards =
+                (appointments.length >= 3 &&
+                  index >= appointments.length - 2) ||
+                (appointments.length === 2 && index === 1);
 
               return (
-                <tr key={uniqueKey} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-slate-900">{appointment.date || "N/A"}</div>
-                    <div className="text-xs text-slate-500">{appointment.time || ""}</div>
+                <tr
+                  key={uniqueKey}
+                  className="hover:bg-slate-50/80 transition-colors"
+                >
+                  {/* Date & Time */}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="font-medium text-slate-900">
+                      {appointment.date || "N/A"}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-0.5">
+                      {appointment.time || ""}
+                    </div>
                   </td>
-                  
-                  <td className="px-6 py-4">
+
+                  {/* Doctor Info */}
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="relative w-10 h-10 flex-shrink-0">
-                        <Image 
-                          src={appointment.doctorImage || "/default-avatar.png"} 
-                          alt={appointment.doctorName || "Doctor"} 
+                        <Image
+                          src={appointment.doctorImage || "/default-avatar.png"}
+                          alt={appointment.doctorName || "Doctor"}
                           width={40}
                           height={40}
                           unoptimized
@@ -134,30 +177,35 @@ export default function PatientAppointmentList({
                         />
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0a1b39] text-sm leading-tight">
+                        <span className="font-semibold text-slate-900 text-sm">
                           {appointment.doctorName || "Unknown Doctor"}
                         </span>
                       </div>
                     </div>
                   </td>
-                  
-                  <td className="px-6 py-4 capitalize">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(appointment.status)}`}>
+
+                  {/* Status */}
+                  <td className="px-6 py-4 capitalize whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(appointment.status)}`}
+                    >
                       {appointment.status || "Unknown"}
                     </span>
                   </td>
 
-                  <td className="px-6 py-4">
-                    <Link 
+                  {/* Prescription */}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Link
                       href={`/prescriptions/${appointment.id}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-md transition-colors"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 transition-all duration-200 outline-none"
                     >
-                      <Eye className="h-3.5 w-3.5 text-blue-600" />
-                      View
+                      <FileText className="h-4 w-4 text-blue-600" />
+                      <span>View Prescription</span>
                     </Link>
                   </td>
-                  
-                  <td className="px-6 py-4 text-right">
+
+                  {/* Action Menu */}
+                  <td className="px-6 py-4 text-right whitespace-nowrap">
                     <div className="relative inline-block text-left">
                       <button
                         onClick={() => {
@@ -169,35 +217,27 @@ export default function PatientAppointmentList({
                       </button>
 
                       {isMenuOpen && (
-                        <div className={`absolute right-0 w-36 bg-white border border-slate-200 rounded-md shadow-lg z-50 py-1 text-left ${openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
-                          <button 
+                        <div
+                          className={`absolute right-0 w-36 bg-white border border-slate-200 rounded-lg shadow-lg z-50 py-1 text-left ${openUpwards ? "bottom-full mb-1" : "top-full mt-1"}`}
+                        >
+                          <button
                             onClick={() => openSidebar("view", appointment)}
                             className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 transition"
                           >
                             <Eye className="h-3.5 w-3.5 text-blue-600" />
                             <span>View</span>
                           </button>
-                          
-                          <button 
-                            onClick={() => openSidebar("edit", appointment)}
-                            className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 transition"
-                          >
-                            <Edit className="h-3.5 w-3.5 text-emerald-600" />
-                            <span>Edit</span>
-                          </button>
 
-                          <button 
-                            onClick={() => {
-                              setActiveDropdown(null);
-                              if (window.confirm("Are you sure you want to delete this appointment?")) {
-                                if (onDelete) onDelete(appointment.id);
-                              }
-                            }}
-                            className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 transition"
-                          >
-                            <Trash2 className="h-3.5 w-3.5 text-rose-600" />
-                            <span>Delete</span>
-                          </button>
+                          {/* Sirf tab dikhega jab status PENDING ho */}
+                          {isEditable && (
+                            <button
+                              onClick={() => openSidebar("edit", appointment)}
+                              className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 transition"
+                            >
+                              <Edit className="h-3.5 w-3.5 text-emerald-600" />
+                              <span>Edit</span>
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -212,17 +252,19 @@ export default function PatientAppointmentList({
       {/* Sidebar View / Edit */}
       {sidebar.isOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
-          <div 
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
             onClick={closeSidebar}
           ></div>
-          
-          <div className={`relative w-full ${sidebar.mode === "view" ? "max-w-xs" : "max-w-sm"} bg-white h-full shadow-2xl flex flex-col z-10`}>
+
+          <div
+            className={`relative w-full ${sidebar.mode === "view" ? "max-w-xs" : "max-w-sm"} bg-white h-full shadow-2xl flex flex-col z-10`}
+          >
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white">
               <h2 className="text-base font-semibold text-slate-800 capitalize">
                 {sidebar.mode} Appointment
               </h2>
-              <button 
+              <button
                 onClick={closeSidebar}
                 className="cursor-pointer p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition"
               >
@@ -233,32 +275,72 @@ export default function PatientAppointmentList({
             <div className="p-5 overflow-y-auto flex-1 bg-white">
               {sidebar.data && (
                 <div className="space-y-4">
-                  
-                  {/* Doctor Name - Yahan siraf Custom Dropdown laga hai, Width & Scroll ke sath */}
+                  {/* Doctor Name */}
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Doctor Name</label>
+                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                      Doctor Name
+                    </label>
                     {sidebar.mode === "edit" ? (
                       <div className="mt-1 [&>div]:w-full">
                         <Dropdown>
                           <Dropdown.Trigger className="cursor-pointer w-full flex items-center justify-between px-3 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 bg-white text-left">
                             <span className="truncate">
-                              {editFormData.doctorName || (loadingDoctors ? "Loading doctors..." : "Select a Doctor")}
+                              {editFormData.doctorName ||
+                                (loadingDoctors
+                                  ? "Loading doctors..."
+                                  : "Select a Doctor")}
                             </span>
-                            <svg className="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                            <svg
+                              className="w-4 h-4 text-slate-500 shrink-0"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M19 9l-7 7-7-7"
+                              ></path>
                             </svg>
                           </Dropdown.Trigger>
-                          
-                          {/* Scroll lagaya gaya hai max-h-40 aur overflow-y-auto ke zariye */}
-                          <Dropdown.Content className="w-full max-h-40 overflow-y-auto">
+
+                          <Dropdown.Content className="w-full max-h-40 overflow-y-auto z-50">
                             {availableDoctors.map((doc, idx) => {
-                              const docName = typeof doc === 'string' 
-                                ? doc 
-                                : (doc.profile?.full_name || doc.name || doc.doctorName || doc.fullName || "");
+                              // Doctor ka naam nikalna
+                              const docName =
+                                typeof doc === "string"
+                                  ? doc
+                                  : doc.profile?.full_name ||
+                                    doc.name ||
+                                    doc.doctorName ||
+                                    doc.fullName ||
+                                    "";
+
+                              // Doctor ki ID nikalna (Yeh bohat zaroori hai backend ke liye)
+                              const docId =
+                                typeof doc === "string"
+                                  ? null
+                                  : doc.id ||
+                                    doc.doctorId ||
+                                    doc.doctor_id ||
+                                    doc._id;
+
+                              // Jab doctor select ho toh Name aur ID dono set hon
+                              const handleDoctorSelect = () => {
+                                setEditFormData((prev) => ({
+                                  ...prev,
+                                  doctorName: docName,
+                                  doctorId: docId, // Backend ke liye ID
+                                  doctor_id: docId, // (Agar backend snake_case use kar raha ho)
+                                }));
+                              };
+
                               return (
-                                <Dropdown.Item 
+                                <Dropdown.Item
                                   key={idx}
-                                  onSelect={() => handleInputChange({ target: { name: 'doctorName', value: docName } })}
+                                  onSelect={handleDoctorSelect}
+                                  onClick={handleDoctorSelect}
                                 >
                                   {docName}
                                 </Dropdown.Item>
@@ -268,45 +350,59 @@ export default function PatientAppointmentList({
                         </Dropdown>
                       </div>
                     ) : (
-                      <p className="text-sm font-medium text-slate-800 mt-0.5">{sidebar.data.doctorName}</p>
+                      <p className="text-sm font-medium text-slate-800 mt-0.5">
+                        {sidebar.data.doctorName}
+                      </p>
                     )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Date</label>
+                      <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                        Date
+                      </label>
                       {sidebar.mode === "edit" ? (
-                        <input 
-                          type="date" 
+                        <input
+                          type="date"
                           name="date"
                           value={editFormData.date || ""}
                           onChange={handleInputChange}
                           className="w-full mt-1 px-2.5 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-slate-900 bg-white"
                         />
                       ) : (
-                        <p className="text-sm font-medium text-slate-800 mt-0.5">{sidebar.data.date}</p>
+                        <p className="text-sm font-medium text-slate-800 mt-0.5">
+                          {sidebar.data.date}
+                        </p>
                       )}
                     </div>
                     <div>
-                      <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Time</label>
+                      <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                        Time
+                      </label>
                       {sidebar.mode === "edit" ? (
-                        <input 
-                          type="text" 
+                        <input
+                          type="time" 
                           name="time"
                           value={editFormData.time || ""}
                           onChange={handleInputChange}
                           className="w-full mt-1 px-2.5 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-slate-900 bg-white"
                         />
                       ) : (
-                        <p className="text-sm font-medium text-slate-800 mt-0.5">{sidebar.data.time}</p>
+                        <p className="text-sm font-medium text-slate-800 mt-0.5">
+                          {sidebar.data.time}
+                        </p>
                       )}
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status</label>
+                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                      Status
+                    </label>
                     <div className="mt-1">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(sidebar.data.status)}`}>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(sidebar.data.status)}`}
+                      >
                         {sidebar.data.status || "Unknown"}
                       </span>
                     </div>
@@ -316,14 +412,14 @@ export default function PatientAppointmentList({
             </div>
 
             <div className="p-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50">
-              <button 
+              <button
                 onClick={closeSidebar}
                 className="cursor-pointer px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition"
               >
                 Close
               </button>
               {sidebar.mode === "edit" && (
-                <button 
+                <button
                   onClick={handleSave}
                   className="cursor-pointer px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
                 >

@@ -14,14 +14,10 @@ export default function AppointmentHeader({
   currentView = "list",
   newAppointmentUrl = "/admin/appointments/new", 
   showNewButton = true, 
-  onSearch, onSortChange, onViewChange, onDateChange, onFilterApply,
+  onSearch, onSortChange, onViewChange, onFilterApply,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('Recent');
-  const [topDateLabel, setTopDateLabel] = useState('Select Date');
-  const [isCustomDate, setIsCustomDate] = useState(false);
-  const [customStart, setCustomStart] = useState('');
-  const [customEnd, setCustomEnd] = useState('');
 
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
@@ -35,6 +31,7 @@ export default function AppointmentHeader({
     { id: 'cancelled', name: 'Cancelled' }
   ];
 
+  // Date aur baqi filters ki initial state yahan zaroori hai (taake Filters popup mein kaam kare)
   const initialFilterState = { patient: '', doctor: '', date: '', customStart: '', customEnd: '', status: '' };
   const [filterState, setFilterState] = useState(initialFilterState);
 
@@ -52,6 +49,7 @@ export default function AppointmentHeader({
       ? { ...filterState, date: '', customStart: '', customEnd: '' } 
       : { ...filterState, [field]: '' };
     setFilterState(updated);
+    // Jab field reset ho, tabhi filter apply kara dein (optional lekin acha UX hai)
     onFilterApply?.(updated);
   };
   
@@ -172,7 +170,6 @@ export default function AppointmentHeader({
             <button type="button" onClick={() => onViewChange?.('calendar')} className={`cursor-pointer p-1.5 rounded-md transition ${currentView === 'calendar' ? 'bg-white shadow-sm text-indigo-700' : 'text-gray-500'}`}><FiCalendar className="w-4 h-4" /></button>
           </div>
           
-          {/* BUTTON KO CONDITIONALLY RENDER KIYA HAI */}
           {showNewButton && (
             <Link href={newAppointmentUrl}>
               <Button variant="primary" text="New Appointment" icon={<FiPlus />} className="cursor-pointer" />
@@ -186,32 +183,9 @@ export default function AppointmentHeader({
         
         <div className="flex flex-wrap items-center gap-1">
           <SearchBar defaultValue={searchTerm} onSearch={(val) => { setSearchTerm(val); onSearch?.(val); }} placeholder="Search" />
-
-          <Dropdown>
-            <Dropdown.Trigger className="cursor-pointer flex items-center gap-2 px-3 py-2 bg-white border border-[#e7e8eb] rounded-lg text-sm text-[#0a1b39] hover:bg-[#f5f6f8]">
-              <FiCalendar className="w-4 h-4 text-gray-500" />
-              <span>{topDateLabel}</span>
-            </Dropdown.Trigger>
-            <Dropdown.Content align="left">
-              {dateOptions.map((opt, idx) => (
-                <Dropdown.Item className="cursor-pointer" key={`top-date-${opt.id}-${idx}`} onSelect={() => { 
-                  setTopDateLabel(opt.label);
-                  setIsCustomDate(opt.id === 'custom');
-                  if (opt.id !== 'custom') onDateChange?.({ type: opt.id });
-                }}>
-                  {opt.label}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Content>
-          </Dropdown>
-
-          {isCustomDate && (
-            <div className="flex items-center gap-2 ml-2">
-              <input type="date" value={customStart} onChange={(e) => { setCustomStart(e.target.value); onDateChange?.({ type: 'custom', start: e.target.value, end: customEnd }); }} className="cursor-pointer text-sm border border-[#e7e8eb] rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-gray-700" />
-              <span className="text-gray-400 text-sm">to</span>
-              <input type="date" value={customEnd} onChange={(e) => { setCustomEnd(e.target.value); onDateChange?.({ type: 'custom', start: customStart, end: e.target.value }); }} className="cursor-pointer text-sm border border-[#e7e8eb] rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-gray-700" />
-            </div>
-          )}
+          
+          {/* SEARCH KE BARABAR WALA DROPDOWN YAHAN SE HATA DIYA HAI */}
+          
         </div>
 
         <div className="flex items-center gap-3">
@@ -228,8 +202,10 @@ export default function AppointmentHeader({
                 <button type="button" onClick={handleClearAll} className="cursor-pointer text-sm font-semibold text-red-600 hover:underline">Clear All</button>
               </div>
 
+              {/* Patient aur Doctor Filter */}
               {selectFilters.slice(0, 2).map(filter => renderSelectField(filter))}
 
+              {/* FILTER DROPDOWN WALA DATE YAHIN MAJOOD HAI */}
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label className="text-sm font-bold text-[#0a1b39]">Date</label>
@@ -250,6 +226,7 @@ export default function AppointmentHeader({
                 )}
               </div>
 
+              {/* Status Filter */}
               {selectFilters.slice(2).map(filter => renderSelectField(filter))}
 
               <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">

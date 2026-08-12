@@ -10,9 +10,11 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase
@@ -22,15 +24,21 @@ export default async function AdminLayout({
     .maybeSingle();
 
   const role = profile?.role || user.user_metadata?.role || "patient";
+
   if (role !== "admin") redirect("/unauthorized");
 
   return (
-    <div className="flex min-h-screen bg-[#F7F8FC]">
+    <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar links={adminLinks} />
+
       <div className="flex flex-1 flex-col">
         <Navbar profileSettingsHref="/admin/settings/profile" />
-        <main className="flex-1 bg-[#F7F8FC] p-8">{children}</main>
-        <footer className="border-t border-[#E5E7EB] bg-white px-8 py-4 text-center text-sm text-gray-500">
+
+        <main className="flex-1 bg-background p-8">
+          {children}
+        </main>
+
+        <footer className="border-t border-border bg-background px-8 py-4 text-center text-sm text-muted">
           © {new Date().getFullYear()} Hospital Management System. All rights
           reserved.
         </footer>

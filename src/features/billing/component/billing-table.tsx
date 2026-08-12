@@ -248,7 +248,7 @@ export default function BillingTable({ invoices }: BillingTableProps) {
 
         <Table columns={columns} data={paginatedInvoices} />
 
-        <div className="mt-5">
+        <div className="mt-5 text-[#0A1B39]">
           <PaginationControls
             page={page}
             totalPages={Math.ceil(sortedInvoices.length / limit)}

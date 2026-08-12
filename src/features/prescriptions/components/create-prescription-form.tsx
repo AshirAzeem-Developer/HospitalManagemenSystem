@@ -1,7 +1,6 @@
 "use client";
 
-import { StaticImageData } from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -20,17 +19,14 @@ import { Patient } from "../types";
 
 interface CreatePrescriptionFormProps {
   patient: Patient;
+  appointmentId: string;
 }
 
 export default function CreatePrescriptionForm({
   patient,
+  appointmentId,
 }: CreatePrescriptionFormProps) {
-  const searchParams = useSearchParams();
   const router = useRouter();
-
-  // Temporary fallback for testing
-  const appointmentId =
-    searchParams.get("appointmentId") ?? "0738a492-dd30-4577-bd8d-8fcf8c5a0d0f";
 
   const {
     register,
@@ -64,15 +60,10 @@ export default function CreatePrescriptionForm({
   });
 
   async function onSubmit(values: CreatePrescriptionInput) {
-    console.log("Form Values:", values);
-
     const result = await createPrescription(values);
-
-    console.log("Server Action Result:", result);
 
     if (!result.success) {
       alert(result.message ?? "Something went wrong");
-      console.log(result);
       return;
     }
 
@@ -97,7 +88,7 @@ export default function CreatePrescriptionForm({
           type="button"
           variant="ghost"
           text="Cancel"
-          onClick={() => router.push(`/doctor/prescriptions`)}
+          onClick={() => router.push(`/doctor/appointments/`)}
         />
         <Button
           type="submit"

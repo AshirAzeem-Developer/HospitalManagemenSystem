@@ -347,6 +347,53 @@ export async function getPatientPrescriptions() {
   return { success: true, data };
 }
 
+export async function getPrescriptionsByAppointmentIds(
+  appointmentIds: string[],
+) {
+  if (!appointmentIds || appointmentIds.length === 0) {
+    return { success: true, data: {} as Record<string, string> };
+  }
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  const { data: doctor, error: doctorError } = await supabase
+    .from("doctors")
+    .select("id")
+    .eq("profile_id", user.id)
+    .single();
+
+  if (doctorError || !doctor) {
+    return { success: false, message: "Doctor not found" };
+  }
+
+  // Scoped to this doctor — an appointment id belonging to another doctor
+  // will simply not appear in the map, same as everywhere else in this app.
+  const { data: prescriptions, error } = await supabase
+    .from("prescriptions")
+    .select("id, appointment_id")
+    .in("appointment_id", appointmentIds)
+    .eq("doctor_id", doctor.id);
+
+  if (error) {
+    return { success: false, message: "Failed to load prescription status" };
+  }
+
+  const map: Record<string, string> = {};
+  for (const prescription of prescriptions ?? []) {
+    map[prescription.appointment_id] = prescription.id;
+  }
+
+  return { success: true, data: map };
+}
+
 export async function updatePrescription(
   prescriptionId: string,
   values: UpdatePrescriptionInput,

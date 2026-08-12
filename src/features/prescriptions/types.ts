@@ -88,6 +88,7 @@ export interface PrescriptionDetailProps {
       spo2: number | null;
       advice: string | null;
       created_at: string;
+      appointment_id: string;
     };
 
     patient: PrescriptionPatient

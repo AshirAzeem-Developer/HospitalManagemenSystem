@@ -32,7 +32,9 @@ export default function EditPrescriptionForm({
   // MedicinesTable/AdviceForm — which are typed around
   // CreatePrescriptionInput — work unmodified. appointmentId is carried in
   // the form state just to satisfy that type; it's never rendered, never
-  // edited, and is stripped out before calling updatePrescription.
+  // edited, and is stripped out before calling updatePrescription. It comes
+  // straight from the existing prescription record — there's no reason to
+  // read it from the URL or fall back to a hardcoded id here.
   const {
     register,
     control,
@@ -42,8 +44,7 @@ export default function EditPrescriptionForm({
     resolver: zodResolver(CreatePrescriptionSchema),
 
     defaultValues: {
-      //   appointmentId: prescription.appointment_id
-      appointmentId: "0738a492-dd30-4577-bd8d-8fcf8c5a0d0f",
+      appointmentId: prescription.appointment_id,
 
       diagnosis: prescription.diagnosis ?? "",
 
@@ -66,8 +67,6 @@ export default function EditPrescriptionForm({
         dosage: medicine.dosage,
         frequency: medicine.frequency,
         duration: medicine.duration,
-        // Cast is safe as long as the DB value is one of the three enum
-        // strings — see the note on this in the schema-review message.
         timing:
           medicine.timing as CreatePrescriptionInput["medicines"][number]["timing"],
         instructions: medicine.instructions ?? "",
@@ -111,7 +110,7 @@ export default function EditPrescriptionForm({
           type="button"
           variant="ghost"
           text="Cancel"
-          onClick={() => router.push(`/doctor/prescriptions/${prescriptionId}`)}
+          onClick={() => router.push(`/doctor/prescriptions`)}
         />
 
         <Button

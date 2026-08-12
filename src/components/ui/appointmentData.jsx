@@ -109,7 +109,19 @@ export const appointmentFilterLogic = (data, searchTerm, activeFilters, sortOrde
     return sortOrder === 'Oldest' ? dateA - dateB : dateB - dateA;
   });
 };
-
+/**
+ * @template {{ id: string | number }} T
+ * @param {{
+ *   initialData?: T[],
+ *   HeaderComponent?: any,
+ *   headerProps?: object,
+ *   ListComponent?: any,
+ *   filterSortLogic?: (data: T[], searchTerm: string, activeFilters: object, sortOrder: string) => T[],
+ *   onEditAction?: (id: T["id"], updatedData: T) => Promise<any>,
+ *   onDeleteAction?: (id: T["id"]) => Promise<any>,
+ *   listPropName?: string
+ * }} props
+ */
 export default function DataContainer({
   initialData = [],
   HeaderComponent,

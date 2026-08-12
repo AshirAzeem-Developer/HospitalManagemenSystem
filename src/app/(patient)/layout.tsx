@@ -25,9 +25,9 @@ export default async function PatientLayout({
   if (role !== "patient") redirect("/unauthorized");
 
   return (
-    <div className="flex">
+    <div className="flex ">
       <Sidebar links={patientLinks} roleLabel="Patient" />
-      <div className="flex-1">
+      <div className="flex-1 ">
         <Navbar />
         <main className="p-6 ">{children}</main>
       </div>

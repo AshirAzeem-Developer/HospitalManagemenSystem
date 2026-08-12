@@ -128,6 +128,14 @@ export async function createPrescription(values: CreatePrescriptionInput) {
 export async function getPrescriptionById(id: string) {
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, message: "Unauthorized" };
+  }
+
   // 1. Prescription
   const { data: prescription, error: prescriptionError } = await supabase
     .from("prescriptions")
@@ -155,6 +163,26 @@ export async function getPrescriptionById(id: string) {
     return {
       success: false,
       message: "Prescription not found",
+    };
+  }
+
+  // Ownership check: the caller must be either the doctor who wrote this
+  // prescription, or the patient it was written for. Without this, any
+  // authenticated user could view any prescription by guessing its id —
+  // this is separate from and in addition to RLS on the prescriptions
+  // table, which should also enforce the same rule at the database level.
+  const [{ data: callerDoctor }, { data: callerPatient }] = await Promise.all([
+    supabase.from("doctors").select("id").eq("profile_id", user.id).maybeSingle(),
+    supabase.from("patients").select("id").eq("profile_id", user.id).maybeSingle(),
+  ]);
+
+  const isOwningDoctor = callerDoctor?.id === prescription.doctor_id;
+  const isOwningPatient = callerPatient?.id === prescription.patient_id;
+
+  if (!isOwningDoctor && !isOwningPatient) {
+    return {
+      success: false,
+      message: "You don't have access to this prescription",
     };
   }
 
@@ -231,6 +259,92 @@ export async function getPrescriptionById(id: string) {
       medicines,
     },
   };
+}
+
+export async function getPatientPrescriptions() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  const { data: patient, error: patientError } = await supabase
+    .from("patients")
+    .select("id")
+    .eq("profile_id", user.id)
+    .single();
+
+  if (patientError || !patient) {
+    return { success: false, message: "Patient record not found" };
+  }
+
+  // Scoped to this patient only — a patient must never see another
+  // patient's prescriptions, regardless of which doctor wrote them.
+  const { data: prescriptions, error: prescriptionsError } = await supabase
+    .from("prescriptions")
+    .select("id, doctor_id, diagnosis, created_at")
+    .eq("patient_id", patient.id)
+    .order("created_at", { ascending: false });
+
+  if (prescriptionsError) {
+    return { success: false, message: "Failed to load prescriptions" };
+  }
+
+  if (!prescriptions || prescriptions.length === 0) {
+    return { success: true, data: [] };
+  }
+
+  // A patient's list can span multiple doctors, so unlike the doctor-facing
+  // list we need the doctor's name here, not the patient's.
+  const doctorIds = Array.from(new Set(prescriptions.map((p) => p.doctor_id)));
+
+  const { data: doctors, error: doctorsError } = await supabase
+    .from("doctors")
+    .select("id, profile_id")
+    .in("id", doctorIds);
+
+  if (doctorsError) {
+    return { success: false, message: "Failed to load doctor details" };
+  }
+
+  const doctorProfileIds = (doctors ?? []).map((d) => d.profile_id);
+
+  const { data: doctorProfiles, error: doctorProfilesError } = await supabase
+    .from("profiles")
+    .select("id, full_name")
+    .in("id", doctorProfileIds);
+
+  if (doctorProfilesError) {
+    return { success: false, message: "Failed to load doctor profiles" };
+  }
+
+  const doctorProfileMap = new Map(
+    (doctorProfiles ?? []).map((profile) => [profile.id, profile]),
+  );
+  const doctorMap = new Map((doctors ?? []).map((doctor) => [doctor.id, doctor]));
+
+  const data = prescriptions.map((prescription) => {
+    const doctor = doctorMap.get(prescription.doctor_id);
+    const doctorProfile = doctor
+      ? doctorProfileMap.get(doctor.profile_id)
+      : null;
+
+    return {
+      id: prescription.id,
+      doctorName: doctorProfile?.full_name ?? "Unknown Doctor",
+      diagnosis: prescription.diagnosis,
+      prescribedOn: new Date(prescription.created_at).toLocaleDateString(
+        "en-GB",
+      ),
+      prescribedOnRaw: prescription.created_at,
+    };
+  });
+
+  return { success: true, data };
 }
 
 export async function updatePrescription(
@@ -413,4 +527,3 @@ export async function deletePrescription(prescriptionId: string) {
     message: "Prescription deleted successfully",
   };
 }
-

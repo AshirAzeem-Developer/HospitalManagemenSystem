@@ -43,7 +43,7 @@ export default function EditPrescriptionForm({
 
     defaultValues: {
       //   appointmentId: prescription.appointment_id
-      appointmentId: "44444444-4444-4444-4444-444444444403",
+      appointmentId: "0738a492-dd30-4577-bd8d-8fcf8c5a0d0f",
 
       diagnosis: prescription.diagnosis ?? "",
 

@@ -18,7 +18,7 @@ export default async function CreatePrescriptionPage({
   // const appointmentId = params.appointmentId;
 
   //THe below line will be removed when irfan works completed
-  const appointmentId = "44444444-4444-4444-4444-444444444405";
+  const appointmentId = "0738a492-dd30-4577-bd8d-8fcf8c5a0d0f";
 
   if (!appointmentId) {
     return <p>Appointment ID is missing.</p>;

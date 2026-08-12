@@ -1,22 +1,27 @@
 import Image from "next/image";
 import { PrescriptionDetailProps } from "../types";
 import PatientInformation from "./patient-information";
+import DownloadPrescriptionButton from "./download-prescription-button";
 
 export default function PrescriptionDetail({ data }: PrescriptionDetailProps) {
   const { prescription, patient, profile, medicines } = data;
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6 print:space-y-4">
       {/* Prescription Information */}
-      <div className="rounded-xl border bg-white p-6">
-        <h1 className="text-xl font-semibold">
-          Prescription #{prescription.id}
-        </h1>
+      <div className="flex items-start justify-between rounded-xl border bg-white p-6 print:border-none print:p-0">
+        <div>
+          <h1 className="text-xl font-semibold">
+            Prescription #{prescription.id}
+          </h1>
 
-        <p className="mt-2 text-sm text-gray-500">
-          Created on{" "}
-          {new Date(prescription.created_at).toLocaleDateString("en-GB")}
-        </p>
+          <p className="mt-2 text-sm text-gray-500">
+            Created on{" "}
+            {new Date(prescription.created_at).toLocaleDateString("en-GB")}
+          </p>
+        </div>
+
+        <DownloadPrescriptionButton />
       </div>
 
       {/* Patient Information */}
@@ -27,14 +32,14 @@ export default function PrescriptionDetail({ data }: PrescriptionDetailProps) {
       />
 
       {/* Diagnosis */}
-      <div className="rounded-xl border bg-white p-6">
+      <div className="rounded-xl border bg-white p-6 print:border-none print:p-0">
         <h2 className="mb-4 text-lg font-semibold">Diagnosis</h2>
 
         <p>{prescription.diagnosis}</p>
       </div>
 
       {/* Vitals */}
-      <div className="rounded-xl border bg-white p-6">
+      <div className="rounded-xl border bg-white p-6 print:border-none print:p-0">
         <h2 className="mb-5 text-lg font-semibold">Vitals</h2>
 
         <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
@@ -73,7 +78,7 @@ export default function PrescriptionDetail({ data }: PrescriptionDetailProps) {
       </div>
 
       {/* Medicines */}
-      <div className="rounded-xl border bg-white p-6">
+      <div className="rounded-xl border bg-white p-6 print:border-none print:p-0">
         <h2 className="mb-5 text-lg font-semibold">Medicines</h2>
 
         {medicines.length === 0 ? (
@@ -81,7 +86,7 @@ export default function PrescriptionDetail({ data }: PrescriptionDetailProps) {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="border-y bg-gray-50">
+              <thead className="border-y bg-gray-50 print:bg-transparent">
                 <tr>
                   <th className="px-4 py-3 text-left">S.No</th>
                   <th className="px-4 py-3 text-left">Medicine</th>
@@ -117,7 +122,7 @@ export default function PrescriptionDetail({ data }: PrescriptionDetailProps) {
       </div>
 
       {/* Advice */}
-      <div className="rounded-xl border bg-white p-6">
+      <div className="rounded-xl border bg-white p-6 print:border-none print:p-0">
         <h2 className="mb-3 text-lg font-semibold">Advice</h2>
 
         <p className="text-gray-600">

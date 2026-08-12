@@ -111,7 +111,12 @@ export const patientLinks: MenuGroup[] = [
         href: "/patient/appointments",
         icon: "Clock3",
       },
-
+      
+      {
+        label: "Prescriptions",
+        href: "/patient/prescriptions",
+        icon: "FileText",
+      },
       {
         label: "My Billing",
         href: "/patient/billing",

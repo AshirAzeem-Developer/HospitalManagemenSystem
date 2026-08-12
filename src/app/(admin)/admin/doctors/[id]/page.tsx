@@ -41,7 +41,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F6F8] p-4 md:p-6">
+    <div className="min-h-screen bg-[#F5F6F8] p-4 md:p-6 -m-8">
       {/* Back */}
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>

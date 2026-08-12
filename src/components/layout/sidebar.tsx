@@ -68,7 +68,7 @@ export function Sidebar({
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
   return (
-    <aside className="w-[276px] bg-white border-r border-[#E5E7EB] flex flex-col">
+    <aside className="no-print w-[276px] bg-white border-r border-[#E5E7EB] flex flex-col">
       {/* Logo */}
       <div className="relative h-[78px] border-b border-[#E5E7EB] flex items-center">
         <div className="flex items-center w-full px-6">
@@ -102,7 +102,8 @@ export function Sidebar({
               {group.items.map((item) => {
                 const Icon = iconMap[item.icon];
                 const isActive =
-                  pathname === item.href || pathname.startsWith(item.href + "/");
+                  pathname === item.href ||
+                  pathname.startsWith(item.href + "/");
                 const isExpandable = !!item.subItems?.length;
                 const isExpanded = expandedItem === item.label;
 

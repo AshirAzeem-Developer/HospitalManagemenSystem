@@ -34,3 +34,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+/* for hiding header and sidebar in printing receipt */

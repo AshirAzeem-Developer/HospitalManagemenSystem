@@ -134,38 +134,54 @@ export async function getPatientById(id: string) {
       doctor:doctors (
         id,
         specialization,
+        status,
         profile:profiles (
-          full_name
+          full_name,
+          avatar_url
         )
       )
     `)
     .eq("id", id)
     .single();
 
-
   if (error) {
     console.error(error);
     throw new Error(error.message);
   }
-// Get email from Supabase Auth
-  const { data: authUser, error: authError } =
-    await supabaseAdmin.auth.admin.getUserById(data.profile_id);
+
+  // Auth se email + phone
+  const {
+    data: authUser,
+    error: authError,
+  } = await supabaseAdmin.auth.admin.getUserById(
+    data.profile_id
+  );
 
   if (authError) {
     console.error(authError);
     throw new Error(authError.message);
   }
 
-const phone = formatPakistaniPhone(
-  authUser.user.phone
-);
+  const phone = formatPakistaniPhone(
+    authUser.user.phone
+  );
 
-return {
-  ...data,
-  email: authUser.user.email || "",
-  phone,
-};
+  // Normalize Supabase relations
+  const profile = Array.isArray(data.profile)
+    ? data.profile[0]
+    : data.profile;
 
+  const doctor = Array.isArray(data.doctor)
+    ? data.doctor[0]
+    : data.doctor;
+
+  return {
+    ...data,
+    profile: profile ?? null,
+    doctor: doctor ?? null,
+    email: authUser.user.email || "",
+    phone,
+  };
 }
 export async function updatePatient(
   id: string,
@@ -181,7 +197,7 @@ export async function updatePatient(
       .update({
         date_of_birth: formData.date_of_birth,
         blood_group: formData.blood_group,
-        primary_doctor_id: formData.primary_doctor_id,
+        primary_doctor_id: formData.primary_doctor_id || null,
         stay_address: formData.stay_address,
         permanent_address: formData.permanent_address,
       })
@@ -343,9 +359,8 @@ export type Doctor = {
   id: string;
   profile: {
     full_name: string;
-  }[] | null;   // array hai, object nahi
+  }[];
 };
-
 export async function getDoctors(): Promise<Doctor[]> {
   const supabase = await createClient();
 
@@ -360,7 +375,7 @@ export async function getDoctors(): Promise<Doctor[]> {
     console.error(error);
     throw new Error(error.message);
   }
-
+ 
   return data as Doctor[];
 }
 

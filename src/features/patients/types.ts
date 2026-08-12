@@ -38,21 +38,21 @@ export interface PatientRow {
 
   phone: string | null;
 }
-type CreatePatientInput = {
-  email: string;
-  password: string;
-  full_name: string;
-  gender: string;
-  date_of_birth: string;
-  blood_group: string;
-  primary_doctor_id: string;
-  stay_address: string;
-  permanent_address: string;
-  country: string;
-  state: string;
-  city: string;
-  imageFile: File | null;
-};
+// type CreatePatientInput = {
+//   email: string;
+//   password: string;
+//   full_name: string;
+//   gender: string;
+//   date_of_birth: string;
+//   blood_group: string;
+//   primary_doctor_id: string;
+//   stay_address: string;
+//   permanent_address: string;
+//   country: string;
+//   state: string;
+//   city: string;
+//   imageFile: File | null;
+// };
 
 // actions.ts mein createPatient signature change:
 export async function createPatient(formData: FormData) {

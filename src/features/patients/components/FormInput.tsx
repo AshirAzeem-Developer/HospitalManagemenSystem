@@ -1,9 +1,9 @@
-
 import type { InputHTMLAttributes } from "react";
 
 type FormInputProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   required?: boolean;
+  error?: string;
 };
 
 export default function FormInput({
@@ -11,6 +11,7 @@ export default function FormInput({
   required = false,
   type = "text",
   placeholder = "",
+  error,
   ...props
 }: FormInputProps) {
   return (
@@ -42,7 +43,12 @@ export default function FormInput({
         "
         {...props}
       />
+
+      {error && (
+        <p className="text-sm text-red-500">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
-

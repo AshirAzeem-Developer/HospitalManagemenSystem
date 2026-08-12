@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Button from "@/components/ui/button";
 import {
   ChevronLeft,
   Phone,
@@ -205,17 +206,16 @@ const [search, setSearch] = useState("");
 
           {/* Actions */}
           <div className="relative flex items-center gap-2 sm:flex-col sm:items-end">
-            <button
-              type="button"
-               onClick={() => {
-              // Future: appointment module route
-              console.log("Book appointment clicked");
-            }}
-              className="flex w-full items-end justify-center gap-2 rounded-md bg-blue-800 px-4 py-2 text-sm font-medium text-white hover:bg-blue-900 sm:w-auto"
-            >
-              <CalendarDays size={16} />
-              Book Appointment
-            </button>
+           <Button
+                type="button"
+                variant="primary"
+                text="Book Appointment"
+                icon={<CalendarDays size={16} />}
+                onClick={() => {
+                  console.log("Book appointment clicked");
+                }}
+                className="w-full sm:w-auto"
+              />
           </div>
         </div>
       </div>

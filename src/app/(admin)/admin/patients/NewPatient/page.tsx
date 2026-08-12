@@ -6,7 +6,7 @@ export default async function NewPatientPage() {
   const doctors = await getDoctors();
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen p-6 -m-6 space-y-6 bg-[#F5F6F8]">
       <div className="mx-auto w-full max-w-3xl px-4 sm:px-8">
         <Link
           href="/admin/patients"

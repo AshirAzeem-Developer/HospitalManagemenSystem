@@ -1,61 +1,59 @@
 import Link from "next/link";
-import { List, LayoutGrid, Plus } from "lucide-react";
-import {
-  PatientCard,
-} from "@/features/patients/components/PatientCard";
+import { List, LayoutGrid } from "lucide-react";
+import Button from "@/components/ui/button";
+import { PatientCard } from "@/features/patients/components/PatientCard";
 import { getPatientsForGrid } from "@/features/patients/actions";
 
 export default async function PatientsGridViewPage() {
   const patients = await getPatientsForGrid();
 
   return (
-    <div className="space-y-6 px-4 sm:px-6">
-      {/* Header */}
+    <div className="space-y-6 px-4 sm:px-6 min-h-screen p-6 -m-6 space-y-6 bg-[#F5F6F8]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-lg font-semibold text-slate-900 sm:text-2xl">
             Patient Grid
           </h1>
 
-          <span className="shrink-0 whitespace-nowrap rounded-md border border-blue-600 px-2 py-0.5 text-xs text-blue-600 sm:text-sm">
-            Total Patients : {patients.length}
-          </span>
+          <Button
+            variant="status-primary"
+            text={`Total Patients : ${patients.length}`}
+            type="button"
+          />
         </div>
 
         <div className="flex items-center gap-2">
-          {/* List / Grid toggle */}
-          <div className="flex items-center rounded-md border border-slate-200 p-1">
-            <Link
-              href="/admin/patients"
-              className="flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:bg-slate-50"
-            >
-              <List size={16} />
+          <div className="flex items-center gap-2 border border-slate-300 bg-white px-2 py-1">
+            <Link href="/admin/patients">
+              <List
+                size={16}
+                className="text-slate-400 hover:text-slate-600"
+              />
             </Link>
 
-            <span className="flex h-8 w-8 items-center justify-center rounded bg-slate-100 text-slate-900">
-              <LayoutGrid size={16} />
-            </span>
+            <LayoutGrid size={16} className="text-blue-600" />
           </div>
 
-          {/* New Patient */}
           <Link
             href="/admin/patients/NewPatient"
-            className="inline-flex items-center gap-2 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
+            className="w-auto"
           >
-            <Plus size={16} />
-            New Patient
+            <Button
+              variant="primary"
+              text="+ New Patient"
+              type="button"
+            />
           </Link>
         </div>
       </div>
 
-      {/* Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-       {patients.map((patient) => (
-  <PatientCard
-    key={patient.id}
-    patient={patient}
-  />
-))}
+        {patients.map((patient) => (
+          <PatientCard
+            key={patient.id}
+            patient={patient}
+          />
+        ))}
       </div>
     </div>
   );

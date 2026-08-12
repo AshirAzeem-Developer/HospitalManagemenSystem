@@ -1,9 +1,9 @@
-
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import Button from "@/components/ui/button";
 import { deletePatient } from "../actions";
 
 type PatientActionsProps = {
@@ -28,8 +28,7 @@ export default function PatientActions({
 
       if (!result.success) {
         setErrorMessage(
-          result.error ||
-            "This patient cannot be deleted."
+          result.error || "This patient cannot be deleted."
         );
         return;
       }
@@ -54,85 +53,90 @@ export default function PatientActions({
 
   return (
     <>
+      {/* Action Buttons */}
       <div className="flex items-center gap-1">
         {/* View */}
-        <button
+        <Button
           type="button"
-          className="rounded-md p-2 hover:bg-slate-100"
+          variant="ghost"
+          text=""
+          icon={<Eye className="h-4 w-4 text-slate-600" />}
           title="View"
           onClick={() =>
             router.push(`/admin/patients/${id}`)
           }
-        >
-          <Eye className="h-4 w-4 text-slate-600" />
-        </button>
+          className="h-8 w-8 border-0 p-0 hover:bg-slate-100"
+        />
 
         {/* Edit */}
-        <button
+        <Button
           type="button"
-          className="rounded-md p-2 hover:bg-slate-100"
+          variant="ghost"
+          text=""
+          icon={<Pencil className="h-4 w-4 text-blue-600" />}
           title="Edit"
           onClick={() =>
             router.push(`/admin/patients/${id}/edit`)
           }
-        >
-          <Pencil className="h-4 w-4 text-blue-600" />
-        </button>
+          className="h-8 w-8 border-0 p-0 hover:bg-slate-100"
+        />
 
         {/* Delete */}
-        <button
+        <Button
           type="button"
-          className="rounded-md p-2 hover:bg-slate-100"
+          variant="ghost"
+          text=""
+          icon={<Trash2 className="h-4 w-4 text-red-600" />}
           title="Delete"
           onClick={() => {
             setErrorMessage("");
             setShowModal(true);
           }}
-        >
-          <Trash2 className="h-4 w-4 text-red-600" />
-        </button>
+          className="h-8 w-8 border-0 p-0 hover:bg-slate-100"
+        />
       </div>
 
       {/* Delete Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl sm:p-6">
-            <h2 className="text-lg font-semibold text-slate-900">
+          <div className="max-h-[85vh] w-full max-w-md overflow-y-auto overflow-x-hidden rounded-xl bg-white p-5 shadow-xl sm:p-6">
+            <h2 className="w-full break-words text-lg font-semibold text-slate-900">
               Delete Patient
             </h2>
 
             {errorMessage ? (
-              <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
-                <p className="text-sm leading-5 text-red-700">
+              <div className="mt-3 w-full rounded-lg border border-red-200 bg-red-50 p-3">
+                <p className="w-full whitespace-normal break-words text-sm leading-5 text-red-700">
                   {errorMessage}
                 </p>
               </div>
             ) : (
-              <p className="mt-2 text-sm leading-5 text-slate-500">
-                Are you sure you want to delete this
-                patient?
+              <p className="mt-2 w-full whitespace-normal break-words text-sm leading-5 text-slate-500">
+                Are you sure you want to delete this patient?
               </p>
             )}
 
             <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
-              <button
+              {/* Cancel */}
+              <Button
                 type="button"
+                variant="ghost"
+                text="Cancel"
                 onClick={handleCloseModal}
                 disabled={loading}
-                className="w-full rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 sm:w-auto"
-              >
-                Cancel
-              </button>
+                className="w-full sm:w-auto"
+              />
 
+              {/* Delete */}
               {!errorMessage && (
-                <button
+                <Button
                   type="button"
+                  variant="danger"
+                  text={loading ? "Deleting..." : "Delete"}
                   onClick={handleDelete}
                   disabled={loading}
-                  className="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 sm:w-auto"
-                >
-                  {loading ? "Deleting..." : "Delete"}
-                </button>
+                  className="w-full sm:w-auto"
+                />
               )}
             </div>
           </div>
@@ -141,4 +145,3 @@ export default function PatientActions({
     </>
   );
 }
-

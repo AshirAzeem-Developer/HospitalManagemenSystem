@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 
 export default async function AdminActivityLogPage({ searchParams }) {
   const params = await searchParams;
+
   const parsedPage = Number.parseInt(params.page ?? "1", 10);
   const parsedLimit = Number.parseInt(params.limit ?? "10", 10);
 
@@ -16,6 +17,7 @@ export default async function AdminActivityLogPage({ searchParams }) {
     Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10;
 
   const query = params.q ?? "";
+
   const cookieStore = await cookies();
 
   const queryParams = new URLSearchParams({
@@ -41,10 +43,15 @@ export default async function AdminActivityLogPage({ searchParams }) {
     throw new Error(await res.text());
   }
 
-  const { logs, totalCount, totalPages } = await res.json();
+  const {
+    logs = [],
+    totalCount = 0,
+    totalPages = 1,
+  } = await res.json();
 
   return (
     <div className="text-foreground">
+      {/* Page Header */}
       <h1 className="text-xl font-semibold text-foreground">
         Activity Log
       </h1>
@@ -54,22 +61,133 @@ export default async function AdminActivityLogPage({ searchParams }) {
       </p>
 
       <div className="mt-6">
+        {/* Summary Card */}
         <Card
           label="System Events"
           value={`${totalCount} Logs`}
           hint={`Page ${page} of ${totalPages}`}
         />
 
+        {/* Search */}
         <div className="mt-4 mb-3">
           <PaginationSearchBar placeholder="Search activity logs" />
         </div>
 
-        <div className="divide-y divide-border border border-border rounded-lg bg-background overflow-hidden my-1">
-          {logs.map((log) => (
-            <ActivityLogItem key={log.id} log={log} />
-          ))}
+        {/* Activity Table */}
+        <div
+          className="
+            mt-6
+            overflow-hidden
+            rounded-xl
+            border
+            border-border
+            bg-background
+            shadow-sm
+          "
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[850px] text-left">
+              {/* Table Header */}
+              <thead>
+                <tr className="border-b border-border bg-hover">
+                  <th
+                    className="
+                      px-4 py-3
+                      text-xs
+                      font-semibold
+                      uppercase
+                      tracking-wider
+                      text-muted
+                    "
+                  >
+                    User
+                  </th>
+
+                  <th
+                    className="
+                      px-4 py-3
+                      text-xs
+                      font-semibold
+                      uppercase
+                      tracking-wider
+                      text-muted
+                    "
+                  >
+                    Action
+                  </th>
+
+                  <th
+                    className="
+                      px-4 py-3
+                      text-xs
+                      font-semibold
+                      uppercase
+                      tracking-wider
+                      text-muted
+                    "
+                  >
+                    Target
+                  </th>
+
+                  <th
+                    className="
+                      px-4 py-3
+                      text-xs
+                      font-semibold
+                      uppercase
+                      tracking-wider
+                      text-muted
+                    "
+                  >
+                    ID
+                  </th>
+
+                  <th
+                    className="
+                      px-4 py-3
+                      text-xs
+                      font-semibold
+                      uppercase
+                      tracking-wider
+                      text-muted
+                    "
+                  >
+                    Date & Time
+                  </th>
+                </tr>
+              </thead>
+
+              {/* Table Body */}
+              <tbody>
+                {logs.length > 0 ? (
+                  logs.map((log) => (
+                    <ActivityLogItem
+                      key={log.id}
+                      log={log}
+                    />
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="
+                        px-6
+                        py-12
+                        text-center
+                        text-sm
+                        text-muted
+                      "
+                    >
+                      No activity logs found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
+        {/* Pagination */}
         <div className="mt-4">
           <PaginationControlsWrapper
             page={page}

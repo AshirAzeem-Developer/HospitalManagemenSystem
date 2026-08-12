@@ -1,6 +1,12 @@
 'use client'
 
-export default function PaginationControls({ page, totalPages, onPageChange, limit, onLimitChange }) {
+export default function PaginationControls({
+  page,
+  totalPages,
+  onPageChange,
+  limit,
+  onLimitChange,
+}) {
   function getPageNumbers() {
     const pages = []
     pages.push(1)
@@ -29,29 +35,48 @@ export default function PaginationControls({ page, totalPages, onPageChange, lim
 
   const pageNumbers = getPageNumbers()
 
-  // NOTE: bg-white and border-[#E7E8EB] removed from here on purpose —
-  // they now live only in the "inactive" branch below, so they never
-  // fight with the active button's purple background/border classes.
   const buttonBase =
     'flex items-center justify-center w-8 h-8 rounded-md border shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-sm'
 
-  const inactiveStyle = `${buttonBase} bg-white border-[#E7E8EB] cursor-pointer hover:bg-[#F3F4F6] hover:border-[#D1D5DB]`
-  const activeStyle = `${buttonBase} bg-[#2E37A4] border-[#2E37A4] text-white cursor-pointer`
+  const inactiveStyle =
+    `${buttonBase} ` +
+    'bg-background text-foreground border-border cursor-pointer ' +
+    'hover:bg-hover hover:border-border'
+
+  const activeStyle =
+    `${buttonBase} ` +
+    'bg-[#2E37A4] border-[#2E37A4] text-white cursor-pointer'
 
   return (
     <div className="flex items-center justify-between w-full h-8 gap-5">
       <div className="flex items-center gap-2 h-8">
-        <span className="text-sm text-[#6B7280]">Show</span>
+        <span className="text-sm text-foreground">
+          Show
+        </span>
+
         <select
           value={limit}
           onChange={(e) => onLimitChange(Number(e.target.value))}
-          className="h-8 px-2 border border-[#E7E8EB] rounded-md text-sm bg-white shadow-[0px_1px_1px_rgba(0,0,0,0.05)] outline-none cursor-pointer"
+          className="
+            h-8 px-2
+            border border-border
+            rounded-md
+            text-sm
+            bg-background
+            text-foreground
+            shadow-[0px_1px_1px_rgba(0,0,0,0.05)]
+            outline-none
+            cursor-pointer
+          "
         >
           <option value={10}>10</option>
           <option value={25}>25</option>
           <option value={50}>50</option>
         </select>
-        <span className="text-sm text-[#6B7280]">Results</span>
+
+        <span className="text-sm text-foreground">
+          Results
+        </span>
       </div>
 
       <div className="flex items-center gap-3">
@@ -65,7 +90,10 @@ export default function PaginationControls({ page, totalPages, onPageChange, lim
 
         {pageNumbers.map((p, index) =>
           p === '...' ? (
-            <span key={`ellipsis-${index}`} className={`${buttonBase} border-none shadow-none`}>
+            <span
+              key={`ellipsis-${index}`}
+              className={`${buttonBase} border-none shadow-none text-muted`}
+            >
               ...
             </span>
           ) : (
@@ -90,6 +118,3 @@ export default function PaginationControls({ page, totalPages, onPageChange, lim
     </div>
   )
 }
-
-
-

@@ -11,8 +11,8 @@ export default function SearchBar({
         m-[10px]
         flex h-8 w-[250px] items-center
         rounded-md
-        border border-[#E7E8EB]
-        bg-white
+        border border-[#E7E8EB] dark:border-slate-700
+        bg-background
         px-3 py-[6px]
         shadow-[0px_1px_1px_rgba(0,0,0,0.05)]
       "
@@ -28,8 +28,8 @@ export default function SearchBar({
           bg-transparent
           text-sm
           outline-none
-          text-[#9DA4B0]
-          placeholder:text-[#9DA4B0]
+          text-foreground
+          placeholder:text-foreground/50
         "
       />
     </div>

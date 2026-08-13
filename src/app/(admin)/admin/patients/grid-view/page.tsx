@@ -8,7 +8,7 @@ export default async function PatientsGridViewPage() {
   const patients = await getPatientsForGrid();
 
   return (
-    <div className="space-y-6 px-4 sm:px-6 min-h-screen p-6 -m-6 space-y-6 bg-[#F5F6F8]">
+    <div className="min-h-screen space-y-6 bg-[#F5F6F8] p-6 -m-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-lg font-semibold text-slate-900 sm:text-2xl">

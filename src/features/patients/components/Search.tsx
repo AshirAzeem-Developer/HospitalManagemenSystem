@@ -20,6 +20,7 @@ export default function Search({
         w-full
         sm:w-64
         rounded-md
+        bg-white
         border
         border-slate-200
         px-3

@@ -111,7 +111,7 @@ export default function PatientDetail({
   >("appointments");
 const [search, setSearch] = useState("");
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen space-y-6 bg-[#F5F6F8] p-6 -m-6">
       {/* Back link */}
       <Link
         href="/admin/patients"

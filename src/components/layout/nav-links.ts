@@ -1,4 +1,4 @@
-import type { MenuGroup, MenuItem, SubMenuItem } from "@/components/ui/MainLayout";
+import type { MenuGroup, MenuItem, SubMenuItem } from "./types";
 export type { MenuGroup, MenuItem, SubMenuItem };
 
 export const adminLinks: MenuGroup[] = [
@@ -41,7 +41,7 @@ export const adminLinks: MenuGroup[] = [
 
       {
         label: "Settings",
-        href: "/admin/settings/profile",
+        href: "/settings/profile",
         icon: "Settings",
       },
     ],
@@ -76,7 +76,7 @@ export const doctorLinks: MenuGroup[] = [
       },
       {
         label: "Settings",
-        href: "/doctor/settings/profile",
+        href: "/settings/profile",
         icon: "Settings",
       },
     ],
@@ -117,7 +117,7 @@ export const patientLinks: MenuGroup[] = [
 
       {
         label: "Settings",
-        href: "/patient/settings/profile",
+        href: "/settings/profile",
         icon: "Settings",
       },
     ],

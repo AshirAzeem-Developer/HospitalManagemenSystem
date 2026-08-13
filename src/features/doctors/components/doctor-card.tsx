@@ -1,0 +1,231 @@
+"use client";
+import Image from "next/image";
+import type { Doctor } from "@/features/doctors/types";
+import Button from "@/components/ui/button";
+import { useEffect, useRef, useState } from "react";
+import { deleteDoctorAction } from "../actions";
+import { MoreVertical, Pencil, Trash2, Eye } from "lucide-react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+type DoctorCardProps = {
+  doctor: Doctor;
+};
+
+export default function DoctorCard({ doctor }: DoctorCardProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleDelete = async () => {
+    try {
+      setDeleting(true);
+
+      const result = await deleteDoctorAction(doctor.id, doctor.profile_id);
+
+      if (!result.success) {
+        toast.error(result.error || "Unable to delete doctor.");
+        setTimeout(() => {
+          setDeleteModalOpen(false);
+        }, 1000);
+        return;
+      }
+
+      toast.success("Doctor deleted successfully.");
+
+      setDeleteModalOpen(false);
+
+      // refresh doctor list
+      window.location.reload();
+    } catch (error) {
+      console.error("DELETE DOCTOR ERROR:", error);
+
+      toast.error("Something went wrong while deleting the doctor.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div className="rounded border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+      {" "}
+      <div className="flex flex-row items-start gap-3">
+        {/* Doctor Image */}
+        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded bg-slate-100 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-28 lg:w-28">
+          <Image
+            src={doctor.profile.avatar_url ?? "/default-doctor.png"}
+            alt={doctor.profile.full_name}
+            fill
+            loading="eager"
+            sizes="112px"
+            className="object-contain"
+          />
+        </div>
+
+        {/* Doctor Details */}
+        <div className="flex min-w-0 flex-1 flex-col justify-between">
+          {/* Name + Menu */}
+          <div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <h3 className="truncate text-sm font-semibold text-slate-900 sm:text-base">
+                  {doctor.profile.full_name}
+                </h3>
+
+                <p className="mt-0.5 truncate text-xs text-slate-500">
+                  {doctor.specialization}
+                </p>
+              </div>
+
+              {/* Menu */}
+              <div className="relative shrink-0" ref={menuRef}>
+                <Button
+                  text=""
+                  variant="ghost"
+                  className="h-6 w-6 p-0"
+                  icon={<MoreVertical className="h-3.5 w-3.5 text-gray-600" />}
+                  onClick={() => setMenuOpen((prev) => !prev)}
+                  aria-label="Doctor actions"
+                />
+
+                {menuOpen && (
+                  <div className="absolute right-0 top-8 z-50 w-36 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg ring-1 ring-black/5">
+                    {/* View */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        router.push(`/admin/doctors/${doctor.id}`);
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                    >
+                      <Eye className="h-3.5 w-3.5 text-gray-500" />
+                      <span>View</span>
+                    </button>
+
+                    {/* Edit */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        router.push(`/admin/doctors/${doctor.id}/edit`);
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                    >
+                      <Pencil className="h-3.5 w-3.5 text-gray-500" />
+                      <span>Edit</span>
+                    </button>
+
+                    {/* Delete */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setDeleteModalOpen(true);
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Doctor Information */}
+          <div className="mt-2 space-y-1.5">
+            <p className="text-[11px] text-slate-500 sm:text-xs">
+              Qualification:
+              <span className="ml-1 font-medium text-slate-700">
+                {doctor.qualification}
+              </span>
+            </p>
+
+            <p className="text-[11px] text-slate-500 sm:text-xs">
+              Starts From:
+              <span className="ml-1 font-semibold text-[#2E37A4]">
+                $ {doctor.consultation_fee}
+              </span>
+            </p>
+
+            <div className="flex items-center justify-between">
+              <span
+                className={`inline-flex rounded-full px-2 py-0.5 text-[9px] font-medium sm:text-[10px]
+            ${
+              doctor.status === "available"
+                ? "bg-green-100 text-green-700"
+                : "bg-yellow-100 text-yellow-700"
+            }
+          `}
+              >
+                {doctor.status}
+              </span>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            {/* Icon */}
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-red-50">
+              <Trash2 className="h-5 w-5 text-red-600" />
+            </div>
+
+            {/* Title */}
+            <h2 className="text-lg font-semibold text-[#0A1B39]">
+              Delete Doctor?
+            </h2>
+
+            {/* Description */}
+            <p className="mt-2 text-sm leading-6 text-gray-500">
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-gray-700">
+                {doctor.profile.full_name}
+              </span>
+              ? This action cannot be undone.
+            </p>
+
+            {/* Actions */}
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => setDeleteModalOpen(false)}
+                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={handleDelete}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {deleting ? "Deleting..." : "Delete Doctor"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

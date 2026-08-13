@@ -3,8 +3,6 @@
 import { useCallback } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-// Keeps the current page number in the URL (?page=2) instead of React state,
-// so pages stay shareable/bookmarkable and survive a refresh.
 export function usePagination(totalPages: number) {
   const router = useRouter();
   const pathname = usePathname();

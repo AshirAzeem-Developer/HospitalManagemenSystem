@@ -1,10 +1,4 @@
- import {
-  Search,
-  Grid2x2,
-  UserPlus,
-  Bell,
-  Sparkles,
-} from "lucide-react";
+import { Search, Grid2x2, UserPlus, Bell, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { logoutAction } from "@/features/auth/actions";
 import { ProfileMenu } from "./profile-menu";
@@ -24,7 +18,7 @@ export async function Navbar({
   const { data: profile } = user
     ? await supabase
         .from("profiles")
-        .select("full_name, role")
+        .select("full_name, role, avatar_url")
         .eq("id", user.id)
         .maybeSingle()
     : { data: null };
@@ -40,7 +34,7 @@ export async function Navbar({
     : "User";
 
   return (
-    <header className="relative h-[78px] border-b border-[#E5E7EB] bg-white flex items-center justify-between p-8">
+    <header className="relative h-[78px] border-b border-[#E5E7EB] bg-white flex items-center justify-between p-8 no-print">
       {/* Search */}
       <div className="flex items-center w-[300px] h-10 rounded-lg border border-[#E5E7EB] bg-white px-3">
         <Search size={16} className="text-[#98A2B3]" />
@@ -86,6 +80,7 @@ export async function Navbar({
         <ProfileMenu
           userName={displayName}
           userRole={roleLabel}
+          avatarUrl={profile?.avatar_url ?? null}
           onLogout={logoutAction}
           profileSettingsHref={profileSettingsHref}
         />

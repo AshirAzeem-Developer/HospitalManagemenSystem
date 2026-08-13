@@ -28,13 +28,19 @@ export default async function PatientLayout({
   if (role !== "patient") redirect("/unauthorized");
 
   return (
-    <div className="flex">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#F7F8FC] dark:bg-[#091326]">
       <Sidebar links={patientLinks} roleLabel="Patient" />
 
-      <div className="flex-1">
-        <Navbar />
+      <div className="flex flex-1 flex-col pt-[64px] md:pt-0">
+        <Navbar profileSettingsHref="/settings/profile" />
 
-        <main className="p-6">{children}</main>
+        <main className="flex-1 bg-[#F7F8FC] dark:bg-gray-950 p-6 md:p-8">
+          {children}
+        </main>
+
+        <footer className="border-t border-[#E5E7EB] dark:border-[#2A3850] bg-white dark:bg-[#0A162A] px-4 md:px-8 py-4 text-center text-sm text-gray-500 dark:text-[#94A3B8]">
+          © {new Date().getFullYear()} SafeHeal. All rights reserved.
+        </footer>
       </div>
     </div>
   );

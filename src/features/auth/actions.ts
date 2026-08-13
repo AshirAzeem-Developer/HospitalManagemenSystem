@@ -37,7 +37,6 @@ export async function loginAction(
 
     console.log("[loginAction] User signed in successfully. User ID:", data.user.id);
 
-    // Attempt to fetch profile with maybeSingle
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
@@ -68,7 +67,6 @@ export async function loginAction(
     console.log("[loginAction] Redirecting to dashboard:", `/${role}`);
     redirect(`/${role}`);
   } catch (err: any) {
-    // Next.js redirect throws a special error which must be rethrown
     if (err?.digest?.startsWith("NEXT_REDIRECT")) {
       throw err;
     }

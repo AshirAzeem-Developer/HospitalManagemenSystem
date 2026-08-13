@@ -6,7 +6,7 @@ export default async function AdminAppointmentsPage() {
   const doctors = await getDoctors() || []; 
 
   return (
-    <div className="flex flex-col bg-gray-50 min-h-screen">
+    <div className="flex flex-col bg-background text-foreground min-h-screen">
       <AppointmentsContainer 
         initialAppointments={appointments}
         doctorsList={doctors} 

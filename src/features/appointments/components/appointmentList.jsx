@@ -19,7 +19,7 @@ export default function AppointmentsList({
   const [sidebar, setSidebar] = useState({
     isOpen: false,
     mode: "view", 
-    data: null    
+    data: null  
   });
 
   const [editFormData, setEditFormData] = useState({});
@@ -38,7 +38,6 @@ export default function AppointmentsList({
         .catch((err) => console.error("Error fetching doctors:", err))
         .finally(() => setLoadingDoctors(false));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doctorsList?.length]);
 
   const openSidebar = (mode, appointmentData) => {
@@ -85,8 +84,6 @@ export default function AppointmentsList({
   const handleSave = () => {
     if (onEdit) {
       onEdit(editFormData); 
-    } else {
-      console.log("Updated Data:", editFormData);
     }
     closeSidebar();
   };
@@ -102,7 +99,7 @@ export default function AppointmentsList({
 
   if (!appointments || appointments.length === 0) {
     return (
-      <div className="p-8 text-center text-slate-500 bg-white rounded-md border">
+      <div className="p-8 text-center text-muted bg-background rounded-md border border-border">
         No appointments found.
       </div>
     );
@@ -110,10 +107,10 @@ export default function AppointmentsList({
 
   return (
     <div className="w-full relative">
-      {/* YAHAN TABDEELI KI HAI: pb-28 aur min-h-[300px] add kiya hai taake last row ka dropdown baghair scroll ke khul sake */}
+      {/* Dropdown scrolling fix for last rows */}
       <div className="w-full overflow-x-auto min-h-[300px] pb-28">
-        <table className="w-full text-left text-sm text-slate-600">
-          <thead className="border-b border-slate-200 bg-slate-50/50 text-slate-500">
+        <table className="w-full text-left text-sm text-foreground">
+          <thead className="border-b border-border bg-hover/50 text-muted">
             <tr>
               <th className="px-6 py-4 font-medium">Date & Time</th>
               <th className="px-6 py-4 font-medium">Patient</th>
@@ -122,16 +119,16 @@ export default function AppointmentsList({
               <th className="px-6 py-4 font-medium text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-border">
             {appointments.map((appointment, index) => {
               const uniqueKey = appointment?.id ? `app-${appointment.id}` : `app-idx-${index}`;
               const isCompleted = appointment.status?.toLowerCase() === "completed";
 
               return (
-                <tr key={uniqueKey} className="hover:bg-slate-50 transition-colors">
+                <tr key={uniqueKey} className="hover:bg-hover transition-colors">
                   <td className="px-6 py-4">
-                    <div className="font-medium text-slate-900">{appointment.date}</div>
-                    <div className="text-xs text-slate-500">{appointment.time}</div>
+                    <div className="font-medium text-foreground">{appointment.date}</div>
+                    <div className="text-xs text-muted">{appointment.time}</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -141,9 +138,9 @@ export default function AppointmentsList({
                         width={40}
                         height={40}
                         unoptimized
-                        className="w-10 h-10 rounded-full object-cover bg-slate-100"
+                        className="w-10 h-10 rounded-full object-cover bg-hover"
                       />
-                      <span className="font-bold text-[#0a1b39] text-sm leading-tight">
+                      <span className="font-bold text-foreground text-sm leading-tight">
                         {appointment.patientName}
                       </span>
                     </div>
@@ -156,13 +153,13 @@ export default function AppointmentsList({
                         width={40}
                         height={40}
                         unoptimized
-                        className="w-10 h-10 rounded-full object-cover bg-slate-100"
+                        className="w-10 h-10 rounded-full object-cover bg-hover"
                       />
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0a1b39] text-sm leading-tight">
+                        <span className="font-bold text-foreground text-sm leading-tight">
                           {appointment.doctorName}
                         </span>
-                        <span className="text-xs text-slate-500 mt-0.5">
+                        <span className="text-xs text-muted mt-0.5">
                           {appointment.doctorSpecialization || "General"}
                         </span>
                       </div>
@@ -175,29 +172,32 @@ export default function AppointmentsList({
                   </td>
                   <td className="px-6 py-4 text-right">
                     <Dropdown>
-                      <Dropdown.Trigger className="rounded-full p-2 hover:bg-slate-200 transition cursor-pointer ml-auto flex items-center justify-center">
-                        <MoreVertical className="h-4 w-4 text-slate-600" />
+                      <Dropdown.Trigger className="rounded-full p-2 hover:bg-hover transition cursor-pointer ml-auto flex items-center justify-center">
+                        <MoreVertical className="h-4 w-4 text-muted" />
                       </Dropdown.Trigger>
-                      <Dropdown.Content align="right" className="w-36">
-                        <Dropdown.Item className="cursor-pointer" onSelect={() => openSidebar("view", appointment)}>
+                      <Dropdown.Content align="right" className="w-36 bg-background border border-border">
+                        <Dropdown.Item className="cursor-pointer hover:bg-hover" onSelect={() => openSidebar("view", appointment)}>
                           <div className="flex items-center gap-2">
-                            <Eye className="h-4 w-4 text-blue-600" /><span>View</span>
+                            <Eye className="h-4 w-4 text-blue-500" />
+                            <span className="text-foreground">View</span>
                           </div>
                         </Dropdown.Item>
                         
                         {!isCompleted && (
-                          <Dropdown.Item className="cursor-pointer" onSelect={() => openSidebar("edit", appointment)}>
+                          <Dropdown.Item className="cursor-pointer hover:bg-hover" onSelect={() => openSidebar("edit", appointment)}>
                             <div className="flex items-center gap-2">
-                              <Edit className="h-4 w-4 text-green-600" /><span>Edit</span>
+                              <Edit className="h-4 w-4 text-green-500" />
+                              <span className="text-foreground">Edit</span>
                             </div>
                           </Dropdown.Item>
                         )}
 
-                        <Dropdown.Item className="cursor-pointer" destructive={true} onSelect={() => {
+                        <Dropdown.Item className="cursor-pointer hover:bg-hover" destructive={true} onSelect={() => {
                           if(window.confirm("Delete this appointment?")) if(onDelete) onDelete(appointment.id);
                         }}>
-                          <div className="flex items-center gap-2">
-                            <Trash2 className="h-4 w-4" /><span>Delete</span>
+                          <div className="flex items-center gap-2 text-red-500">
+                            <Trash2 className="h-4 w-4" />
+                            <span>Delete</span>
                           </div>
                         </Dropdown.Item>
                       </Dropdown.Content>
@@ -210,15 +210,15 @@ export default function AppointmentsList({
         </table>
       </div>
 
-      {/* Sidebar View / Edit Drawer (Code same as before) */}
+      {/* Sidebar View / Edit Drawer */}
       {sidebar.isOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={closeSidebar}></div>
-          <div className={`relative w-full ${sidebar.mode === "view" ? "max-w-xs" : "max-w-sm"} bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300`}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={closeSidebar}></div>
+          <div className={`relative w-full ${sidebar.mode === "view" ? "max-w-xs" : "max-w-sm"} bg-background h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 border-l border-border`}>
             
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-              <h2 className="text-base font-semibold text-slate-800 capitalize">{sidebar.mode} Appointment</h2>
-              <button onClick={closeSidebar} className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-full transition">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <h2 className="text-base font-semibold text-foreground capitalize">{sidebar.mode} Appointment</h2>
+              <button onClick={closeSidebar} className="p-1.5 text-muted hover:bg-hover rounded-full transition cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -228,25 +228,25 @@ export default function AppointmentsList({
                 <div className="space-y-5">
                   
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Patient Name</label>
-                    <p className="text-sm font-medium text-slate-800 mt-1">{sidebar.data.patientName || "N/A"}</p>
+                    <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">Patient Name</label>
+                    <p className="text-sm font-medium text-foreground mt-1">{sidebar.data.patientName || "N/A"}</p>
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Doctor</label>
+                    <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">Doctor</label>
                     {sidebar.mode === "edit" ? (
                       <div className="mt-1 [&>div]:w-full">
                         <Dropdown>
-                          <Dropdown.Trigger className="w-full flex items-center justify-between px-3 py-2 border border-slate-200 rounded-md bg-white text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-left cursor-pointer">
+                          <Dropdown.Trigger className="w-full flex items-center justify-between px-3 py-2 border border-border rounded-md bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm text-left cursor-pointer">
                             <span className="truncate">
                               {editFormData.doctorName || "Select a Doctor"}
                             </span>
-                            <ChevronDown className="w-4 h-4 text-slate-500 shrink-0" />
+                            <ChevronDown className="w-4 h-4 text-muted shrink-0" />
                           </Dropdown.Trigger>
                           
-                          <Dropdown.Content className="w-full max-h-48 overflow-y-auto divide-y divide-slate-100">
+                          <Dropdown.Content className="w-full max-h-48 overflow-y-auto divide-y divide-border bg-background">
                             {loadingDoctors ? (
-                              <div className="p-3 text-xs text-slate-500 text-center">Loading doctors...</div>
+                              <div className="p-3 text-xs text-muted text-center">Loading doctors...</div>
                             ) : allDoctors && allDoctors.length > 0 ? (
                               allDoctors.map((doc) => {
                                 const docId = doc.id || doc._id;
@@ -257,65 +257,65 @@ export default function AppointmentsList({
                                   <Dropdown.Item 
                                     key={docId}
                                     onSelect={() => selectDoctor(doc)}
-                                    className={`px-3 py-2 text-sm cursor-pointer transition-colors flex items-center justify-between hover:bg-blue-50 ${
-                                      isSelected ? "bg-blue-50 font-semibold text-blue-600" : "text-slate-700"
+                                    className={`px-3 py-2 text-sm cursor-pointer transition-colors flex items-center justify-between hover:bg-hover ${
+                                      isSelected ? "bg-hover font-semibold text-foreground" : "text-foreground"
                                     }`}
                                   >
                                     <span className="truncate">{name}</span>
-                                    {isSelected && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+                                    {isSelected && <Check className="w-4 h-4 text-blue-500 flex-shrink-0" />}
                                   </Dropdown.Item>
                                 );
                               })
                             ) : (
-                              <div className="p-3 text-xs text-slate-500 text-center">No doctors found in Database</div>
+                              <div className="p-3 text-xs text-muted text-center">No doctors found in Database</div>
                             )}
                           </Dropdown.Content>
                         </Dropdown>
                       </div>
                     ) : (
-                      <p className="text-sm font-medium text-slate-800 mt-1">{sidebar.data.doctorName}</p>
+                      <p className="text-sm font-medium text-foreground mt-1">{sidebar.data.doctorName}</p>
                     )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Date</label>
+                      <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">Date</label>
                       {sidebar.mode === "edit" ? (
                         <input 
                           type="date" 
                           name="date"
                           value={editFormData.date || ""}
                           onChange={handleInputChange}
-                          className="w-full mt-1 px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 bg-white"
+                          className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-foreground bg-background"
                         />
                       ) : (
-                        <p className="text-sm font-medium text-slate-800 mt-1">{sidebar.data.date}</p>
+                        <p className="text-sm font-medium text-foreground mt-1">{sidebar.data.date}</p>
                       )}
                     </div>
                     <div>
-                      <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Time</label>
+                      <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">Time</label>
                       {sidebar.mode === "edit" ? (
                         <input 
                           type="text" 
                           name="time"
                           value={editFormData.time || ""}
                           onChange={handleInputChange}
-                          className="w-full mt-1 px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 bg-white"
+                          className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-foreground bg-background"
                         />
                       ) : (
-                        <p className="text-sm font-medium text-slate-800 mt-1">{sidebar.data.time}</p>
+                        <p className="text-sm font-medium text-foreground mt-1">{sidebar.data.time}</p>
                       )}
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Status</label>
+                    <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">Status</label>
                     {sidebar.mode === "edit" ? (
                       <select 
                         name="status"
                         value={editFormData.status?.toLowerCase() || "pending"}
                         onChange={handleInputChange}
-                        className="cursor-pointer w-full mt-1 px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm capitalize text-slate-900 bg-white shadow-sm"
+                        className="cursor-pointer w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm capitalize text-foreground bg-background shadow-sm"
                       >
                         <option value="pending">Pending</option>
                         <option value="confirmed">Confirmed</option>
@@ -335,12 +335,12 @@ export default function AppointmentsList({
               )}
             </div>
 
-            <div className="p-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50">
-              <button onClick={closeSidebar} className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition">
+            <div className="p-4 border-t border-border flex justify-end gap-2 bg-background">
+              <button onClick={closeSidebar} className="px-4 py-2 text-sm font-medium text-foreground bg-background border border-border rounded-md hover:bg-hover transition cursor-pointer">
                 Cancel
               </button>
               {sidebar.mode === "edit" && (
-                <button onClick={handleSave} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition">
+                <button onClick={handleSave} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition cursor-pointer">
                   Save Changes
                 </button>
               )}

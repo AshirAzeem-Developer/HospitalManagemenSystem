@@ -237,3 +237,24 @@ export async function createAppointmentAction(appointmentData) {
   
   return { success: true, message: "Appointment created successfully!" };
 }
+
+// 8. UPDATE ONLY APPOINTMENT STATUS (For Prescriptions etc)
+export async function updateAppointmentStatusAction(id, newStatus) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({ status: newStatus })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error updating appointment status:", error.message);
+    return { success: false, message: error.message };
+  }
+
+  // Paths ko refresh kar dein taake frontend par status update nazar aaye
+  revalidatePath("/doctor/appointments");
+  revalidatePath("/admin/appointments");
+  
+  return { success: true, message: "Status updated successfully!" };
+}

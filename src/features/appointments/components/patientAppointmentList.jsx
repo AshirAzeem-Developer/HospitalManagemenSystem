@@ -190,7 +190,7 @@ export default function PatientAppointmentList({
                   <td className="px-6 py-4 whitespace-nowrap">
                     {currentStatus === "completed" ? (
                       <Link
-                        href={`/prescriptions/${appointment.id}`}
+                        href={`/patient/prescriptions/${appointment.prescriptionId}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 rounded-md shadow-sm hover:bg-emerald-500/20 transition-all duration-200 outline-none"
                       >
                         <FileText className="h-3.5 w-3.5" />

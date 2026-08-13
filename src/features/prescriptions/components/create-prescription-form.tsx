@@ -17,6 +17,10 @@ import { CreatePrescriptionInput, CreatePrescriptionSchema } from "../schema";
 import { createPrescription } from "../actions";
 import { Patient } from "../types";
 
+// Yahan apni status update wali server action ko import kar lein
+// Agar path different ho toh adjust kar lijiyega
+import { updateAppointmentStatusAction } from "@/features/appointments/appointmentActions/appointmentAction";
+
 interface CreatePrescriptionFormProps {
   patient: Patient;
   appointmentId: string;
@@ -60,11 +64,19 @@ export default function CreatePrescriptionForm({
   });
 
   async function onSubmit(values: CreatePrescriptionInput) {
+    // 1. Pehle prescription create hogi
     const result = await createPrescription(values);
 
     if (!result.success) {
       alert(result.message ?? "Something went wrong");
       return;
+    }
+
+    // 2. Prescription save hone ke foran baad appointment ka status 'completed' kar dein
+    try {
+      await updateAppointmentStatusAction(appointmentId, "completed");
+    } catch (error) {
+      console.error("Failed to update appointment status:", error);
     }
 
     alert("Prescription Created Successfully");

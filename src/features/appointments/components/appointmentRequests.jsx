@@ -18,7 +18,7 @@ export default function PendingAppointmentsList({ appointments, onCancel, onConf
 
   if (!appointments || appointments.length === 0) {
     return (
-      <div className="p-8 text-center text-slate-500 bg-white rounded-md border">
+      <div className="p-8 text-center text-muted bg-background rounded-md border border-border">
         No pending appointments found.
       </div>
     );
@@ -27,8 +27,8 @@ export default function PendingAppointmentsList({ appointments, onCancel, onConf
   return (
     <div className="w-full relative">
       <div className="w-full overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-600">
-          <thead className="border-b border-slate-200 bg-slate-50/50 text-slate-500">
+        <table className="w-full text-left text-sm text-foreground">
+          <thead className="border-b border-border bg-hover/50 text-muted">
             <tr>
               <th className="px-6 py-4 font-medium">Date & Time</th>
               <th className="px-6 py-4 font-medium">Patient</th>
@@ -37,16 +37,16 @@ export default function PendingAppointmentsList({ appointments, onCancel, onConf
               <th className="px-6 py-4 font-medium text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-border">
             {appointments.map((appointment, index) => {
               const uniqueKey = appointment?.id ? `app-${appointment.id}` : `app-idx-${index}`;
               return (
-                <tr key={uniqueKey} className="hover:bg-slate-50 transition-colors">
+                <tr key={uniqueKey} className="hover:bg-hover transition-colors">
                   
                   {/* Date & Time Column */}
                   <td className="px-6 py-4">
-                    <div className="font-medium text-slate-900">{appointment.date}</div>
-                    <div className="text-xs text-slate-500">{appointment.time}</div>
+                    <div className="font-medium text-foreground">{appointment.date}</div>
+                    <div className="text-xs text-muted">{appointment.time}</div>
                   </td>
                   
                   {/* Patient Column */}
@@ -59,11 +59,11 @@ export default function PendingAppointmentsList({ appointments, onCancel, onConf
                           width={40}
                           height={40}
                           unoptimized
-                          className="w-10 h-10 rounded-full object-cover bg-slate-100"
+                          className="w-10 h-10 rounded-full object-cover bg-hover"
                         />
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0a1b39] text-sm leading-tight">
+                        <span className="font-bold text-foreground text-sm leading-tight">
                           {appointment.patientName}
                         </span>
                       </div>
@@ -80,14 +80,14 @@ export default function PendingAppointmentsList({ appointments, onCancel, onConf
                           width={40}
                           height={40}
                           unoptimized
-                          className="w-10 h-10 rounded-full object-cover bg-slate-100"
+                          className="w-10 h-10 rounded-full object-cover bg-hover"
                         />
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-bold text-[#0a1b39] text-sm leading-tight">
+                        <span className="font-bold text-foreground text-sm leading-tight">
                           {appointment.doctorName}
                         </span>
-                        <span className="text-xs text-slate-500 font-normal mt-0.5">
+                        <span className="text-xs text-muted font-normal mt-0.5">
                           {appointment.doctorSpecialization || "General"}
                         </span>
                       </div>
@@ -112,20 +112,20 @@ export default function PendingAppointmentsList({ appointments, onCancel, onConf
                             if (onConfirm) onConfirm(appointment.id);
                           }
                         }}
-                        className="p-1.5 text-green-600 bg-green-50 hover:bg-green-100 rounded-full transition-colors"
+                        className="p-1.5 text-green-600 bg-green-500/10 hover:bg-green-500/20 rounded-full transition-colors cursor-pointer"
                         title="Confirm Appointment"
                       >
                         <Check className="h-5 w-5" />
                       </button>
 
-                      {/* Cancel Button (Status change to cancel instead of delete) */}
+                      {/* Cancel Button */}
                       <button 
                         onClick={() => {
                           if (window.confirm("Are you sure you want to cancel this appointment?")) {
                             if (onCancel) onCancel(appointment.id);
                           }
                         }}
-                        className="p-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-full transition-colors"
+                        className="p-1.5 text-red-600 bg-red-500/10 hover:bg-red-500/20 rounded-full transition-colors cursor-pointer"
                         title="Cancel Appointment"
                       >
                         <X className="h-5 w-5" />

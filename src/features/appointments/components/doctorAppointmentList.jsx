@@ -26,13 +26,13 @@ export default function DoctorAppointmentList({ appointments = [] }) {
     const s = status?.toLowerCase();
     switch (s) {
       case "completed":
-        return "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800";
+        return "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:text-emerald-400";
       case "pending":
-        return "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800";
+        return "bg-amber-500/10 text-amber-700 border-amber-500/20 dark:text-amber-400";
       case "cancelled":
-        return "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800";
+        return "bg-rose-500/10 text-rose-700 border-rose-500/20 dark:text-rose-400";
       case "confirmed":
-        return "bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800";
+        return "bg-blue-500/10 text-blue-700 border-blue-500/20 dark:text-blue-400";
       default:
         return "bg-muted/10 text-muted border-border";
     }
@@ -115,11 +115,6 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                     </span>
                   </td>
 
-                  {/* Prescription: View+Edit if one exists, Create if not.
-                      Plain inline buttons rather than a second dropdown —
-                      at most two actions doesn't need a menu, and it removes
-                      a second floating panel that could visually clash with
-                      the Action column's dropdown. */}
                   <td className="px-6 py-4">
                     {appointment.prescriptionId ? (
                       <div className="flex items-center gap-2">
@@ -149,7 +144,6 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                     )}
                   </td>
 
-                  {/* Action Column: 3 dots menu, appointment details sidebar only */}
                   <td className="px-6 py-4 text-right">
                     <div className="relative inline-block text-left">
                       <button

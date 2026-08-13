@@ -94,14 +94,14 @@ export default function PendingAppointmentsPage({ initialAppointments = [] }) {
 
   if (loading) {
     return (
-      <div className="p-6 text-center text-slate-500 font-medium mt-10">
+      <div className="p-6 text-center text-muted font-medium mt-10">
         Loading appointments...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F6F8] p-4 md:p-6">
+    <div className="min-h-screen bg-background text-foreground p-4 md:p-6">
       <DataContainer
         initialData={appointments}
         HeaderComponent={CustomHeaderWrapper}

@@ -364,23 +364,27 @@ export async function getPrescriptionsByAppointmentIds(
     return { success: false, message: "Unauthorized" };
   }
 
-  const { data: doctor, error: doctorError } = await supabase
-    .from("doctors")
-    .select("id")
-    .eq("profile_id", user.id)
-    .single();
+  const [{ data: doctor }, { data: patient }] = await Promise.all([
+    supabase.from("doctors").select("id").eq("profile_id", user.id).maybeSingle(),
+    supabase.from("patients").select("id").eq("profile_id", user.id).maybeSingle(),
+  ]);
 
-  if (doctorError || !doctor) {
-    return { success: false, message: "Doctor not found" };
+  if (!doctor && !patient) {
+    return { success: false, message: "User record not found" };
   }
 
-  // Scoped to this doctor — an appointment id belonging to another doctor
-  // will simply not appear in the map, same as everywhere else in this app.
-  const { data: prescriptions, error } = await supabase
+  // Scoped to whichever role the caller is — a doctor only sees their own
+  // prescriptions, a patient only sees prescriptions written for them.
+  let query = supabase
     .from("prescriptions")
     .select("id, appointment_id")
-    .in("appointment_id", appointmentIds)
-    .eq("doctor_id", doctor.id);
+    .in("appointment_id", appointmentIds);
+
+  query = doctor
+    ? query.eq("doctor_id", doctor.id)
+    : query.eq("patient_id", patient.id);
+
+  const { data: prescriptions, error } = await query;
 
   if (error) {
     return { success: false, message: "Failed to load prescription status" };

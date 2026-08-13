@@ -6,6 +6,7 @@ import {
   updateAppointmentAction,
   deleteAppointmentAction,
 } from "../../../../features/appointments/appointmentActions/appointmentAction";
+import { getPrescriptionsByAppointmentIds } from "../../../../features/prescriptions/actions";
 
 import DataContainer, {
   appointmentFilterLogic,
@@ -13,8 +14,6 @@ import DataContainer, {
 import AppointmentHeader from "../../../../features/appointments/components/appointmentHeader";
 import PatientAppointmentList from "../../../../features/appointments/components/patientAppointmentList";
 
-// Same shape getAppointments() returns for the doctor page — see
-// appointmentAction.js's formattedAppointments mapping.
 interface PatientAppointment {
   id: string;
   date: string;
@@ -26,6 +25,7 @@ interface PatientAppointment {
   patientImage: string;
   doctorName: string;
   doctorImage: string;
+  prescriptionId?: string | null;
 }
 
 interface PatientAppointmentsPageProps {
@@ -39,14 +39,38 @@ export default function PatientAppointmentsPage({
     initialAppointments,
   );
 
-useEffect(() => {
-    if (!initialAppointments || initialAppointments.length === 0) {
-      getAppointments()
-        .then((data: PatientAppointment[]) => {
-          if (data) setAppointments(data);
-        })
-        .catch((err) => console.error("Error fetching appointments:", err));
+  useEffect(() => {
+    async function load() {
+      let list: PatientAppointment[] = initialAppointments;
+
+      if (!list || list.length === 0) {
+        try {
+          const data = (await getAppointments()) as PatientAppointment[];
+          if (data) list = data;
+        } catch (err) {
+          console.error("Error fetching appointments:", err);
+          return;
+        }
+      }
+
+      if (!list || list.length === 0) return;
+
+      const ids = list.map((a) => a.id).filter(Boolean);
+      const statusResult = await getPrescriptionsByAppointmentIds(ids);
+      const statusMap: Record<string, string> = statusResult.success
+        ? (statusResult.data as Record<string, string>)
+        : {};
+
+      const merged: PatientAppointment[] = list.map((appointment) => ({
+        ...appointment,
+        prescriptionId: statusMap[appointment.id] ?? null,
+      }));
+
+      setAppointments(merged);
     }
+
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const headerProps = useMemo(

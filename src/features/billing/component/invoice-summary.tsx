@@ -1,6 +1,7 @@
 "use client";
 
 import { InvoiceItem } from "./invoice-items-table";
+
 export default function InvoiceSummary({
   items,
   tax,
@@ -18,32 +19,27 @@ export default function InvoiceSummary({
   roundOff: boolean;
   setRoundOff: (value: boolean) => void;
 }) {
-
-  // All invoice items total
   const totalAmount = items.reduce(
     (total, item) => total + Number(item.amount || 0),
     0
   );
 
-  // Tax amount
   const taxAmount = (totalAmount * tax) / 100;
-
-  // Discount amount
   const discountAmount = (totalAmount * discount) / 100;
 
-  // Final total
   const finalTotal = totalAmount + taxAmount - discountAmount;
 
-  // Rounded total
   const roundedTotal = roundOff ? Math.round(finalTotal) : finalTotal;
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex justify-end">
-        <div className="w-[320px] space-y-4">
+        <div className="w-full max-w-[420px] space-y-4">
           {/* Amount */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-[#0A1B39]">Amount</span>
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-sm text-[#0A1B39]">
+              Amount
+            </span>
 
             <span className="font-medium text-[#0A1B39]">
               ${totalAmount.toFixed(2)}
@@ -51,18 +47,27 @@ export default function InvoiceSummary({
           </div>
 
           {/* Tax */}
-          <div className="flex items-center justify-between gap-3 pl-[18px]">
-            <span className="text-sm text-[#0A1B39]">Tax</span>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            <span className="text-sm text-[#0A1B39]">
+              Tax
+            </span>
 
-            <div className="flex w-[120px] overflow-hidden rounded-md border border-[#E7E8EB]">
+            <div className="flex w-full max-w-[140px] overflow-hidden rounded-md border border-[#E7E8EB]">
               <input
                 type="number"
                 value={tax}
                 onChange={(e) => setTax(Number(e.target.value))}
-                className="w-full border-none px-3 py-2 text-sm outline-none text-[#0A1B39]"
+                className="
+                  w-full
+                  border-none
+                  px-3 py-2
+                  text-sm
+                  text-[#0A1B39]
+                  outline-none
+                "
               />
 
-              <div className="flex w-10 items-center justify-center border-l border-[#E7E8EB] text-sm text-[#0A1B39]">
+              <div className="flex w-10 shrink-0 items-center justify-center border-l border-[#E7E8EB] text-sm text-[#0A1B39]">
                 %
               </div>
             </div>
@@ -73,18 +78,29 @@ export default function InvoiceSummary({
           </div>
 
           {/* Discount */}
-          <div className="flex items-center justify-between gap-3 pr-[5px]">
-            <span className="text-sm text-[#0A1B39]">Discount</span>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            <span className="text-sm text-[#0A1B39]">
+              Discount
+            </span>
 
-            <div className="flex w-[120px] overflow-hidden rounded-md border border-[#E7E8EB]">
+            <div className="flex w-full max-w-[140px] overflow-hidden rounded-md border border-[#E7E8EB]">
               <input
                 type="number"
                 value={discount}
-                onChange={(e) => setDiscount(Number(e.target.value))}
-                className="w-full border-none px-3 py-2 text-sm outline-none text-[#0A1B39]"
+                onChange={(e) =>
+                  setDiscount(Number(e.target.value))
+                }
+                className="
+                  w-full
+                  border-none
+                  px-3 py-2
+                  text-sm
+                  text-[#0A1B39]
+                  outline-none
+                "
               />
 
-              <div className="flex w-10 items-center justify-center border-l border-[#E7E8EB] text-sm text-[#0A1B39]">
+              <div className="flex w-10 shrink-0 items-center justify-center border-l border-[#E7E8EB] text-sm text-[#0A1B39]">
                 %
               </div>
             </div>
@@ -95,12 +111,12 @@ export default function InvoiceSummary({
           </div>
 
           {/* Round Off */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setRoundOff(!roundOff)}
-                className={`relative h-5 w-9 rounded-full ${
+                className={`relative h-5 w-9 shrink-0 rounded-full ${
                   roundOff ? "bg-[#2E37A4]" : "bg-[#E5E7EB]"
                 }`}
               >
@@ -111,7 +127,9 @@ export default function InvoiceSummary({
                 />
               </button>
 
-              <span className="text-sm text-[#0A1B39]">Round Off Total</span>
+              <span className="text-sm text-[#0A1B39]">
+                Round Off Total
+              </span>
             </div>
 
             <span className="font-medium text-[#0A1B39]">
@@ -119,16 +137,15 @@ export default function InvoiceSummary({
             </span>
           </div>
 
-          {/* Divider */}
           <div className="border-t border-[#E7E8EB]" />
 
           {/* Total */}
-          <div className="flex items-center justify-between">
-            <span className="text-[18px] font-semibold text-[#0A1B39]">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-base font-semibold text-[#0A1B39] sm:text-[18px]">
               Total (USD)
             </span>
 
-            <span className="text-[18px] font-bold text-[#0A1B39]">
+            <span className="text-base font-bold text-[#0A1B39] sm:text-[18px]">
               ${roundedTotal.toFixed(2)}
             </span>
           </div>
@@ -136,12 +153,25 @@ export default function InvoiceSummary({
       </div>
 
       {/* Other Information */}
-      <div className="mt-10">
+      <div className="mt-8 sm:mt-10">
         <label className="mb-2 block text-sm font-bold text-[#0A1B39]">
           Other Information
         </label>
 
-        <textarea className="h-32 w-full rounded-md border border-[#E7E8EB] p-3 outline-none text-[#0A1B39]" />
+        <textarea
+          className="
+            h-28
+            w-full
+            resize-none
+            rounded-md
+            border border-[#E7E8EB]
+            p-3
+            text-[#0A1B39]
+            outline-none
+            focus:border-[#2E37A4]
+            sm:h-32
+          "
+        />
       </div>
     </div>
   );

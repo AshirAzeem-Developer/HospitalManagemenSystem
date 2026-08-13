@@ -74,7 +74,7 @@ export default function PaymentsTable({
       label: "Invoice ID",
 
       render: (row: any) => (
-        <span className="text-sm font-medium text-[#0A1B39]">
+        <span className="whitespace-nowrap text-xs font-medium text-[#0A1B39] sm:text-sm">
           {row?.invoices?.invoice_number || invoiceNumber || "-"}
         </span>
       ),
@@ -85,7 +85,7 @@ export default function PaymentsTable({
       label: "Paid Date",
 
       render: (row: any) => (
-        <span className="text-sm text-gray-600">
+        <span className="whitespace-nowrap text-xs text-[#0A1B39] sm:text-sm">
           {getPaymentDate(row)}
         </span>
       ),
@@ -96,7 +96,7 @@ export default function PaymentsTable({
       label: "Amount",
 
       render: (row: any) => (
-        <span className="text-sm font-semibold text-[#0A1B39]">
+        <span className="whitespace-nowrap text-xs font-semibold text-[#0A1B39] sm:text-sm">
           ${Number(row?.amount_paid || 0).toFixed(2)}
         </span>
       ),
@@ -107,7 +107,7 @@ export default function PaymentsTable({
       label: "Payment Method",
 
       render: (row: any) => (
-        <span className="text-sm text-gray-600">
+        <span className="whitespace-nowrap text-xs text-[#0A1B39] sm:text-sm">
           {getPaymentMethod(row)}
         </span>
       ),
@@ -125,7 +125,7 @@ export default function PaymentsTable({
       label: "Reference",
 
       render: (row: any) => (
-        <span className="text-sm text-gray-500">
+        <span className="max-w-[140px] truncate text-xs text-[#0A1B39] sm:text-sm">
           {row?.reference_number || "-"}
         </span>
       ),
@@ -143,13 +143,14 @@ export default function PaymentsTable({
               flex
               h-7
               w-7
+              shrink-0
               items-center
               justify-center
               rounded-md
               border
               border-[#E7E8EB]
               bg-white
-              text-gray-500
+              text-[#0A1B39]
               hover:bg-gray-50
             "
           >
@@ -168,7 +169,6 @@ export default function PaymentsTable({
 
                 try {
                   await deletePaymentAction(row.id);
-
                   router.refresh();
                 } catch (error) {
                   console.error(
@@ -194,23 +194,19 @@ export default function PaymentsTable({
   const currentPage = Math.min(page, totalPages);
 
   const start = (currentPage - 1) * limit;
-
   const end = start + limit;
 
-  const paginatedPayments = payments.slice(
-    start,
-    end
-  );
+  const paginatedPayments = payments.slice(start, end);
 
   if (payments.length === 0) {
     return (
-      <div className="rounded-lg border border-[#E7E8EB] bg-white">
-        <div className="px-4 py-10 text-center">
+      <div className="w-full rounded-lg border border-[#E7E8EB] bg-white">
+        <div className="px-4 py-8 text-center sm:py-10">
           <p className="text-sm font-medium text-[#0A1B39]">
             No payments found
           </p>
 
-          <p className="mt-1 text-sm text-gray-400">
+          <p className="mt-1 text-xs text-[#0A1B39]/60 sm:text-sm">
             No payment has been recorded for this invoice.
           </p>
         </div>
@@ -219,26 +215,32 @@ export default function PaymentsTable({
   }
 
   return (
-    <div className="rounded-lg border border-[#E7E8EB] bg-white">
-      <div className="overflow-x-auto">
-        <Table
-          columns={columns}
-          data={paginatedPayments}
-        />
+    <div className="w-full overflow-hidden rounded-lg border border-[#E7E8EB] bg-white">
+      {/* Table */}
+      <div className="w-full overflow-x-auto">
+        <div className="min-w-[750px]">
+          <Table
+            columns={columns}
+            data={paginatedPayments}
+          />
+        </div>
       </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="border-t border-[#E7E8EB] px-4 py-2">
-          <PaginationControls
-            page={currentPage}
-            totalPages={totalPages}
-            limit={limit}
-            onPageChange={setPage}
-            onLimitChange={(newLimit: number) => {
-              setLimit(newLimit);
-              setPage(1);
-            }}
-          />
+        <div className="border-t border-[#E7E8EB] px-3 py-3 sm:px-4">
+          <div className="overflow-x-auto">
+            <PaginationControls
+              page={currentPage}
+              totalPages={totalPages}
+              limit={limit}
+              onPageChange={setPage}
+              onLimitChange={(newLimit: number) => {
+                setLimit(newLimit);
+                setPage(1);
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

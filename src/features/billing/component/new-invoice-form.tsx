@@ -60,9 +60,7 @@ export default function NewInvoiceForm({
   const [roundOff, setRoundOff] = useState(false);
 
   useEffect(() => {
-    if (!editId) {
-      return;
-    }
+    if (!editId) return;
 
     const loadInvoice = async () => {
       try {
@@ -70,15 +68,12 @@ export default function NewInvoiceForm({
         const invoiceItems =
           await getInvoiceItemsByInvoiceIdAction(editId);
 
-        if (!invoice) {
-          return;
-        }
+        if (!invoice) return;
 
         setInvoiceDate(invoice.issued_date || "");
         setDueDate(invoice.due_date || "");
 
         setPaymentStatus(invoice.status || "");
-
         setBillingAddress(invoice.notes || "");
 
         setTax(Number(invoice.tax_percentage || 0));
@@ -88,15 +83,16 @@ export default function NewInvoiceForm({
           invoice?.patients?.profiles?.full_name || ""
         );
 
-        const formattedItems: InvoiceItem[] =
-          invoiceItems.map((item) => ({
+        const formattedItems: InvoiceItem[] = invoiceItems.map(
+          (item) => ({
             id: item.id,
             item_name: item.item_name || "",
             description: item.description || "",
             unit_cost: String(item.unit_cost ?? ""),
             quantity: String(item.quantity ?? "1"),
             amount: String(item.amount ?? ""),
-          }));
+          })
+        );
 
         setItems(formattedItems);
       } catch (error) {
@@ -107,20 +103,14 @@ export default function NewInvoiceForm({
     loadInvoice();
   }, [editId]);
 
-  /*
-   * SAVE / UPDATE
-   */
   const handleAddNewInvoice = async () => {
     const subtotal = items.reduce(
-      (total, item) =>
-        total + Number(item.amount || 0),
+      (total, item) => total + Number(item.amount || 0),
       0
     );
 
     const taxAmount = (subtotal * tax) / 100;
-
-    const discountAmount =
-      (subtotal * discount) / 100;
+    const discountAmount = (subtotal * discount) / 100;
 
     const finalTotal =
       subtotal + taxAmount - discountAmount;
@@ -130,15 +120,10 @@ export default function NewInvoiceForm({
       : finalTotal;
 
     const validItems = items.filter(
-      (item) =>
-        item.item_name.trim() !== ""
+      (item) => item.item_name.trim() !== ""
     );
 
-
     if (isEditMode && editId) {
-      /*
-       * Invoice update
-       */
       await updateInvoiceAction(editId, {
         issued_date: invoiceDate,
         due_date: dueDate,
@@ -155,84 +140,51 @@ export default function NewInvoiceForm({
         notes: billingAddress || null,
       });
 
-      
       const existingItems =
-        await getInvoiceItemsByInvoiceIdAction(
-          editId
-        );
+        await getInvoiceItemsByInvoiceIdAction(editId);
 
-     
       const currentItemIds = validItems
         .filter((item) => item.id)
         .map((item) => item.id);
 
-     
       for (const existingItem of existingItems) {
-        if (
-          !currentItemIds.includes(
-            existingItem.id
-          )
-        ) {
-          await deleteInvoiceItemAction(
-            existingItem.id
-          );
+        if (!currentItemIds.includes(existingItem.id)) {
+          await deleteInvoiceItemAction(existingItem.id);
         }
       }
 
-     
       for (const item of validItems) {
         const itemData = {
           item_name: item.item_name,
-          description:
-            item.description || "",
-          unit_cost: Number(
-            item.unit_cost || 0
-          ),
-          quantity: Number(
-            item.quantity || 1
-          ),
-          amount: Number(
-            item.amount || 0
-          ),
+          description: item.description || "",
+          unit_cost: Number(item.unit_cost || 0),
+          quantity: Number(item.quantity || 1),
+          amount: Number(item.amount || 0),
         };
 
-       
         if (item.id) {
-          await updateInvoiceItemAction(
-            item.id,
-            itemData
-          );
-        }
-
-       
-        else {
+          await updateInvoiceItemAction(item.id, itemData);
+        } else {
           await createInvoiceItemAction({
             invoice_id: editId,
             item_name: itemData.item_name,
-            description:
-              itemData.description || "",
-            unit_cost:
-              itemData.unit_cost,
-            quantity:
-              itemData.quantity,
-            amount:
-              itemData.amount,
+            description: itemData.description || "",
+            unit_cost: itemData.unit_cost,
+            quantity: itemData.quantity,
+            amount: itemData.amount,
           });
         }
       }
 
-  
       router.push("/admin/billing");
       router.refresh();
 
       return;
     }
 
-
     const invoiceData = {
       appointment_id: null,
-      patient_id:
-        "33333333-3333-3333-3333-333333333301",
+      patient_id: "33333333-3333-3333-3333-333333333301",
       issued_date: invoiceDate,
       due_date: dueDate,
       subtotal,
@@ -248,27 +200,17 @@ export default function NewInvoiceForm({
       notes: billingAddress || null,
     };
 
-    console.log(invoiceData);
-
     const createdInvoice =
-      await createInvoiceAction(
-        invoiceData
-      );
+      await createInvoiceAction(invoiceData);
 
     for (const item of validItems) {
       await createInvoiceItemAction({
         invoice_id: createdInvoice.id,
         item_name: item.item_name,
         description: item.description,
-        unit_cost: Number(
-          item.unit_cost || 0
-        ),
-        quantity: Number(
-          item.quantity || 1
-        ),
-        amount: Number(
-          item.amount || 0
-        ),
+        unit_cost: Number(item.unit_cost || 0),
+        quantity: Number(item.quantity || 1),
+        amount: Number(item.amount || 0),
       });
     }
 
@@ -277,35 +219,51 @@ export default function NewInvoiceForm({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       {/* Header */}
+      <div className="w-full">
+        <Link
+          href="/admin/billing"
+          className="
+            mb-3
+            inline-flex
+            items-center
+            gap-2
+            text-sm
+            font-medium
+            text-[#0A1B39]
+            hover:text-[#2E37A4]
+            sm:text-base
+          "
+        >
+          <ArrowLeft size={18} strokeWidth={2} />
+          <span>Invoices</span>
+        </Link>
 
-      <div>
-      <Link
-            href="/admin/billing"
-            className="mb-3 inline-flex items-center gap-2 text-base font-medium text-gray-600 hover:text-[#2E37A4]"
-          >
-            <ArrowLeft size={18} strokeWidth={2} />
-            <span>Invoices</span>
-          </Link>
-        <h1 className="text-2xl font-semibold text-[#0A1B39]">
-          {isEditMode
-            ? "Edit Invoice"
-            : "New Invoice"}
+        <h1 className="text-xl font-semibold text-[#0A1B39] sm:text-2xl">
+          {isEditMode ? "Edit Invoice" : "New Invoice"}
         </h1>
       </div>
 
       {/* Invoice Information */}
-
-      <div className="rounded-lg border border-[#E7E8EB] bg-white">
-        <div className="grid grid-cols-2 gap-6 p-6 text-[#0A1B39]">
+      <div className="w-full rounded-lg border border-[#E7E8EB] bg-white">
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-5
+            p-4
+            text-[#0A1B39]
+            sm:grid-cols-2
+            sm:gap-6
+            sm:p-6
+          "
+        >
           <Input
             label="Patient Name"
             required
             value={patientName}
-            onChange={(e) =>
-              setPatientName(e.target.value)
-            }
+            onChange={(e) => setPatientName(e.target.value)}
           />
 
           <Input
@@ -319,9 +277,7 @@ export default function NewInvoiceForm({
             type="date"
             required
             value={invoiceDate}
-            onChange={(e) =>
-              setInvoiceDate(e.target.value)
-            }
+            onChange={(e) => setInvoiceDate(e.target.value)}
           />
 
           <Input
@@ -329,13 +285,11 @@ export default function NewInvoiceForm({
             type="date"
             required
             value={dueDate}
-            onChange={(e) =>
-              setDueDate(e.target.value)
-            }
+            onChange={(e) => setDueDate(e.target.value)}
           />
 
           <div>
-            <label className="mb-2 block text-sm font-medium">
+            <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
               Payment Method
             </label>
 
@@ -348,7 +302,7 @@ export default function NewInvoiceForm({
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium">
+            <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
               Payment Status
             </label>
 
@@ -360,18 +314,27 @@ export default function NewInvoiceForm({
             />
           </div>
 
-          <div className="col-span-2">
-            <label className="mb-2 block text-sm font-medium">
+          <div className="col-span-1 sm:col-span-2">
+            <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
               Billing Address
             </label>
 
             <textarea
-              className="h-28 w-full rounded-md border border-[#E7E8EB] p-3 outline-none"
+              className="
+                h-28
+                w-full
+                resize-none
+                rounded-md
+                border
+                border-[#E7E8EB]
+                p-3
+                text-[#0A1B39]
+                outline-none
+                focus:border-[#2E37A4]
+              "
               value={billingAddress}
               onChange={(e) =>
-                setBillingAddress(
-                  e.target.value
-                )
+                setBillingAddress(e.target.value)
               }
             />
           </div>
@@ -379,42 +342,37 @@ export default function NewInvoiceForm({
       </div>
 
       {/* Invoice Items */}
-
-      <InvoiceItemsTable
-        initialItems={items}
-        onItemsChange={setItems}
-      />
+      <div className="w-full overflow-x-auto">
+        <InvoiceItemsTable
+          initialItems={items}
+          onItemsChange={setItems}
+        />
+      </div>
 
       {/* Summary */}
-
-      <InvoiceSummary
-        items={items}
-        tax={tax}
-        setTax={setTax}
-        discount={discount}
-        setDiscount={setDiscount}
-        roundOff={roundOff}
-        setRoundOff={setRoundOff}
-      />
+      <div className="w-full">
+        <InvoiceSummary
+          items={items}
+          tax={tax}
+          setTax={setTax}
+          discount={discount}
+          setDiscount={setDiscount}
+          roundOff={roundOff}
+          setRoundOff={setRoundOff}
+        />
+      </div>
 
       {/* Buttons */}
-
-      <div className="flex justify-end gap-3">
+      <div className="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button
           variant="ghost"
           text="Cancel"
-          onClick={() =>
-            router.push("/admin/billing")
-          }
+          onClick={() => router.push("/admin/billing")}
         />
 
         <Button
           variant="primary"
-          text={
-            isEditMode
-              ? "Save Changes"
-              : "Add New Invoice"
-          }
+          text={isEditMode ? "Save Changes" : "Add New Invoice"}
           onClick={handleAddNewInvoice}
         />
       </div>

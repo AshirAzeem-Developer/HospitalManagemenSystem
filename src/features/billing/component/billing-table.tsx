@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Table from "@/components/ui/table";
 import SearchBar from "@/components/ui/SearchBar";
 import PaginationControls from "@/components/ui/PaginationControls";
@@ -10,13 +9,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteInvoiceAction } from "../actions";
 
-
 type BillingTableProps = {
   invoices: any[];
 };
 
 export default function BillingTable({ invoices }: BillingTableProps) {
   const router = useRouter();
+
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
@@ -32,14 +31,15 @@ export default function BillingTable({ invoices }: BillingTableProps) {
       key: "patient",
       label: "Patient",
       render: (row: any) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-[180px]">
           <img
-            src={row.patients.profiles.avatar_url}
-            alt={row.patients.profiles.full_name}
-            className="w-8 h-8 rounded-full object-cover"
+            src={row.patients?.profiles?.avatar_url}
+            alt={row.patients?.profiles?.full_name || "Patient"}
+            className="h-8 w-8 shrink-0 rounded-full object-cover"
           />
-          <span className="text-sm font-semibold text-[#0A1B39]">
-            {row.patients.profiles.full_name}
+
+          <span className="text-sm font-semibold text-[#0A1B39] whitespace-nowrap">
+            {row.patients?.profiles?.full_name || "-"}
           </span>
         </div>
       ),
@@ -47,28 +47,34 @@ export default function BillingTable({ invoices }: BillingTableProps) {
     {
       key: "issued_date",
       label: "Issued Date",
-      render: (row: any) =>
-        new Date(row.issued_date).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }),
+      render: (row: any) => (
+        <span className="whitespace-nowrap text-[#0A1B39]">
+          {new Date(row.issued_date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}
+        </span>
+      ),
     },
     {
       key: "due_date",
       label: "Due Date",
-      render: (row: any) =>
-        new Date(row.due_date).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }),
+      render: (row: any) => (
+        <span className="whitespace-nowrap text-[#0A1B39]">
+          {new Date(row.due_date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}
+        </span>
+      ),
     },
     {
       key: "total",
       label: "Amount",
       render: (row: any) => (
-        <span className="font-semibold text-[#0A1B39]">
+        <span className="whitespace-nowrap font-semibold text-[#0A1B39]">
           ${Number(row.total || 0).toFixed(2)}
         </span>
       ),
@@ -77,32 +83,40 @@ export default function BillingTable({ invoices }: BillingTableProps) {
       key: "status",
       label: "Status",
       render: (row: any) => {
-        if (row.status === "paid") return <Badge color="green">Paid</Badge>;
+        if (row.status === "paid") {
+          return <Badge color="green">Paid</Badge>;
+        }
 
-        if (row.status === "partially_paid")
+        if (row.status === "partially_paid") {
           return <Badge color="yellow">Partially Paid</Badge>;
+        }
 
         return <Badge color="red">Unpaid</Badge>;
       },
     },
     {
       key: "action",
+      label: "Action",
       render: (row: any) => (
         <Dropdown>
-          <Dropdown.Trigger className="flex h-8 w-8 items-center justify-center ml-1 rounded-md border border-[#E7E8EB] hover:bg-gray-50">
+          <Dropdown.Trigger className="ml-1 flex h-8 w-8 items-center justify-center rounded-md border border-[#E7E8EB] text-[#0A1B39] hover:bg-gray-50">
             ⋮
           </Dropdown.Trigger>
 
           <Dropdown.Content align="right">
             <Dropdown.Item
-              onSelect={() => router.push(`/admin/billing/${row.id}`)}
+              onSelect={() =>
+                router.push(`/admin/billing/${row.id}`)
+              }
             >
               View
             </Dropdown.Item>
 
             <Dropdown.Item
               onSelect={() => {
-                router.push(`/admin/billing/new?edit=${row.id}`);
+                router.push(
+                  `/admin/billing/new?edit=${row.id}`
+                );
               }}
             >
               Edit
@@ -124,63 +138,92 @@ export default function BillingTable({ invoices }: BillingTableProps) {
   ];
 
   const filteredInvoices = invoices.filter((invoice) => {
+    const invoiceNumber =
+      invoice.invoice_number?.toLowerCase() || "";
+
+    const patientName =
+      invoice.patients?.profiles?.full_name?.toLowerCase() || "";
+
+    const searchValue = search.toLowerCase();
+
     const searchMatch =
       search === "" ||
-      invoice.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
-      invoice.patients.profiles.full_name
-        .toLowerCase()
-        .includes(search.toLowerCase());
+      invoiceNumber.includes(searchValue) ||
+      patientName.includes(searchValue);
 
-    const statusMatch = status === "all" ? true : invoice.status === status;
+    const statusMatch =
+      status === "all" || invoice.status === status;
+
     return statusMatch && searchMatch;
   });
 
   const sortedInvoices = [...filteredInvoices];
+
   if (sortBy === "recent") {
     sortedInvoices.sort(
       (a, b) =>
-        new Date(b.issued_date).getTime() - new Date(a.issued_date).getTime()
+        new Date(b.issued_date).getTime() -
+        new Date(a.issued_date).getTime()
     );
   }
+
   if (sortBy === "oldest") {
     sortedInvoices.sort(
       (a, b) =>
-        new Date(a.issued_date).getTime() - new Date(b.issued_date).getTime()
+        new Date(a.issued_date).getTime() -
+        new Date(b.issued_date).getTime()
     );
   }
+
   if (sortBy === "highest") {
-    sortedInvoices.sort((a, b) => Number(b.total) - Number(a.total));
+    sortedInvoices.sort(
+      (a, b) => Number(b.total) - Number(a.total)
+    );
   }
+
   if (sortBy === "lowest") {
-    sortedInvoices.sort((a, b) => Number(a.total) - Number(b.total));
+    sortedInvoices.sort(
+      (a, b) => Number(a.total) - Number(b.total)
+    );
   }
 
   const start = (page - 1) * limit;
   const end = start + limit;
+
   const paginatedInvoices = sortedInvoices.slice(start, end);
 
   return (
-    <>
-      {/* Filters */}
+    <div className="w-full">
+      <div className="rounded-lg border border-slate-200 bg-white p-3 sm:p-4 lg:p-5">
+        {/* Filters */}
+        <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          
+          {/* Search */}
+          <div className="w-full lg:w-auto">
+            <SearchBar
+              placeholder="Search"
+              onSearch={(value: string) => {
+                setSearch(value);
+                setPage(1);
+              }}
+            />
+          </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-5">
-        <div className="mb-5 flex items-center justify-between">
-          <SearchBar
-            placeholder="Search"
-            onSearch={(value: string) => {
-              setSearch(value);
-              setPage(1);
-            }}
-          />
-
-          <div className="flex items-center gap-3">
+          {/* Filter + Sort */}
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end lg:w-auto">
+            
             <Dropdown>
-              <Dropdown.Trigger className="flex h-9 items-center gap-2 rounded-md border border-[#E7E8EB] bg-white px-4 text-sm text-[#0A1B39]">
+              <Dropdown.Trigger className="flex h-9 w-full items-center justify-center gap-2 rounded-md border border-[#E7E8EB] bg-white px-4 text-sm text-[#0A1B39] sm:w-auto">
                 Filter
               </Dropdown.Trigger>
 
               <Dropdown.Content align="right">
-                <Dropdown.Item onSelect={() => setStatus("all")}>
+                <Dropdown.Item
+                  onSelect={() => {
+                    setStatus("all");
+                    setPage(1);
+                  }}
+                >
                   All
                 </Dropdown.Item>
 
@@ -214,16 +257,29 @@ export default function BillingTable({ invoices }: BillingTableProps) {
             </Dropdown>
 
             <Dropdown>
-              <Dropdown.Trigger className="flex h-9 items-center gap-2 rounded-md border border-[#E7E8EB] bg-white px-4 text-sm text-[#0A1B39]">
-                Sort By : {sortBy}
+              <Dropdown.Trigger className="flex h-9 w-full items-center justify-center gap-2 rounded-md border border-[#E7E8EB] bg-white px-4 text-sm text-[#0A1B39] sm:w-auto">
+                Sort By:{" "}
+                <span className="capitalize">
+                  {sortBy}
+                </span>
               </Dropdown.Trigger>
 
               <Dropdown.Content align="right">
-                <Dropdown.Item onSelect={() => setSortBy("recent")}>
+                <Dropdown.Item
+                  onSelect={() => {
+                    setSortBy("recent");
+                    setPage(1);
+                  }}
+                >
                   Recent
                 </Dropdown.Item>
 
-                <Dropdown.Item onSelect={() => setSortBy("oldest")}>
+                <Dropdown.Item
+                  onSelect={() => {
+                    setSortBy("oldest");
+                    setPage(1);
+                  }}
+                >
                   Oldest
                 </Dropdown.Item>
 
@@ -236,7 +292,12 @@ export default function BillingTable({ invoices }: BillingTableProps) {
                   Highest Amount
                 </Dropdown.Item>
 
-                <Dropdown.Item onSelect={() => setSortBy("lowest")}>
+                <Dropdown.Item
+                  onSelect={() => {
+                    setSortBy("lowest");
+                    setPage(1);
+                  }}
+                >
                   Lowest Amount
                 </Dropdown.Item>
               </Dropdown.Content>
@@ -244,14 +305,23 @@ export default function BillingTable({ invoices }: BillingTableProps) {
           </div>
         </div>
 
-        {/* Table */}
+        {/* Responsive Table */}
+        <div className="w-full overflow-x-auto">
+          <div className="min-w-[850px]">
+            <Table
+              columns={columns}
+              data={paginatedInvoices}
+            />
+          </div>
+        </div>
 
-        <Table columns={columns} data={paginatedInvoices} />
-
-        <div className="mt-5 text-[#0A1B39]">
+        {/* Pagination */}
+        <div className="mt-5 overflow-x-auto text-[#0A1B39]">
           <PaginationControls
             page={page}
-            totalPages={Math.ceil(sortedInvoices.length / limit)}
+            totalPages={Math.ceil(
+              sortedInvoices.length / limit
+            )}
             limit={limit}
             onPageChange={setPage}
             onLimitChange={(newLimit: number) => {
@@ -261,6 +331,6 @@ export default function BillingTable({ invoices }: BillingTableProps) {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

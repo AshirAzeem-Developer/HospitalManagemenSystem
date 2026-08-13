@@ -10,9 +10,11 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase
@@ -22,14 +24,19 @@ export default async function AdminLayout({
     .maybeSingle();
 
   const role = profile?.role || user.user_metadata?.role || "patient";
+
   if (role !== "admin") redirect("/unauthorized");
 
   return (
     <div className="flex min-h-screen">
       <Sidebar links={adminLinks} roleLabel="Admin" />
+
       <div className="flex-1 min-w-0">
         <Navbar />
-        <main className="p-6">{children}</main>
+
+        <main className="p-6">
+          {children}
+        </main>
       </div>
     </div>
   );

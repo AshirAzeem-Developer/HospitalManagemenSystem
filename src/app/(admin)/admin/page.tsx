@@ -1,14 +1,57 @@
+import DashboardStatCard from "@/components/ui/DashboardStatCard";
+
+import {
+  FaUser,
+  FaUserDoctor,
+  FaCalendarCheck,
+  FaDollarSign,
+} from "react-icons/fa6";
 import { Card } from "@/components/ui/card";
 
 export default function AdminDashboardPage() {
+  const stats = [
+    {
+      title: "Total Doctors",
+      value: 247,
+      percentage: 95,
+      icon: <FaUserDoctor />,
+    },
+    {
+      title: "Total Patients",
+      value: 1200,
+      percentage: 82,
+      icon: <FaUser />,
+    },
+    {
+      title: "Total Appointments",
+      value: 540,
+      percentage: 65,
+      icon: <FaCalendarCheck />,
+    },
+    {
+      title: "Total Revenue",
+      value: 551240,
+      percentage: 95,
+      icon: <FaDollarSign />,
+    },
+  ];
+
   return (
     <div>
-      <h1 className="text-xl font-semibold text-slate-900">Dashboard</h1>
+      <h1 className="text-xl font-semibold text-slate-900">
+        Dashboard
+      </h1>
+
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card label="Total Doctors" value="—" hint="Wired up in Day 3" />
-        <Card label="Total Patients" value="—" hint="Wired up in Day 3" />
-        <Card label="Today's Appointments" value="—" hint="Wired up in Day 4" />
-        <Card label="Pending Bills" value="—" hint="Wired up in Day 4" />
+        {stats.map((stat, i) => (
+          <DashboardStatCard
+            key={stat.title || i}
+            title={stat.title}
+            value={stat.value}
+            percentage={stat.percentage}
+            icon={stat.icon}
+          />
+        ))}
       </div>
     </div>
   );

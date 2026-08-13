@@ -28,20 +28,15 @@ export default async function AdminLayout({
   if (role !== "admin") redirect("/unauthorized");
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      <Sidebar links={adminLinks} />
+    <div className="flex min-h-screen">
+      <Sidebar links={adminLinks} roleLabel="Admin" />
 
-      <div className="flex flex-1 flex-col">
-        <Navbar profileSettingsHref="/admin/settings/profile" />
+      <div className="flex-1 min-w-0">
+        <Navbar />
 
-        <main className="flex-1 bg-background p-8">
+        <main className="p-6">
           {children}
         </main>
-
-        <footer className="border-t border-border bg-background px-8 py-4 text-center text-sm text-muted">
-          © {new Date().getFullYear()} Hospital Management System. All rights
-          reserved.
-        </footer>
       </div>
     </div>
   );

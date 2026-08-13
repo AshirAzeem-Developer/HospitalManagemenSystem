@@ -29,6 +29,8 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
+    "src/components/ui/table.tsx",
+    "src/app/(patient)/patient/page.tsx",
     "src/app/test-pagination/page.jsx",
     "src/hooks/usePagination.js",
     "src/components/ui/table.jsx"

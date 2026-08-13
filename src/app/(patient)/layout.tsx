@@ -10,9 +10,11 @@ export default async function PatientLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase
@@ -22,13 +24,16 @@ export default async function PatientLayout({
     .maybeSingle();
 
   const role = profile?.role || user.user_metadata?.role || "patient";
+
   if (role !== "patient") redirect("/unauthorized");
 
   return (
     <div className="flex">
       <Sidebar links={patientLinks} roleLabel="Patient" />
+
       <div className="flex-1">
         <Navbar />
+
         <main className="p-6">{children}</main>
       </div>
     </div>

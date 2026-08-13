@@ -11,6 +11,13 @@ export interface Invoice {
     total : number,
     status : "draft" | "paid" | "partially_paid" | "unpaid" | "overdue",
     notes : string | null,
+     patients?: {
+    profile_id: string;
+    profiles?: {
+      full_name: string;
+      avatar_url: string | null;
+    };
+  };
 }
 export type NewInvoice = Omit<Invoice,"id">;
 

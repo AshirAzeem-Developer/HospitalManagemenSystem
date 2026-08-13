@@ -19,6 +19,7 @@ import {
   
 } from "lucide-react";
 import Search from "./Search";
+import BillingTable from "@/features/billing/component/billing-table";
 
 type PatientVitals = {
   blood_pressure: string;
@@ -103,13 +104,16 @@ function SectionHeader({
 
 export default function PatientDetail({
   patient,
+  invoices = [],
 }: {
   patient: PatientData;
+  invoices?: any[];
 }) {
-  const [tab, setTab] = useState<
-    "appointments" | "transactions"
-  >("appointments");
-const [search, setSearch] = useState("");
+  const [tab, setTab] = useState<"appointments" | "transactions">(
+  "appointments"
+);
+  const [search, setSearch] = useState("");
+
   return (
     <div className="min-h-screen space-y-6 bg-[#F5F6F8] p-6 -m-6">
       {/* Back link */}
@@ -324,13 +328,27 @@ const [search, setSearch] = useState("");
               </button>
             ))}
           </div>
-         
         </div>
-        
+
+        {/* Tab content */}
+        <div className="p-4 sm:p-6">
+          {tab === "appointments" && (
+            <>
+              <div className="pb-3 sm:pb-4">
+                <Search search={search} setSearch={setSearch} />
+              </div>
+
+              <p className="py-6 text-center text-sm text-slate-500">
+                No appointments to show yet.
+              </p>
+            </>
+          )}
+
+          {tab === "transactions" && (
+            <BillingTable invoices={invoices} />
+          )}
+        </div>
       </div>
-      <div className="pb-3 sm:pb-4">
-            <Search search={search} setSearch={setSearch} />
-          </div>
     </div>
   );
 }

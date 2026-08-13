@@ -87,6 +87,7 @@ export default function BillingTable({ invoices }: BillingTableProps) {
     },
     {
       key: "action",
+      label: "",
       render: (row: any) => (
         <Dropdown>
           <Dropdown.Trigger className="flex h-8 w-8 items-center justify-center ml-1 rounded-md border border-[#E7E8EB] hover:bg-gray-50">

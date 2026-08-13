@@ -2,11 +2,13 @@
 
 import { FiPlus, FiTrash2, FiX } from "react-icons/fi";
 import { useState } from "react";
-import { useFieldArray } from "react-hook-form";
+import { useFieldArray, type Control, type UseFormRegister } from "react-hook-form";
+
+import { CreatePrescriptionInput } from "../schema";
 
 interface MedicinesTableProps {
-  register: any;
-  control: any;
+  register: UseFormRegister<CreatePrescriptionInput>;
+  control: Control<CreatePrescriptionInput>;
 }
 
 interface MedicineForm {
@@ -14,7 +16,7 @@ interface MedicineForm {
   dosage: string;
   frequency: string;
   duration: string;
-  timing: string;
+  timing: "before_meal" | "after_meal" | "anytime";
   instructions: string;
 }
 
@@ -73,10 +75,10 @@ export default function MedicinesTable({
     <>
       {/* ================= MEDICINES SECTION ================= */}
 
-      <div className="rounded-xl border bg-white p-6">
+      <div className="rounded-xl border border-border bg-card p-6">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-800">Medicines</h2>
+          <h2 className="text-lg font-semibold text-foreground">Medicines</h2>
 
           <button
             type="button"
@@ -91,7 +93,7 @@ export default function MedicinesTable({
         {/* ================= EMPTY STATE ================= */}
 
         {fields.length === 0 ? (
-          <div className="rounded-lg border border-dashed p-8 text-center text-gray-500">
+          <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted">
             No medicine added yet.
           </div>
         ) : (
@@ -100,7 +102,7 @@ export default function MedicinesTable({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b bg-slate-50">
+                <tr className="border-b border-border bg-hover/50">
                   <th className="px-4 py-3">Medicine</th>
                   <th className="px-4 py-3">Dosage</th>
                   <th className="px-4 py-3">Frequency</th>
@@ -112,7 +114,7 @@ export default function MedicinesTable({
 
               <tbody>
                 {fields.map((field, index) => (
-                  <tr key={field.id} className="border-b">
+                  <tr key={field.id} className="border-b border-border">
                     <td className="px-4 py-3">{field.medicineName}</td>
 
                     <td className="px-4 py-3">{field.dosage}</td>
@@ -127,7 +129,7 @@ export default function MedicinesTable({
                       <button
                         type="button"
                         onClick={() => remove(index)}
-                        className="rounded-lg p-2 text-red-600 hover:bg-red-50"
+                        className="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                       >
                         <FiTrash2 size={18} />
                       </button>
@@ -151,15 +153,17 @@ export default function MedicinesTable({
           />
 
           {/* Sidebar */}
-          <div className="absolute right-0 top-0 h-full w-full max-w-lg overflow-y-auto bg-white p-6 shadow-xl">
+          <div className="absolute right-0 top-0 h-full w-full max-w-lg overflow-y-auto bg-card p-6 shadow-xl">
             {/* Header */}
-            <div className="mb-6 flex items-center justify-between border-b pb-4">
-              <h2 className="text-xl font-semibold">Add Medicine</h2>
+            <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
+              <h2 className="text-xl font-semibold text-foreground">
+                Add Medicine
+              </h2>
 
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
-                className="rounded-lg p-2 hover:bg-slate-100"
+                className="rounded-lg p-2 hover:bg-hover"
               >
                 <FiX size={22} />
               </button>
@@ -170,7 +174,7 @@ export default function MedicinesTable({
             <div className="space-y-5">
               {/* Medicine Name */}
               <div>
-                <label className="mb-2 block text-sm font-medium">
+                <label className="mb-2 block text-sm font-medium text-foreground">
                   Medicine Name
                 </label>
 
@@ -183,13 +187,15 @@ export default function MedicinesTable({
                     })
                   }
                   placeholder="Enter medicine name"
-                  className="w-full rounded-lg border px-4 py-2 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2 outline-none focus:border-teal-500"
                 />
               </div>
 
               {/* Dosage */}
               <div>
-                <label className="mb-2 block text-sm font-medium">Dosage</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Dosage
+                </label>
 
                 <input
                   value={medicine.dosage}
@@ -200,13 +206,13 @@ export default function MedicinesTable({
                     })
                   }
                   placeholder="500mg"
-                  className="w-full rounded-lg border px-4 py-2 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2 outline-none focus:border-teal-500"
                 />
               </div>
 
               {/* Frequency */}
               <div>
-                <label className="mb-2 block text-sm font-medium">
+                <label className="mb-2 block text-sm font-medium text-foreground">
                   Frequency
                 </label>
 
@@ -219,13 +225,13 @@ export default function MedicinesTable({
                     })
                   }
                   placeholder="1-0-1"
-                  className="w-full rounded-lg border px-4 py-2 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2 outline-none focus:border-teal-500"
                 />
               </div>
 
               {/* Duration */}
               <div>
-                <label className="mb-2 block text-sm font-medium">
+                <label className="mb-2 block text-sm font-medium text-foreground">
                   Duration
                 </label>
 
@@ -238,23 +244,25 @@ export default function MedicinesTable({
                     })
                   }
                   placeholder="7 Days"
-                  className="w-full rounded-lg border px-4 py-2 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2 outline-none focus:border-teal-500"
                 />
               </div>
 
               {/* Timing */}
               <div>
-                <label className="mb-2 block text-sm font-medium">Timing</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Timing
+                </label>
 
                 <select
                   value={medicine.timing}
                   onChange={(e) =>
                     setMedicine({
                       ...medicine,
-                      timing: e.target.value,
+                      timing: e.target.value as MedicineForm["timing"],
                     })
                   }
-                  className="w-full rounded-lg border px-4 py-2"
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2"
                 >
                   <option value="before_meal">Before Meal</option>
 
@@ -266,7 +274,7 @@ export default function MedicinesTable({
 
               {/* Instructions */}
               <div>
-                <label className="mb-2 block text-sm font-medium">
+                <label className="mb-2 block text-sm font-medium text-foreground">
                   Instructions
                 </label>
 
@@ -280,18 +288,18 @@ export default function MedicinesTable({
                   }
                   rows={4}
                   placeholder="Drink plenty of water"
-                  className="w-full rounded-lg border px-4 py-3 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-border bg-card px-4 py-3 outline-none focus:border-teal-500"
                 />
               </div>
             </div>
 
             {/* ================= FOOTER ================= */}
 
-            <div className="mt-8 flex justify-end gap-3 border-t pt-5">
+            <div className="mt-8 flex justify-end gap-3 border-t border-border pt-5">
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
-                className="rounded-lg border px-4 py-2"
+                className="rounded-lg border border-border px-4 py-2 text-foreground"
               >
                 Cancel
               </button>

@@ -382,7 +382,7 @@ export async function getPrescriptionsByAppointmentIds(
 
   query = doctor
     ? query.eq("doctor_id", doctor.id)
-    : query.eq("patient_id", patient.id);
+    : query.eq("patient_id", patient!.id);
 
   const { data: prescriptions, error } = await query;
 

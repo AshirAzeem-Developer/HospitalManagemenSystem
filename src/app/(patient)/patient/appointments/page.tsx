@@ -14,7 +14,7 @@ import PatientAppointmentList from "../../../../features/appointments/components
 export default function PatientAppointmentsPage({ initialAppointments = [] }) {
   const [appointments, setAppointments] = useState(initialAppointments);
 
-  useEffect(() => {
+useEffect(() => {
     if (!initialAppointments || initialAppointments.length === 0) {
       getAppointments()
         .then((data) => {
@@ -22,6 +22,7 @@ export default function PatientAppointmentsPage({ initialAppointments = [] }) {
         })
         .catch((err) => console.error("Error fetching appointments:", err));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); 
 
   const headerProps = useMemo(() => ({
@@ -30,7 +31,8 @@ export default function PatientAppointmentsPage({ initialAppointments = [] }) {
   }), []);
 
   return (
-    <div className="min-h-screen bg-[#F5F6F8] p-4 md:p-6">
+    // Hardcoded bg-[#F5F6F8] ko replace kar ke bg-background text-foreground laga diya gaya hai
+    <div className="min-h-screen bg-background text-foreground p-4 md:p-6 transition-colors duration-200">
       <DataContainer
         initialData={appointments}
         HeaderComponent={AppointmentHeader}

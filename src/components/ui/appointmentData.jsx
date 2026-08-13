@@ -4,7 +4,6 @@ import { useState, useMemo, useEffect } from 'react';
 import PaginationControls from './PaginationControls'; 
 
 export const appointmentFilterLogic = (data, searchTerm, activeFilters, sortOrder) => {
-  // ... filter logic (same as your original code) ...
   let dateRange = null;
 
   if (activeFilters?.date) {
@@ -60,37 +59,45 @@ export const appointmentFilterLogic = (data, searchTerm, activeFilters, sortOrde
   }
 
   const filteredData = (data || []).filter((app) => {
+    
+    // Safely extract names for searching (handles nested objects too)
+    const pName = (app.patientName || app.patient?.profile?.full_name || app.patient?.name || "").toLowerCase();
+    const dName = (app.doctorName || app.doctor?.profile?.full_name || app.doctor?.name || "").toLowerCase();
+    
+    // Search Term Filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       const matchesSearch =
-        app.patientName?.toLowerCase().includes(term) ||
-        app.doctorName?.toLowerCase().includes(term) ||
-        app.status?.toLowerCase().includes(term) ||
-        app.date?.toLowerCase().includes(term);
+        pName.includes(term) ||
+        dName.includes(term) ||
+        (app.status || "").toLowerCase().includes(term) ||
+        (app.date || "").toLowerCase().includes(term);
 
       if (!matchesSearch) return false;
     }
 
+    // Status Filter
     if (activeFilters?.status) {
       const itemStatus = app.status ? String(app.status).trim().toLowerCase() : "";
       const filterStatus = String(activeFilters.status).trim().toLowerCase();
       if (itemStatus !== filterStatus) return false;
     }
 
+    // Patient Filter - Checking all possible ID variations
     if (activeFilters?.patient) {
-      const pId = app.patientId?.toString();
-      const filterP = activeFilters.patient.toString();
-      const pName = app.patientName?.toLowerCase() || "";
-      if (pId !== filterP && !pName.includes(filterP.toLowerCase())) return false;
+      const pId = String(app.patientId || app.patient?._id || app.patient?.id || app.patient || "").toLowerCase();
+      const filterP = String(activeFilters.patient).toLowerCase();
+      if (pId !== filterP && !pName.includes(filterP)) return false;
     }
 
+    // Doctor Filter - Checking all possible ID variations
     if (activeFilters?.doctor) {
-      const dId = app.doctorId?.toString();
-      const filterD = activeFilters.doctor.toString();
-      const dName = app.doctorName?.toLowerCase() || "";
-      if (dId !== filterD && !dName.includes(filterD.toLowerCase())) return false;
+      const dId = String(app.doctorId || app.doctor?._id || app.doctor?.id || app.doctor || "").toLowerCase();
+      const filterD = String(activeFilters.doctor).toLowerCase();
+      if (dId !== filterD && !dName.includes(filterD)) return false;
     }
 
+    // Date Filter
     if (dateRange && app.date) {
       const appDate = new Date(app.date);
       if (!isNaN(appDate.getTime())) {
@@ -110,10 +117,11 @@ export const appointmentFilterLogic = (data, searchTerm, activeFilters, sortOrde
   });
 };
 
+
 export default function DataContainer({
   initialData = [],
   HeaderComponent,
-  headerProps = {}, // <-- NAYA PROP YAHAN ADD KIYA HAI
+  headerProps = {}, 
   ListComponent,
   filterSortLogic,
   onEditAction,
@@ -134,15 +142,15 @@ export default function DataContainer({
   }, [initialData]);
 
   const handleEdit = async (updatedData) => {
-    setData((prev) => prev.map((item) => (item.id === updatedData.id ? updatedData : item)));
+    setData((prev) => prev.map((item) => (item.id === updatedData.id || item._id === updatedData._id ? updatedData : item)));
     if (onEditAction) {
-      const result = await onEditAction(updatedData.id, updatedData);
+      const result = await onEditAction(updatedData.id || updatedData._id, updatedData);
       if (result?.error) alert("Failed to update in database.");
     }
   };
 
   const handleDelete = async (id) => {
-    setData((prev) => prev.filter((item) => item.id !== id));
+    setData((prev) => prev.filter((item) => item.id !== id && item._id !== id));
     if (onDeleteAction) {
       const result = await onDeleteAction(id);
       if (result?.error) alert("Failed to delete from database.");
@@ -182,11 +190,12 @@ export default function DataContainer({
         />
       )}
 
-      <div className="bg-white rounded-md shadow-sm border border-slate-100 p-4 space-y-4">
+      {/* Colors replaced with theme variables (bg-background, text-foreground, border-border) */}
+      <div className="bg-background text-foreground rounded-lg shadow-sm border border-border p-4 space-y-4">
         {ListComponent && <ListComponent {...listProps} />}
 
         {totalItems > 0 && (
-          <div className="pt-4 border-t border-[#E7E8EB]">
+          <div className="pt-4 border-t border-border">
             <PaginationControls 
               page={currentPage} 
               totalPages={totalPages} 

@@ -43,8 +43,8 @@ Dropdown.Content = function DropdownContent({ children, align = "left", classNam
 
   return (
     <div
-      className={`absolute top-full z-50 mt-1 min-w-[160px] rounded-[6px] border border-[#e7e8eb]
-        bg-white py-1 shadow-[0_4px_16px_rgba(10,27,57,0.08)]
+      className={`absolute top-full z-50 mt-1 min-w-[160px] rounded-[6px] border border-border
+        bg-background py-1 shadow-[0_4px_16px_rgba(10,27,57,0.08)]
         ${align === "right" ? "right-0" : "left-0"}
         ${className}`}
     >
@@ -62,8 +62,8 @@ Dropdown.Item = function DropdownItem({ children, onSelect, destructive = false 
         onSelect?.();
         setOpen(false);
       }}
-      className={`block w-full px-3 py-2 text-left text-sm hover:bg-[#f5f6f8]
-        ${destructive ? "text-[#ef1e1e]" : "text-[#0a1b39]"}`}
+      className={`block w-full px-3 py-2 text-left text-sm hover:bg-hover
+        ${destructive ? "text-[#ef1e1e]" : "text-foreground"}`}
     >
       {children}
     </button>
@@ -71,5 +71,5 @@ Dropdown.Item = function DropdownItem({ children, onSelect, destructive = false 
 };
 
 Dropdown.Separator = function DropdownSeparator() {
-  return <div className="my-1 h-px bg-[#e7e8eb]" />;
+  return <div className="my-1 h-px bg-border" />;
 };

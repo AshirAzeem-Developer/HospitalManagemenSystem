@@ -24,7 +24,6 @@ export default function PatientAppointmentList({
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [editFormData, setEditFormData] = useState({});
 
-  // Fetch Doctors from Database
   useEffect(() => {
     if (doctorsList && doctorsList.length > 0) {
       setAllDoctors(doctorsList);
@@ -49,7 +48,6 @@ export default function PatientAppointmentList({
   const openSidebar = (mode, appointmentData) => {
     const status = appointmentData?.status?.toLowerCase();
 
-    // SIRF "pending" status par Edit allow karna hai
     if (mode === "edit" && status !== "pending") {
       alert("You can only edit pending appointments.");
       return;
@@ -74,7 +72,6 @@ export default function PatientAppointmentList({
 
   const handleSave = () => {
     if (onEdit) {
-      // Yeh poora object (Date, Time, Doctor name) parent ko bhej dega
       onEdit(editFormData);
     }
     closeSidebar();
@@ -84,25 +81,25 @@ export default function PatientAppointmentList({
     const s = status?.toLowerCase();
     switch (s) {
       case "completed":
-        return "bg-emerald-100 text-emerald-900 border-emerald-300";
+        return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
       case "pending":
-        return "bg-amber-100 text-amber-900 border-amber-300";
+        return "bg-amber-500/10 text-amber-500 border-amber-500/20";
       case "cancelled":
-        return "bg-rose-100 text-rose-900 border-rose-300";
+        return "bg-rose-500/10 text-rose-500 border-rose-500/20";
       case "confirmed":
-        return "bg-blue-100 text-blue-900 border-blue-300";
+        return "bg-blue-500/10 text-blue-500 border-blue-500/20";
       default:
-        return "bg-slate-100 text-slate-900 border-slate-300";
+        return "bg-muted text-muted-foreground border-border";
     }
   };
 
   if (!appointments || appointments.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 bg-white rounded-xl border border-slate-200 shadow-sm text-center">
-        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-          <FileText className="w-8 h-8 text-slate-400" />
+      <div className="flex flex-col items-center justify-center p-12 bg-background rounded-xl border border-border shadow-sm text-center">
+        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+          <FileText className="w-8 h-8 text-muted-foreground" />
         </div>
-        <p className="text-slate-500 font-medium text-sm">
+        <p className="text-muted-foreground font-medium text-sm">
           No appointments found.
         </p>
       </div>
@@ -111,9 +108,9 @@ export default function PatientAppointmentList({
 
   return (
     <div className="w-full relative">
-      <div className="w-full min-h-[220px] overflow-x-auto bg-white rounded-xl border border-slate-200 shadow-sm">
-        <table className="w-full text-left text-sm text-slate-600">
-          <thead className="border-b border-slate-200 bg-slate-50/80 text-slate-500">
+      <div className="w-full min-h-[220px] overflow-x-auto bg-background rounded-xl border border-border shadow-sm">
+        <table className="w-full text-left text-sm text-foreground">
+          <thead className="border-b border-border bg-black/[0.02] dark:bg-white/[0.02] text-muted-foreground">
             <tr>
               <th className="px-6 py-4 font-semibold whitespace-nowrap">
                 Date & Time
@@ -132,7 +129,7 @@ export default function PatientAppointmentList({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-border">
             {appointments.map((appointment, index) => {
               const uniqueKey = appointment?.id
                 ? `app-${appointment.id}`
@@ -140,7 +137,6 @@ export default function PatientAppointmentList({
               const isMenuOpen = activeDropdown === appointment.id;
 
               const currentStatus = appointment.status?.toLowerCase();
-              // Edit button sirf "pending" ke liye show hoga
               const isEditable = currentStatus === "pending";
 
               const openUpwards =
@@ -151,19 +147,18 @@ export default function PatientAppointmentList({
               return (
                 <tr
                   key={uniqueKey}
-                  className="hover:bg-slate-50/80 transition-colors"
+                  // Table row hover is now completely soft in both modes
+                  className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                 >
-                  {/* Date & Time */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium text-slate-900">
+                    <div className="font-medium text-foreground">
                       {appointment.date || "N/A"}
                     </div>
-                    <div className="text-xs text-slate-500 mt-0.5">
+                    <div className="text-xs text-muted-foreground mt-0.5">
                       {appointment.time || ""}
                     </div>
                   </td>
 
-                  {/* Doctor Info */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="relative w-10 h-10 flex-shrink-0">
@@ -173,18 +168,17 @@ export default function PatientAppointmentList({
                           width={40}
                           height={40}
                           unoptimized
-                          className="w-10 h-10 rounded-full object-cover bg-slate-100"
+                          className="w-10 h-10 rounded-full object-cover bg-muted"
                         />
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-semibold text-slate-900 text-sm">
+                        <span className="font-semibold text-foreground text-sm">
                           {appointment.doctorName || "Unknown Doctor"}
                         </span>
                       </div>
                     </div>
                   </td>
 
-                  {/* Status */}
                   <td className="px-6 py-4 capitalize whitespace-nowrap">
                     <span
                       className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(appointment.status)}`}
@@ -193,48 +187,49 @@ export default function PatientAppointmentList({
                     </span>
                   </td>
 
-                  {/* Prescription */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Link
-                      href={`/prescriptions/${appointment.id}`}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 transition-all duration-200 outline-none"
-                    >
-                      <FileText className="h-4 w-4 text-blue-600" />
-                      <span>View Prescription</span>
-                    </Link>
+                    {currentStatus === "completed" ? (
+                      <Link
+                        href={`/prescriptions/${appointment.id}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 rounded-md shadow-sm hover:bg-emerald-500/20 transition-all duration-200 outline-none"
+                      >
+                        <FileText className="h-3.5 w-3.5" />
+                        <span>View</span>
+                      </Link>
+                    ) : (
+                      <span className="text-muted-foreground text-xs italic">-</span>
+                    )}
                   </td>
 
-                  {/* Action Menu */}
                   <td className="px-6 py-4 text-right whitespace-nowrap">
                     <div className="relative inline-block text-left">
                       <button
                         onClick={() => {
                           setActiveDropdown(isMenuOpen ? null : appointment.id);
                         }}
-                        className="cursor-pointer rounded-full p-2 hover:bg-slate-100 text-slate-600 transition"
+                        className="cursor-pointer rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 text-muted-foreground transition"
                       >
                         <MoreVertical className="h-4 w-4" />
                       </button>
 
                       {isMenuOpen && (
                         <div
-                          className={`absolute right-0 w-36 bg-white border border-slate-200 rounded-lg shadow-lg z-50 py-1 text-left ${openUpwards ? "bottom-full mb-1" : "top-full mt-1"}`}
+                          className={`absolute right-0 w-36 bg-background border border-border rounded-lg shadow-lg z-50 py-1 text-left ${openUpwards ? "bottom-full mb-1" : "top-full mt-1"}`}
                         >
                           <button
                             onClick={() => openSidebar("view", appointment)}
-                            className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 transition"
+                            className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition"
                           >
-                            <Eye className="h-3.5 w-3.5 text-blue-600" />
+                            <Eye className="h-3.5 w-3.5 text-blue-500" />
                             <span>View</span>
                           </button>
 
-                          {/* Sirf tab dikhega jab status PENDING ho */}
                           {isEditable && (
                             <button
                               onClick={() => openSidebar("edit", appointment)}
-                              className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 transition"
+                              className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition"
                             >
-                              <Edit className="h-3.5 w-3.5 text-emerald-600" />
+                              <Edit className="h-3.5 w-3.5 text-emerald-500" />
                               <span>Edit</span>
                             </button>
                           )}
@@ -249,41 +244,39 @@ export default function PatientAppointmentList({
         </table>
       </div>
 
-      {/* Sidebar View / Edit */}
       {sidebar.isOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={closeSidebar}
           ></div>
 
           <div
-            className={`relative w-full ${sidebar.mode === "view" ? "max-w-xs" : "max-w-sm"} bg-white h-full shadow-2xl flex flex-col z-10`}
+            className={`relative w-full ${sidebar.mode === "view" ? "max-w-xs" : "max-w-sm"} bg-background h-full shadow-2xl flex flex-col z-10 border-l border-border`}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white">
-              <h2 className="text-base font-semibold text-slate-800 capitalize">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-background">
+              <h2 className="text-base font-semibold text-foreground capitalize">
                 {sidebar.mode} Appointment
               </h2>
               <button
                 onClick={closeSidebar}
-                className="cursor-pointer p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition"
+                className="cursor-pointer p-1.5 text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-5 overflow-y-auto flex-1 bg-white">
+            <div className="p-5 overflow-y-auto flex-1 bg-background">
               {sidebar.data && (
                 <div className="space-y-4">
-                  {/* Doctor Name */}
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                       Doctor Name
                     </label>
                     {sidebar.mode === "edit" ? (
                       <div className="mt-1 [&>div]:w-full">
                         <Dropdown>
-                          <Dropdown.Trigger className="cursor-pointer w-full flex items-center justify-between px-3 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 bg-white text-left">
+                          <Dropdown.Trigger className="cursor-pointer w-full flex items-center justify-between px-3 py-1.5 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-foreground bg-background text-left">
                             <span className="truncate">
                               {editFormData.doctorName ||
                                 (loadingDoctors
@@ -291,7 +284,7 @@ export default function PatientAppointmentList({
                                   : "Select a Doctor")}
                             </span>
                             <svg
-                              className="w-4 h-4 text-slate-500 shrink-0"
+                              className="w-4 h-4 text-muted-foreground shrink-0"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -305,9 +298,8 @@ export default function PatientAppointmentList({
                             </svg>
                           </Dropdown.Trigger>
 
-                          <Dropdown.Content className="w-full max-h-40 overflow-y-auto z-50">
+                          <Dropdown.Content className="w-full max-h-40 overflow-y-auto z-50 border border-border bg-background">
                             {availableDoctors.map((doc, idx) => {
-                              // Doctor ka naam nikalna
                               const docName =
                                 typeof doc === "string"
                                   ? doc
@@ -317,7 +309,6 @@ export default function PatientAppointmentList({
                                     doc.fullName ||
                                     "";
 
-                              // Doctor ki ID nikalna (Yeh bohat zaroori hai backend ke liye)
                               const docId =
                                 typeof doc === "string"
                                   ? null
@@ -326,13 +317,12 @@ export default function PatientAppointmentList({
                                     doc.doctor_id ||
                                     doc._id;
 
-                              // Jab doctor select ho toh Name aur ID dono set hon
                               const handleDoctorSelect = () => {
                                 setEditFormData((prev) => ({
                                   ...prev,
                                   doctorName: docName,
-                                  doctorId: docId, // Backend ke liye ID
-                                  doctor_id: docId, // (Agar backend snake_case use kar raha ho)
+                                  doctorId: docId,
+                                  doctor_id: docId,
                                 }));
                               };
 
@@ -341,6 +331,7 @@ export default function PatientAppointmentList({
                                   key={idx}
                                   onSelect={handleDoctorSelect}
                                   onClick={handleDoctorSelect}
+                                  className="text-foreground hover:bg-black/5 dark:hover:bg-white/10"
                                 >
                                   {docName}
                                 </Dropdown.Item>
@@ -350,7 +341,7 @@ export default function PatientAppointmentList({
                         </Dropdown>
                       </div>
                     ) : (
-                      <p className="text-sm font-medium text-slate-800 mt-0.5">
+                      <p className="text-sm font-medium text-foreground mt-0.5">
                         {sidebar.data.doctorName}
                       </p>
                     )}
@@ -358,7 +349,7 @@ export default function PatientAppointmentList({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                      <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                         Date
                       </label>
                       {sidebar.mode === "edit" ? (
@@ -367,28 +358,28 @@ export default function PatientAppointmentList({
                           name="date"
                           value={editFormData.date || ""}
                           onChange={handleInputChange}
-                          className="w-full mt-1 px-2.5 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-slate-900 bg-white"
+                          className="w-full mt-1 px-2.5 py-1.5 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-foreground bg-background"
                         />
                       ) : (
-                        <p className="text-sm font-medium text-slate-800 mt-0.5">
+                        <p className="text-sm font-medium text-foreground mt-0.5">
                           {sidebar.data.date}
                         </p>
                       )}
                     </div>
                     <div>
-                      <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                      <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                         Time
                       </label>
                       {sidebar.mode === "edit" ? (
                         <input
-                          type="time" 
+                          type="time"
                           name="time"
                           value={editFormData.time || ""}
                           onChange={handleInputChange}
-                          className="w-full mt-1 px-2.5 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-slate-900 bg-white"
+                          className="w-full mt-1 px-2.5 py-1.5 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-foreground bg-background"
                         />
                       ) : (
-                        <p className="text-sm font-medium text-slate-800 mt-0.5">
+                        <p className="text-sm font-medium text-foreground mt-0.5">
                           {sidebar.data.time}
                         </p>
                       )}
@@ -396,7 +387,7 @@ export default function PatientAppointmentList({
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                       Status
                     </label>
                     <div className="mt-1">
@@ -411,10 +402,10 @@ export default function PatientAppointmentList({
               )}
             </div>
 
-            <div className="p-4 border-t border-slate-100 flex justify-end gap-2 bg-slate-50">
+            <div className="p-4 border-t border-border flex justify-end gap-2 bg-black/[0.02] dark:bg-white/[0.02]">
               <button
                 onClick={closeSidebar}
-                className="cursor-pointer px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition"
+                className="cursor-pointer px-3 py-1.5 text-xs font-medium text-foreground bg-background border border-border rounded-md hover:bg-black/5 dark:hover:bg-white/10 transition"
               >
                 Close
               </button>

@@ -70,16 +70,17 @@ export default function PatientActions({
 
         {/* Edit */}
         <Button
-          type="button"
-          variant="ghost"
-          text=""
-          icon={<Pencil className="h-4 w-4 text-blue-600" />}
-          title="Edit"
-          onClick={() =>
-            router.push(`/admin/patients/${id}/edit`)
-          }
-          className="h-8 w-8 border-0 p-0 hover:bg-slate-100"
-        />
+  type="button"
+  variant="ghost"
+  text=""
+  icon={<Pencil className="h-4 w-4 text-blue-600" />}
+  title="Edit"
+  onClick={() => {
+    console.log("EDIT CLICKED", id);
+    router.push(`/admin/patients/${id}/edit`);
+  }}
+  className="h-8 w-8 border-0 p-0 hover:bg-slate-100"
+/>
 
         {/* Delete */}
         <Button

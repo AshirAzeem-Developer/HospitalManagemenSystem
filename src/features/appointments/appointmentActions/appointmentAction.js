@@ -60,6 +60,7 @@ export async function getStatuses() {
 }
 
 // 4. Server Action file (Backend)
+
 export async function getAppointments(filters = {}) {
   const supabase = await createClient();
   

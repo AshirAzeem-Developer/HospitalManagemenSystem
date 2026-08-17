@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
 import {
   ChevronLeft,
@@ -18,8 +19,8 @@ import {
   BookOpen,
   
 } from "lucide-react";
-import Search from "./Search";
 import BillingTable from "@/features/billing/component/billing-table";
+import AppointmentsContainer from "@/features/appointments/components/AppointmentsContainer";
 
 type PatientVitals = {
   blood_pressure: string;
@@ -105,15 +106,18 @@ function SectionHeader({
 export default function PatientDetail({
   patient,
   invoices = [],
+  appointments = [],
+  doctors = [],
 }: {
   patient: PatientData;
   invoices?: any[];
+  appointments?: any[];
+  doctors?: any[];
 }) {
+  const router = useRouter();
   const [tab, setTab] = useState<"appointments" | "transactions">(
-  "appointments"
-);
-  const [search, setSearch] = useState("");
-
+    "appointments"
+  );
   return (
     <div className="min-h-screen space-y-6 bg-[#F5F6F8] p-6 -m-6">
       {/* Back link */}
@@ -216,7 +220,7 @@ export default function PatientDetail({
                 text="Book Appointment"
                 icon={<CalendarDays size={16} />}
                 onClick={() => {
-                  console.log("Book appointment clicked");
+                  router.push("/admin/appointments/new");
                 }}
                 className="w-full sm:w-auto"
               />
@@ -333,15 +337,11 @@ export default function PatientDetail({
         {/* Tab content */}
         <div className="p-4 sm:p-6">
           {tab === "appointments" && (
-            <>
-              <div className="pb-3 sm:pb-4">
-                <Search search={search} setSearch={setSearch} />
-              </div>
-
-              <p className="py-6 text-center text-sm text-slate-500">
-                No appointments to show yet.
-              </p>
-            </>
+            <AppointmentsContainer
+              initialAppointments={appointments as any}
+              doctorsList={doctors as any}
+              showNewButton={false}
+            />
           )}
 
           {tab === "transactions" && (

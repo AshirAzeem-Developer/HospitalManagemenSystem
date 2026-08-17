@@ -1,19 +1,31 @@
-import { Card } from "@/components/ui/card";
+import {
+  getInvoiceByIdAction,
+  getInvoiceItemsByInvoiceIdAction,
+  getPaymentsByInvoiceIdAction,
+} from "@/features/billing/actions";
 
-export default function AdminBillingDetailPage() {
-  return (
-    <div>
-      <h1 className="text-xl font-semibold text-slate-900">Billing Details</h1>
-      <p className="mt-1 text-sm text-slate-500">
-        Invoice details will be shown here.
-      </p>
-      <div className="mt-6">
-        <Card
-          label="Invoice Status"
-          value="Pending"
-          hint="Feature wiring in progress"
-        />
-      </div>
-    </div>
-  );
+import { notFound } from "next/navigation";
+
+import InvoiceDetail from "@/features/billing/component/invoice-detail";
+
+type PageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+
+  const invoice = await getInvoiceByIdAction(id);
+
+  if (!invoice) {
+    notFound();
+  }
+
+  const items = await getInvoiceItemsByInvoiceIdAction(id);
+
+  const payments = await getPaymentsByInvoiceIdAction(id);
+
+  return <InvoiceDetail invoice={invoice} items={items} payments={payments} />;
 }

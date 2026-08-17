@@ -69,11 +69,11 @@ export default async function AdminLayout({
   if (role !== "admin") redirect("/unauthorized");
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      <Sidebar links={adminLinks} />
+    <div className="flex min-h-screen">
+      <Sidebar links={adminLinks} roleLabel="Admin" />
 
-      <div className="flex flex-1 flex-col">
-        <Navbar profileSettingsHref="/admin/settings/profile" />
+      <div className="flex-1 min-w-0">
+        <Navbar />
 
         <main className="flex-1 bg-background p-8">{children}</main>
 

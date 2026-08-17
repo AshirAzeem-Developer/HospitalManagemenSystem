@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { paginateQuery } from "@/lib/paginateQuery";
 import type { Doctor, DoctorDetail, DoctorScheduleListItem } from "./types";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -47,17 +48,35 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 //   });
 // }
 
-const PAGE_SIZE = 9;
+const DEFAULT_PAGE_SIZE = 9;
 
-export async function getDoctors(page = 1) {
+export function getDoctorsParams(searchParams: { page?: string; limit?: string; q?: string } = {}) {
+  const parsedPage = Number.parseInt(searchParams.page ?? "1", 10);
+  const parsedLimit = Number.parseInt(searchParams.limit ?? String(DEFAULT_PAGE_SIZE), 10);
+  const q = searchParams.q ?? "";
+
+  return {
+    page: Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1,
+    limit: Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : DEFAULT_PAGE_SIZE,
+    q,
+  };
+}
+
+export async function getDoctors({
+  page = 1,
+  limit = DEFAULT_PAGE_SIZE,
+  query = "",
+}: {
+  page?: number;
+  limit?: number;
+  query?: string;
+} = {}) {
   const supabase = await createClient();
 
-  const safePage = Math.max(1, page);
+  const safePage = Number.isFinite(page) && page > 0 ? page : 1;
+  const safeLimit = Number.isFinite(limit) && limit > 0 ? limit : DEFAULT_PAGE_SIZE;
 
-  const from = (safePage - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
-
-  const { data, error, count } = await supabase
+  let dbQuery = supabase
     .from("doctors")
     .select(
       `
@@ -74,8 +93,64 @@ export async function getDoctors(page = 1) {
       )
     `,
       { count: "exact" },
-    )
-    .range(from, to);
+    );
+
+  const trimmedQuery = query?.trim();
+  if (trimmedQuery) {
+    const { data: specializationMatches, error: specializationError } = await supabase
+      .from("doctors")
+      .select("id")
+      .ilike("specialization", `%${trimmedQuery}%`);
+
+    if (specializationError) {
+      console.error("Error searching doctors by specialization:", specializationError.message);
+    }
+
+    const { data: profileMatches, error: profileError } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("full_name", `%${trimmedQuery}%`);
+
+    if (profileError) {
+      console.error("Error searching doctors by profile name:", profileError.message);
+    }
+
+    const matchedDoctorIds = new Set<string>([
+      ...((specializationMatches ?? []).map((doctor) => String(doctor.id))),
+    ]);
+
+    if (profileMatches && profileMatches.length > 0) {
+      const profileIds = profileMatches.map((profile) => profile.id);
+
+      const { data: doctorsByProfile, error: doctorsByProfileError } = await supabase
+        .from("doctors")
+        .select("id")
+        .in("profile_id", profileIds);
+
+      if (doctorsByProfileError) {
+        console.error("Error matching doctors to profile names:", doctorsByProfileError.message);
+      }
+
+      for (const doctor of doctorsByProfile ?? []) {
+        matchedDoctorIds.add(String(doctor.id));
+      }
+    }
+
+    if (matchedDoctorIds.size === 0) {
+      return {
+        doctors: [],
+        totalDoctors: 0,
+        totalPages: 0,
+      };
+    }
+
+    dbQuery = dbQuery.in("id", [...matchedDoctorIds]);
+  }
+
+  const { data, count, totalPages, error } = await paginateQuery(dbQuery, {
+    page: safePage,
+    limit: safeLimit,
+  });
 
   if (error) {
     console.error("Error fetching doctors:", error.message);
@@ -87,7 +162,7 @@ export async function getDoctors(page = 1) {
     };
   }
 
-  const doctors: Doctor[] = (data ?? []).map((doctor) => {
+  const doctors: Doctor[] = (data ?? []).map((doctor: Record<string, any>) => {
     const profile = doctor.profile as unknown as {
       full_name: string;
       avatar_url: string | null;
@@ -112,7 +187,7 @@ export async function getDoctors(page = 1) {
   return {
     doctors,
     totalDoctors: count ?? 0,
-    totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
+    totalPages,
   };
 }
 // export async function getDoctorById(id: string) {

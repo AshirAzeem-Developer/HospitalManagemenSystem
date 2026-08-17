@@ -7,9 +7,11 @@ import { getInvoicesAction } from "@/features/billing/actions";
 import { getPatientDetail } from "@/features/patients/actions";
 
 import StatsGrid from "@/features/patients/dashboard/StatsGrid";
+import VitalsCard from "@/features/patients/dashboard/VitalsCard";
 import MyDoctorsCard from "@/features/patients/dashboard/MyDoctorsCard";
 import PrescriptionsCard from "@/features/patients/dashboard/PrescriptionsCard";
 import RecentActivityCard from "@/features/patients/dashboard/RecentActivityCard";
+import ConsultationTransactions from "@/features/patients/dashboard/ConsultationTransactions";
 
 export default async function PatientDashboardPage() {
   const supabase = await createClient();
@@ -117,6 +119,54 @@ export default async function PatientDashboardPage() {
   }
 
   // -----------------------------------
+  // Latest prescription (for vitals)
+  // -----------------------------------
+
+  const latestPrescription = prescriptions?.[0] || null;
+
+  // -----------------------------------
+  // Consultation By Department (from appointments + doctors)
+  // -----------------------------------
+
+  const departmentMap: Record
+    string,
+    { department: string; current: number; previous: number }
+  > = {};
+
+  myAppointments.forEach((appt: any) => {
+    const doctor = myDoctors.find((d: any) => d.id === appt.doctorId);
+    const dept = doctor?.specialty || "General";
+
+    if (!departmentMap[dept]) {
+      departmentMap[dept] = { department: dept, current: 0, previous: 0 };
+    }
+    departmentMap[dept].current += 1;
+  });
+
+  const departmentData = Object.values(departmentMap);
+
+  // -----------------------------------
+  // Recent Transactions (from invoices)
+  // -----------------------------------
+
+  const recentTransactions = (myInvoices || [])
+    .slice(0, 5)
+    .map((invoice: any) => {
+      const doctor = myDoctors.find(
+        (d: any) => d.id === invoice.doctor_id
+      );
+
+      return {
+        id: invoice.id,
+        doctor_name: doctor?.name || invoice.doctor_name || "Unknown",
+        specialty: doctor?.specialty || invoice.doctor_specialty || "",
+        amount: invoice.amount ?? invoice.total ?? 0,
+        avatar_url: doctor?.avatar_url || invoice.doctor_avatar || null,
+        status: invoice.status ?? "pending",
+      };
+    });
+
+  // -----------------------------------
   // Debug logs
   // -----------------------------------
 
@@ -146,6 +196,16 @@ export default async function PatientDashboardPage() {
         vitals={patient?.vitals}
       />
 
+      {/* Vitals */}
+      <VitalsCard
+        weight={latestPrescription?.weight}
+        height={latestPrescription?.height}
+        bmi={patient?.bmi}
+        pulse={latestPrescription?.pulse_rate}
+        spo2={latestPrescription?.spo2}
+        temperature={latestPrescription?.temperature}
+      />
+
       {/* Dashboard Cards */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <MyDoctorsCard doctors={myDoctors} />
@@ -159,6 +219,12 @@ export default async function PatientDashboardPage() {
           invoices={myInvoices}
         />
       </div>
+
+      {/* Consultation By Department + Recent Transactions */}
+      <ConsultationTransactions
+        departmentData={departmentData}
+        transactions={recentTransactions}
+      />
     </div>
   );
 }

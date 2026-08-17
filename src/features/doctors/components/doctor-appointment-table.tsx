@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {Stethoscope} from "lucide-react";
+import { Stethoscope, Pencil, Eye, Trash2 } from "lucide-react";
 import Table from "@/components/ui/table";
 import type { DoctorAppointment } from "../types";
 
@@ -56,9 +56,7 @@ function formatStatus(status: string | null) {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-export default function DoctorAppointmentTable({
-  appointments,
-}: Props) {
+export default function DoctorAppointmentTable({ appointments }: Props) {
   const columns = [
     // Patient
     {
@@ -78,9 +76,7 @@ export default function DoctorAppointmentTable({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
-                {appointment.patient.full_name
-                  ?.charAt(0)
-                  .toUpperCase() ?? "P"}
+                {appointment.patient.full_name?.charAt(0).toUpperCase() ?? "P"}
               </div>
             )}
           </div>
@@ -162,18 +158,58 @@ export default function DoctorAppointmentTable({
     },
 
     // Action
+    // Action
     {
       key: "actions",
       label: "Action",
 
       render: (appointment: DoctorAppointment) => (
-        <Link
-          href={`/doctor/consultation/${appointment.id}`}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
-        >
-          <Stethoscope size={16} />
-          Consultation
-        </Link>
+        <div className="flex min-w-max items-center gap-2">
+          {/* Consultation */}
+          <Link
+            href={`/doctor/consultation/${appointment.id}`}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
+          >
+            <Stethoscope size={16} />
+            Consultation
+          </Link>
+
+          {/* Edit */}
+          <button
+            type="button"
+            onClick={() => {
+              console.log("Edit appointment:", appointment.id);
+            }}
+            title="Edit appointment"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+          >
+            <Pencil size={16} />
+          </button>
+
+          {/* View */}
+          <button
+            type="button"
+            onClick={() => {
+              console.log("View appointment:", appointment.id);
+            }}
+            title="View appointment"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+          >
+            <Eye size={16} />
+          </button>
+
+          {/* Delete */}
+          <button
+            type="button"
+            onClick={() => {
+              console.log("Delete appointment:", appointment.id);
+            }}
+            title="Delete appointment"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       ),
     },
   ];

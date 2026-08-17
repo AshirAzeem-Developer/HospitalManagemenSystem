@@ -8,8 +8,8 @@ export function Card({
   hint?: string;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-background p-5">
-      <p className="text-sm font-medium text-muted">{label}</p>
+<div className="rounded-lg border border-border bg-white dark:bg-[#152035] p-5">
+    <p className="text-sm font-medium text-muted">{label}</p>
 
       <p className="mt-2 text-2xl font-semibold text-foreground">
         {value}

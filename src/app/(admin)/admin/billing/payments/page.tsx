@@ -9,11 +9,8 @@ export default async function PaymentsPage() {
 
   return (
     <div>
-
       <div className="mb-5 flex items-center justify-between">
-
         <div className="flex items-center gap-3">
-
           <Link
             href="/admin"
             className="flex h-8 w-8 items-center justify-center rounded-md border border-[#E7E8EB] bg-white text-gray-500 transition hover:bg-gray-50 hover:text-[#2E37A4]"
@@ -22,7 +19,6 @@ export default async function PaymentsPage() {
           </Link>
 
           <div className="flex items-center gap-2">
-
             <h1 className="text-[20px] font-semibold text-[#0A1B39]">
               Payments
             </h1>
@@ -30,7 +26,6 @@ export default async function PaymentsPage() {
             <span className="rounded border border-[#2E37A4] bg-[#EEF2FF] px-2 py-0.5 text-[10px] font-medium text-[#2E37A4]">
               Total Payments : {payments.length}
             </span>
-
           </div>
         </div>
 
@@ -60,7 +55,6 @@ export default async function PaymentsPage() {
           2025 © Preclinic, All Rights Reserved
         </p>
       </div>
-
     </div>
   );
 }

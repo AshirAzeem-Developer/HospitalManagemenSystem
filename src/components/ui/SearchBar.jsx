@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
 export default function SearchBar({
-  defaultValue = '',
+  defaultValue = "",
   onSearch,
-  placeholder = 'Search',
+  placeholder = "Search",
 }) {
   return (
     <div
@@ -11,10 +11,9 @@ export default function SearchBar({
         m-[10px]
         flex h-8 w-[250px] items-center
         rounded-md
-        border border-[#E7E8EB] dark:border-slate-700
-        bg-background
+        border border-[#E7E8EB]
+        bg-white
         px-3 py-[6px]
-        shadow-[0px_1px_1px_rgba(0,0,0,0.05)]
       "
     >
       <input
@@ -27,11 +26,11 @@ export default function SearchBar({
           border-none
           bg-transparent
           text-sm
+          text-[#0A1B39]
           outline-none
-          text-foreground
-          placeholder:text-foreground/50
+          placeholder:text-[#98A2B3]
         "
       />
     </div>
-  )
+  );
 }

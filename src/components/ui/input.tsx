@@ -29,14 +29,9 @@ export default function Input(props: InputProps) {
 
   return (
     <div className="flex w-full flex-col gap-1">
-      <label
-        htmlFor={id}
-        className="text-sm font-medium text-[#1E293B]"
-      >
+      <label htmlFor={id} className="text-sm font-medium text-[#1E293B]">
         {label}
-        {required && (
-          <span className="ml-1 text-[#EF4444]">*</span>
-        )}
+        {required && <span className="ml-1 text-[#EF4444]">*</span>}
       </label>
 
       <input
@@ -68,11 +63,7 @@ export default function Input(props: InputProps) {
           `}
       />
 
-      {error && (
-        <p className="text-xs text-red-500 mt-1">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 }

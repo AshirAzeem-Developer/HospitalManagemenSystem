@@ -14,9 +14,7 @@ type PageProps = {
   }>;
 };
 
-export default async function Page({
-  params,
-}: PageProps) {
+export default async function Page({ params }: PageProps) {
   const { id } = await params;
 
   const invoice = await getInvoiceByIdAction(id);
@@ -25,17 +23,9 @@ export default async function Page({
     notFound();
   }
 
-  const items =
-    await getInvoiceItemsByInvoiceIdAction(id);
+  const items = await getInvoiceItemsByInvoiceIdAction(id);
 
-  const payments =
-    await getPaymentsByInvoiceIdAction(id);
+  const payments = await getPaymentsByInvoiceIdAction(id);
 
-  return (
-    <InvoiceDetail
-      invoice={invoice}
-      items={items}
-      payments={payments}
-    />
-  );
+  return <InvoiceDetail invoice={invoice} items={items} payments={payments} />;
 }

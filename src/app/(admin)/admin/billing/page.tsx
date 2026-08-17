@@ -9,9 +9,7 @@ export default async function BillingPage() {
 
   return (
     <div className="w-full text-[#0A1B39]">
-   
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        
         <div>
           <Link
             href="/admin/billing"
@@ -22,9 +20,7 @@ export default async function BillingPage() {
           </Link>
 
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold text-[#0A1B39]">
-              Invoices
-            </h1>
+            <h1 className="text-2xl font-semibold text-[#0A1B39]">Invoices</h1>
 
             <span className="rounded-md border border-[#2E37A4] bg-[#EEF2FF] px-3 py-1.5 text-sm font-medium text-[#2E37A4]">
               Total Invoices: {invoices.length}
@@ -32,21 +28,11 @@ export default async function BillingPage() {
           </div>
         </div>
 
-       
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-          <Button
-            variant="ghost"
-            text="Export"
-          />
+          <Button variant="ghost" text="Export" />
 
-          <Link
-            href="/admin/billing/new"
-            className="w-full sm:w-auto"
-          >
-            <Button
-              variant="primary"
-              text="+ New Invoice"
-            />
+          <Link href="/admin/billing/new" className="w-full sm:w-auto">
+            <Button variant="primary" text="+ New Invoice" />
           </Link>
         </div>
       </div>

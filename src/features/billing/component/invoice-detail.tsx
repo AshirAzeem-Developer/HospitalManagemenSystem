@@ -134,9 +134,7 @@ export default function InvoiceDetail({
 
             <div className="space-y-2.5 text-sm">
               <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-                <span className="text-gray-500">
-                  Invoice Number :
-                </span>
+                <span className="text-gray-500">Invoice Number :</span>
 
                 <span className="font-medium text-[#0A1B39]">
                   {invoice?.invoice_number || "-"}
@@ -144,9 +142,7 @@ export default function InvoiceDetail({
               </div>
 
               <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-                <span className="text-gray-500">
-                  Issued On :
-                </span>
+                <span className="text-gray-500">Issued On :</span>
 
                 <span className="font-medium text-[#0A1B39]">
                   {formatDate(invoice?.issued_date)}
@@ -154,9 +150,7 @@ export default function InvoiceDetail({
               </div>
 
               <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-                <span className="text-gray-500">
-                  Due Date :
-                </span>
+                <span className="text-gray-500">Due Date :</span>
 
                 <span className="font-medium text-[#0A1B39]">
                   {formatDate(invoice?.due_date)}
@@ -164,9 +158,7 @@ export default function InvoiceDetail({
               </div>
 
               <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-                <span className="text-gray-500">
-                  Status :
-                </span>
+                <span className="text-gray-500">Status :</span>
 
                 <span className="font-medium text-[#0A1B39]">
                   {status.text}
@@ -182,9 +174,7 @@ export default function InvoiceDetail({
             </h2>
 
             <div className="text-sm leading-6 text-gray-500">
-              <p className="font-semibold text-[#0A1B39]">
-                Preclinic
-              </p>
+              <p className="font-semibold text-[#0A1B39]">Preclinic</p>
 
               <p>Hospital Management System</p>
             </div>
@@ -197,9 +187,7 @@ export default function InvoiceDetail({
             </h2>
 
             <div className="text-sm leading-6 text-gray-500">
-              <p className="font-semibold text-[#0A1B39]">
-                {patientName}
-              </p>
+              <p className="font-semibold text-[#0A1B39]">{patientName}</p>
 
               <p>Patient</p>
             </div>
@@ -306,8 +294,8 @@ export default function InvoiceDetail({
             </h2>
 
             <p className="text-sm leading-6 text-gray-500">
-              All charges are final and include applicable taxes,
-              fees and additional costs.
+              All charges are final and include applicable taxes, fees and
+              additional costs.
             </p>
           </div>
 
@@ -323,9 +311,7 @@ export default function InvoiceDetail({
 
               {taxPercentage > 0 && (
                 <div className="flex justify-between gap-4">
-                  <span className="text-gray-500">
-                    Tax ({taxPercentage}%)
-                  </span>
+                  <span className="text-gray-500">Tax ({taxPercentage}%)</span>
 
                   <span className="font-medium text-[#0A1B39]">
                     ${formatAmount(taxAmount)}
@@ -356,9 +342,7 @@ export default function InvoiceDetail({
               </div>
 
               <div className="pt-1">
-                <p className="text-xs text-gray-500">
-                  Total in words
-                </p>
+                <p className="text-xs text-gray-500">Total in words</p>
 
                 <p className="mt-1 text-xs font-medium text-[#0A1B39]">
                   {numberToWords(Number(invoice?.total || 0))}
@@ -380,9 +364,7 @@ export default function InvoiceDetail({
       <div className="mx-auto mt-6 w-full max-w-6xl">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-[#0A1B39]">
-              Payments
-            </h2>
+            <h2 className="text-lg font-semibold text-[#0A1B39]">Payments</h2>
 
             <p className="mt-1 text-xs text-gray-500">
               Payment history for invoice{" "}
@@ -409,17 +391,9 @@ export default function InvoiceDetail({
 
       {/* BUTTONS */}
       <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-        <Button
-          variant="ghost"
-          text="Print"
-          onClick={handlePrint}
-        />
+        <Button variant="ghost" text="Print" onClick={handlePrint} />
 
-        <Button
-          variant="primary"
-          text="Download"
-          onClick={handleDownload}
-        />
+        <Button variant="primary" text="Download" onClick={handleDownload} />
       </div>
     </div>
   );
@@ -471,8 +445,7 @@ function numberToWords(amount: number): string {
 
     if (num < 100) {
       return (
-        tens[Math.floor(num / 10)] +
-        (num % 10 ? ` ${ones[num % 10]}` : "")
+        tens[Math.floor(num / 10)] + (num % 10 ? ` ${ones[num % 10]}` : "")
       );
     }
 

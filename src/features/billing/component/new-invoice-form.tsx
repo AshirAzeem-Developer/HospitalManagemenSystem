@@ -1,16 +1,16 @@
 "use client";
 
 import Input from "@/components/ui/input";
-import CustomSelect from "@/components/ui/CustomSelect";
-import InvoiceItemsTable, {
-  type InvoiceItem,
-} from "./invoice-items-table";
+import InvoiceItemsTable, { type InvoiceItem } from "./invoice-items-table";
 import InvoiceSummary from "./invoice-summary";
 import Button from "@/components/ui/button";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "react-toastify";
+import CustomSelect from "@/components/ui/CustomSelect";
 
 import {
   createInvoiceAction,
@@ -20,6 +20,7 @@ import {
   updateInvoiceAction,
   updateInvoiceItemAction,
   deleteInvoiceItemAction,
+  getInvoicePatientsAction,
 } from "../actions";
 
 const paymentMethodOptions = [
@@ -37,12 +38,21 @@ type NewInvoiceFormProps = {
   editId?: string;
 };
 
-export default function NewInvoiceForm({
-  editId,
-}: NewInvoiceFormProps) {
+type PatientOption = {
+  id: string;
+  profile_id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+};
+
+export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
   const router = useRouter();
 
   const isEditMode = Boolean(editId);
+
+  // Invoice states
 
   const [invoiceDate, setInvoiceDate] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -50,7 +60,9 @@ export default function NewInvoiceForm({
   const [paymentMethod, setPaymentMethod] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");
 
+  const [patientId, setPatientId] = useState("");
   const [patientName, setPatientName] = useState("");
+  const [patientEmail, setPatientEmail] = useState("");
   const [billingAddress, setBillingAddress] = useState("");
 
   const [items, setItems] = useState<InvoiceItem[]>([]);
@@ -59,37 +71,127 @@ export default function NewInvoiceForm({
   const [discount, setDiscount] = useState(0);
   const [roundOff, setRoundOff] = useState(false);
 
+  // Patients
+
+  const [patients, setPatients] = useState<PatientOption[]>([]);
+  const [loadingPatients, setLoadingPatients] = useState(true);
+
+  const [patientSearch, setPatientSearch] = useState("");
+
+  // Load patients
+
+  useEffect(() => {
+    const loadPatients = async () => {
+      try {
+        setLoadingPatients(true);
+
+        const data = await getInvoicePatientsAction();
+
+        const formattedPatients: PatientOption[] = (data ?? []).map(
+          (patient: any) => ({
+            id: patient.id,
+            profile_id: patient.profile_id,
+            name: patient.name || "Unknown Patient",
+            email: patient.email || "",
+            phone: patient.phone || "",
+            address: patient.address || "—",
+          })
+        );
+
+        setPatients(formattedPatients);
+      } catch (error) {
+        console.error("Failed to load invoice patients:", error);
+
+        toast.error("Failed to load patients. Please try again.");
+      } finally {
+        setLoadingPatients(false);
+      }
+    };
+
+    loadPatients();
+  }, []);
+
+  // Filter patients by name
+
+  const filteredPatients = patients.filter((patient) =>
+    patient.name.toLowerCase().includes(patientSearch.toLowerCase())
+  );
+
+  const handlePatientChange = (patient: PatientOption) => {
+    setPatientId(patient.id);
+
+    setPatientName(patient.name);
+
+    setPatientEmail(patient.email);
+
+    setBillingAddress(patient.address);
+
+    setPatientSearch(patient.name);
+  };
+
+  // Load invoice in edit mode
+
   useEffect(() => {
     if (!editId) return;
 
     const loadInvoice = async () => {
       try {
         const invoice = await getInvoiceByIdAction(editId);
-        const invoiceItems =
-          await getInvoiceItemsByInvoiceIdAction(editId);
+
+        const invoiceItems = await getInvoiceItemsByInvoiceIdAction(editId);
 
         if (!invoice) return;
 
+        // Invoice information
+
         setInvoiceDate(invoice.issued_date || "");
+
         setDueDate(invoice.due_date || "");
 
         setPaymentStatus(invoice.status || "");
+
         setBillingAddress(invoice.notes || "");
 
         setTax(Number(invoice.tax_percentage || 0));
+
         setDiscount(Number(invoice.discount || 0));
 
-        setPatientName(
-          invoice?.patients?.profiles?.full_name || ""
-        );
+        if (invoice.patient_id) {
+          setPatientId(invoice.patient_id);
+        }
 
-        const formattedItems: InvoiceItem[] = invoiceItems.map(
-          (item) => ({
+        const patient = (invoice as any)?.patients;
+
+        const profile = Array.isArray(patient?.profiles)
+          ? patient.profiles[0]
+          : patient?.profiles;
+
+        if (profile?.full_name) {
+          setPatientName(profile.full_name);
+
+          setPatientSearch(profile.full_name);
+        }
+
+        if (patient?.email) {
+          setPatientEmail(patient.email);
+        }
+
+        if (patient?.stay_address) {
+          setBillingAddress(patient.stay_address);
+        }
+
+        const formattedItems: InvoiceItem[] = (invoiceItems ?? []).map(
+          (item: any) => ({
             id: item.id,
+
             item_name: item.item_name || "",
+
             description: item.description || "",
+
             unit_cost: String(item.unit_cost ?? ""),
+
             quantity: String(item.quantity ?? "1"),
+
             amount: String(item.amount ?? ""),
           })
         );
@@ -97,130 +199,247 @@ export default function NewInvoiceForm({
         setItems(formattedItems);
       } catch (error) {
         console.error("Failed to load invoice:", error);
+
+        toast.error("Failed to load invoice. Please try again.");
       }
     };
 
     loadInvoice();
   }, [editId]);
 
+  // Handle patient data after patients load
+
+  useEffect(() => {
+    if (!patientId || patients.length === 0) {
+      return;
+    }
+
+    const selectedPatient = patients.find(
+      (patient) => patient.id === patientId
+    );
+
+    if (!selectedPatient) {
+      return;
+    }
+
+    setPatientName(selectedPatient.name);
+
+    setPatientEmail(selectedPatient.email);
+
+    setPatientSearch(selectedPatient.name);
+
+    if (!billingAddress) {
+      setBillingAddress(selectedPatient.address);
+    }
+  }, [patientId, patients]);
+
+  // Save invoice
+
   const handleAddNewInvoice = async () => {
-    const subtotal = items.reduce(
-      (total, item) => total + Number(item.amount || 0),
-      0
-    );
+    try {
+      if (!patientId) {
+        toast.error("Please select a patient.");
+        return;
+      }
 
-    const taxAmount = (subtotal * tax) / 100;
-    const discountAmount = (subtotal * discount) / 100;
+      if (!invoiceDate) {
+        toast.error("Please select invoice date.");
+        return;
+      }
 
-    const finalTotal =
-      subtotal + taxAmount - discountAmount;
+      if (!dueDate) {
+        toast.error("Please select due date.");
+        return;
+      }
 
-    const total = roundOff
-      ? Math.round(finalTotal)
-      : finalTotal;
+      if (!paymentStatus) {
+        toast.error("Please select payment status.");
+        return;
+      }
 
-    const validItems = items.filter(
-      (item) => item.item_name.trim() !== ""
-    );
+      // Subtotal
 
-    if (isEditMode && editId) {
-      await updateInvoiceAction(editId, {
+      const subtotal = items.reduce(
+        (total, item) => total + Number(item.amount || 0),
+        0
+      );
+
+      // Tax
+
+      const taxAmount = (subtotal * Number(tax || 0)) / 100;
+
+      // Discount
+
+      const discountAmount = (subtotal * Number(discount || 0)) / 100;
+
+      // Final total
+
+      const finalTotal = subtotal + taxAmount - discountAmount;
+
+      const total = roundOff ? Math.round(finalTotal) : finalTotal;
+
+      // Valid items
+
+      const validItems = items.filter(
+        (item) => item.item_name && item.item_name.trim() !== ""
+      );
+
+      // EDIT INVOICE
+
+      if (isEditMode && editId) {
+        await updateInvoiceAction(editId, {
+          patient_id: patientId,
+
+          issued_date: invoiceDate,
+
+          due_date: dueDate,
+
+          subtotal,
+
+          tax_percentage: Number(tax || 0),
+
+          discount: Number(discount || 0),
+
+          total,
+
+          status: paymentStatus as
+            | "draft"
+            | "paid"
+            | "partially_paid"
+            | "unpaid"
+            | "overdue",
+
+          notes: billingAddress || null,
+        });
+
+        // Existing items
+
+        const existingItems = await getInvoiceItemsByInvoiceIdAction(editId);
+
+        // Current item IDs
+
+        const currentItemIds = validItems
+          .filter((item) => Boolean(item.id))
+          .map((item) => item.id);
+
+        // Delete removed items
+
+        for (const existingItem of existingItems) {
+          if (!currentItemIds.includes(existingItem.id)) {
+            await deleteInvoiceItemAction(existingItem.id);
+          }
+        }
+
+        // Update / create items
+
+        for (const item of validItems) {
+          const itemData = {
+            item_name: item.item_name,
+
+            description: item.description || "",
+
+            unit_cost: Number(item.unit_cost || 0),
+
+            quantity: Number(item.quantity || 1),
+
+            amount: Number(item.amount || 0),
+          };
+
+          if (item.id) {
+            await updateInvoiceItemAction(item.id, itemData);
+          } else {
+            await createInvoiceItemAction({
+              invoice_id: editId,
+
+              item_name: itemData.item_name,
+
+              description: itemData.description,
+
+              unit_cost: itemData.unit_cost,
+
+              quantity: itemData.quantity,
+
+              amount: itemData.amount,
+            });
+          }
+        }
+
+        // Success toast
+
+        toast.success("Invoice updated successfully!");
+
+        router.push("/admin/billing");
+
+        router.refresh();
+
+        return;
+      }
+
+      // CREATE NEW INVOICE
+
+      const invoiceData = {
+        appointment_id: null,
+
+        patient_id: patientId,
+
         issued_date: invoiceDate,
+
         due_date: dueDate,
+
         subtotal,
-        tax_percentage: tax,
-        discount,
+
+        tax_percentage: Number(tax || 0),
+
+        discount: Number(discount || 0),
+
         total,
+
         status: paymentStatus as
           | "draft"
           | "paid"
           | "partially_paid"
           | "unpaid"
           | "overdue",
+
         notes: billingAddress || null,
-      });
+      };
 
-      const existingItems =
-        await getInvoiceItemsByInvoiceIdAction(editId);
-
-      const currentItemIds = validItems
-        .filter((item) => item.id)
-        .map((item) => item.id);
-
-      for (const existingItem of existingItems) {
-        if (!currentItemIds.includes(existingItem.id)) {
-          await deleteInvoiceItemAction(existingItem.id);
-        }
-      }
+      const createdInvoice = await createInvoiceAction(invoiceData);
 
       for (const item of validItems) {
-        const itemData = {
-          item_name: item.item_name,
-          description: item.description || "",
-          unit_cost: Number(item.unit_cost || 0),
-          quantity: Number(item.quantity || 1),
-          amount: Number(item.amount || 0),
-        };
+        await createInvoiceItemAction({
+          invoice_id: createdInvoice.id,
 
-        if (item.id) {
-          await updateInvoiceItemAction(item.id, itemData);
-        } else {
-          await createInvoiceItemAction({
-            invoice_id: editId,
-            item_name: itemData.item_name,
-            description: itemData.description || "",
-            unit_cost: itemData.unit_cost,
-            quantity: itemData.quantity,
-            amount: itemData.amount,
-          });
-        }
+          item_name: item.item_name,
+
+          description: item.description || "",
+
+          unit_cost: Number(item.unit_cost || 0),
+
+          quantity: Number(item.quantity || 1),
+
+          amount: Number(item.amount || 0),
+        });
       }
 
+      // Success toast
+
+      toast.success("Invoice created successfully!");
+
       router.push("/admin/billing");
+
       router.refresh();
+    } catch (error: any) {
+      console.error("Failed to save invoice:", error);
 
-      return;
+      toast.error(
+        error?.message || "Failed to save invoice. Please try again."
+      );
     }
-
-    const invoiceData = {
-      appointment_id: null,
-      patient_id: "33333333-3333-3333-3333-333333333301",
-      issued_date: invoiceDate,
-      due_date: dueDate,
-      subtotal,
-      tax_percentage: tax,
-      discount,
-      total,
-      status: paymentStatus as
-        | "draft"
-        | "paid"
-        | "partially_paid"
-        | "unpaid"
-        | "overdue",
-      notes: billingAddress || null,
-    };
-
-    const createdInvoice =
-      await createInvoiceAction(invoiceData);
-
-    for (const item of validItems) {
-      await createInvoiceItemAction({
-        invoice_id: createdInvoice.id,
-        item_name: item.item_name,
-        description: item.description,
-        unit_cost: Number(item.unit_cost || 0),
-        quantity: Number(item.quantity || 1),
-        amount: Number(item.amount || 0),
-      });
-    }
-
-    router.push("/admin/billing");
-    router.refresh();
   };
 
   return (
     <div className="w-full space-y-6">
-      {/* Header */}
       <div className="w-full">
         <Link
           href="/admin/billing"
@@ -237,6 +456,7 @@ export default function NewInvoiceForm({
           "
         >
           <ArrowLeft size={18} strokeWidth={2} />
+
           <span>Invoices</span>
         </Link>
 
@@ -245,7 +465,6 @@ export default function NewInvoiceForm({
         </h1>
       </div>
 
-      {/* Invoice Information */}
       <div className="w-full rounded-lg border border-[#E7E8EB] bg-white">
         <div
           className="
@@ -259,18 +478,117 @@ export default function NewInvoiceForm({
             sm:p-6
           "
         >
-          <Input
-            label="Patient Name"
-            required
-            value={patientName}
-            onChange={(e) => setPatientName(e.target.value)}
-          />
+          {/* Patient Search */}
+
+          <div className="relative">
+            <Input
+              label="Patient Name"
+              placeholder={
+                loadingPatients
+                  ? "Loading patients..."
+                  : "Search patient by name"
+              }
+              value={patientSearch}
+              required
+              disabled={loadingPatients}
+              onChange={(e) => {
+                setPatientSearch(e.target.value);
+
+                setPatientId("");
+
+                setPatientEmail("");
+
+                setBillingAddress("");
+              }}
+            />
+
+            {/* Patient Results */}
+
+            {patientSearch.trim() !== "" &&
+              !patientId &&
+              filteredPatients.length > 0 && (
+                <div
+                  className="
+                    absolute
+                    left-0
+                    right-0
+                    z-50
+                    mt-1
+                    max-h-60
+                    overflow-y-auto
+                    rounded-lg
+                    border
+                    border-[#E7E8EB]
+                    bg-white
+                    shadow-lg
+                  "
+                >
+                  {filteredPatients.map((patient) => (
+                    <button
+                      key={patient.id}
+                      type="button"
+                      onClick={() => handlePatientChange(patient)}
+                      className="
+                          flex
+                          w-full
+                          flex-col
+                          px-3
+                          py-2
+                          text-left
+                          hover:bg-gray-50
+                        "
+                    >
+                      <span className="text-sm font-medium text-[#0A1B39]">
+                        {patient.name}
+                      </span>
+
+                      <span className="text-xs text-gray-500">
+                        {patient.email || "No email"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+            {/* No patients found */}
+
+            {patientSearch.trim() !== "" &&
+              !patientId &&
+              !loadingPatients &&
+              filteredPatients.length === 0 && (
+                <div
+                  className="
+                    absolute
+                    left-0
+                    right-0
+                    z-50
+                    mt-1
+                    rounded-lg
+                    border
+                    border-[#E7E8EB]
+                    bg-white
+                    px-3
+                    py-3
+                    text-sm
+                    text-gray-500
+                    shadow-lg
+                  "
+                >
+                  No patient found.
+                </div>
+              )}
+          </div>
+
+          {/* Email */}
 
           <Input
             label="Email"
             placeholder="Patient email will appear automatically"
+            value={patientEmail}
             disabled
           />
+
+          {/* Invoice Date */}
 
           <Input
             label="Invoice Date"
@@ -280,6 +598,8 @@ export default function NewInvoiceForm({
             onChange={(e) => setInvoiceDate(e.target.value)}
           />
 
+          {/* Due Date */}
+
           <Input
             label="Due Date"
             type="date"
@@ -287,6 +607,8 @@ export default function NewInvoiceForm({
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
           />
+
+          {/* Payment Method */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
@@ -301,9 +623,12 @@ export default function NewInvoiceForm({
             />
           </div>
 
+          {/* Payment Status */}
+
           <div>
             <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
               Payment Status
+              <span className="ml-1 text-red-500">*</span>
             </label>
 
             <CustomSelect
@@ -313,6 +638,8 @@ export default function NewInvoiceForm({
               onChange={setPaymentStatus}
             />
           </div>
+
+          {/* Billing Address */}
 
           <div className="col-span-1 sm:col-span-2">
             <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
@@ -333,23 +660,20 @@ export default function NewInvoiceForm({
                 focus:border-[#2E37A4]
               "
               value={billingAddress}
-              onChange={(e) =>
-                setBillingAddress(e.target.value)
-              }
+              onChange={(e) => setBillingAddress(e.target.value)}
             />
           </div>
         </div>
       </div>
 
       {/* Invoice Items */}
+
       <div className="w-full overflow-x-auto">
-        <InvoiceItemsTable
-          initialItems={items}
-          onItemsChange={setItems}
-        />
+        <InvoiceItemsTable initialItems={items} onItemsChange={setItems} />
       </div>
 
       {/* Summary */}
+
       <div className="w-full">
         <InvoiceSummary
           items={items}
@@ -362,8 +686,16 @@ export default function NewInvoiceForm({
         />
       </div>
 
-      {/* Buttons */}
-      <div className="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <div
+        className="
+          flex
+          w-full
+          flex-col-reverse
+          gap-3
+          sm:flex-row
+          sm:justify-end
+        "
+      >
         <Button
           variant="ghost"
           text="Cancel"

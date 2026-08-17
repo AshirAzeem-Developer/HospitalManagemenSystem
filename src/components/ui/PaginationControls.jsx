@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 export default function PaginationControls({
   page,
@@ -8,65 +8,69 @@ export default function PaginationControls({
   onLimitChange,
 }) {
   function getPageNumbers() {
-    const pages = []
-    pages.push(1)
+    const pages = [];
+    pages.push(1);
 
-    const windowStart = Math.max(2, page - 1)
-    const windowEnd = Math.min(totalPages - 1, page + 1)
+    const windowStart = Math.max(2, page - 1);
+    const windowEnd = Math.min(totalPages - 1, page + 1);
 
     if (windowStart > 2) {
-      pages.push('...')
+      pages.push("...");
     }
 
     for (let p = windowStart; p <= windowEnd; p++) {
-      pages.push(p)
+      pages.push(p);
     }
 
     if (windowEnd < totalPages - 1) {
-      pages.push('...')
+      pages.push("...");
     }
 
     if (totalPages > 1) {
-      pages.push(totalPages)
+      pages.push(totalPages);
     }
 
-    return pages
+    return pages;
   }
 
-  const pageNumbers = getPageNumbers()
+  const pageNumbers = getPageNumbers();
 
   const buttonBase =
-    'flex items-center justify-center w-8 h-8 rounded-md border shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-sm'
+    "flex items-center justify-center w-8 h-8 rounded-md border shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-sm";
 
+  // Normal pagination button
   const inactiveStyle =
     `${buttonBase} ` +
-    'bg-background text-foreground border-border cursor-pointer ' +
-    'hover:bg-hover hover:border-border'
+    "bg-white text-[#344054] border-[#E7E8EB] cursor-pointer " +
+    "hover:bg-[#F8F9FC] hover:border-[#D0D5DD]";
 
+  // Active pagination button
   const activeStyle =
     `${buttonBase} ` +
-    'bg-[#2E37A4] border-[#2E37A4] text-white cursor-pointer'
+    "bg-[#2E37A4] border-[#2E37A4] text-white cursor-pointer";
 
   return (
     <div className="flex items-center justify-between w-full h-8 gap-5">
+      {/* Left side */}
       <div className="flex items-center gap-2 h-8">
-        <span className="text-sm text-foreground">
-          Show
-        </span>
+        <span className="text-sm text-[#667085]">Show</span>
 
         <select
           value={limit}
           onChange={(e) => onLimitChange(Number(e.target.value))}
           className="
-            h-8 px-2
-            border border-border
+            h-8
+            px-2
+            border
+            border-[#E7E8EB]
             rounded-md
             text-sm
-            bg-background
-            text-foreground
+            bg-white
+            text-[#344054]
             shadow-[0px_1px_1px_rgba(0,0,0,0.05)]
             outline-none
             cursor-pointer
+            focus:border-[#2E37A4]
           "
         >
           <option value={10}>10</option>
@@ -74,12 +78,12 @@ export default function PaginationControls({
           <option value={50}>50</option>
         </select>
 
-        <span className="text-sm text-foreground">
-          Results
-        </span>
+        <span className="text-sm text-[#667085]">Results</span>
       </div>
 
+      {/* Right side */}
       <div className="flex items-center gap-3">
+        {/* Previous */}
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
@@ -88,11 +92,20 @@ export default function PaginationControls({
           ←
         </button>
 
+        {/* Page numbers */}
         {pageNumbers.map((p, index) =>
-          p === '...' ? (
+          p === "..." ? (
             <span
               key={`ellipsis-${index}`}
-              className={`${buttonBase} border-none shadow-none text-muted`}
+              className="
+                flex
+                items-center
+                justify-center
+                w-8
+                h-8
+                text-sm
+                text-[#667085]
+              "
             >
               ...
             </span>
@@ -107,6 +120,7 @@ export default function PaginationControls({
           )
         )}
 
+        {/* Next */}
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
@@ -116,5 +130,5 @@ export default function PaginationControls({
         </button>
       </div>
     </div>
-  )
+  );
 }

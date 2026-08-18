@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   getAppointments,
   updateAppointmentAction,
@@ -38,35 +38,45 @@ export default function PatientAppointmentsPage({
   const [appointments, setAppointments] = useState<PatientAppointment[]>(
     initialAppointments,
   );
+  
+  // 1. Asli loading state banai hai jo track karegi data fetch ho raha hai ya nahi
+  const [isLoading, setIsLoading] = useState<boolean>(
+    !initialAppointments || initialAppointments.length === 0
+  );
 
   useEffect(() => {
     async function load() {
       let list: PatientAppointment[] = initialAppointments;
 
+      // Agar start mein data nahi hai tou fetch karna shuru karein
       if (!list || list.length === 0) {
         try {
+          setIsLoading(true); // Loading on karein
           const data = (await getAppointments()) as PatientAppointment[];
           if (data) list = data;
         } catch (err) {
           console.error("Error fetching appointments:", err);
-          return;
         }
       }
 
-      if (!list || list.length === 0) return;
+      // Agar data mil gaya tou prescriptions fetch karein
+      if (list && list.length > 0) {
+        const ids = list.map((a) => a.id).filter(Boolean);
+        const statusResult = await getPrescriptionsByAppointmentIds(ids);
+        const statusMap: Record<string, string> = statusResult.success
+          ? (statusResult.data as Record<string, string>)
+          : {};
 
-      const ids = list.map((a) => a.id).filter(Boolean);
-      const statusResult = await getPrescriptionsByAppointmentIds(ids);
-      const statusMap: Record<string, string> = statusResult.success
-        ? (statusResult.data as Record<string, string>)
-        : {};
+        const merged: PatientAppointment[] = list.map((appointment) => ({
+          ...appointment,
+          prescriptionId: statusMap[appointment.id] ?? null,
+        }));
 
-      const merged: PatientAppointment[] = list.map((appointment) => ({
-        ...appointment,
-        prescriptionId: statusMap[appointment.id] ?? null,
-      }));
+        setAppointments(merged);
+      }
 
-      setAppointments(merged);
+      // 2. Data fetch complete, ab loading band kar dein
+      setIsLoading(false);
     }
 
     load();
@@ -81,13 +91,20 @@ export default function PatientAppointmentsPage({
     [],
   );
 
+  // 3. Ye wrapper list components ko proper loading state pass karega
+  const ListWrapper = useCallback(
+    (props: any) => <PatientAppointmentList {...props} isLoading={isLoading} />,
+    [isLoading]
+  );
+
   return (
     <div className="min-h-screen bg-page p-4 md:p-6">
       <DataContainer
         initialData={appointments}
         HeaderComponent={AppointmentHeader}
         headerProps={headerProps}
-        ListComponent={PatientAppointmentList}
+        // yahan ListWrapper pass kiya hai taqay DataContainer loading state na roke
+        ListComponent={ListWrapper} 
         filterSortLogic={appointmentFilterLogic}
         onEditAction={updateAppointmentAction}
         onDeleteAction={deleteAppointmentAction}

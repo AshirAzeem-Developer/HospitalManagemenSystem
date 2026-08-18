@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiChevronLeft, FiPlus, FiCalendar, FiClock, FiChevronDown } from "react-icons/fi";
@@ -19,6 +19,10 @@ export default function NewAppointmentPage() {
   // Dropdown open states
   const [patientOpen, setPatientOpen] = useState(false);
   const [doctorOpen, setDoctorOpen] = useState(false);
+  
+  // Refs for Date and Time pickers
+  const dateRef = useRef(null);
+  const timeRef = useRef(null);
 
   const [formData, setFormData] = useState({
     patientId: '',
@@ -173,8 +177,8 @@ export default function NewAppointmentPage() {
           <div className="relative">
             <label className="block text-sm font-semibold text-foreground mb-2">Date of Appointment <span className="text-red-500">*</span></label>
             <div className="relative">
-              <input type="date" name="date" value={formData.date} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark]" />
-              <FiCalendar className="absolute right-3 top-3.5 text-muted pointer-events-none" />
+              <input ref={dateRef} type="date" name="date" value={formData.date} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark]" />
+              <FiCalendar onClick={() => dateRef.current?.showPicker?.()} className="absolute right-3 top-3.5 text-muted cursor-pointer" />
             </div>
           </div>
 
@@ -182,8 +186,8 @@ export default function NewAppointmentPage() {
           <div className="relative">
             <label className="block text-sm font-semibold text-foreground mb-2">Time <span className="text-red-500">*</span></label>
             <div className="relative">
-              <input type="time" name="time" value={formData.time} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark]" />
-              <FiClock className="absolute right-3 top-3.5 text-muted pointer-events-none" />
+              <input ref={timeRef} type="time" name="time" value={formData.time} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark]" />
+              <FiClock onClick={() => timeRef.current?.showPicker?.()} className="absolute right-3 top-3.5 text-muted cursor-pointer" />
             </div>
           </div>
 

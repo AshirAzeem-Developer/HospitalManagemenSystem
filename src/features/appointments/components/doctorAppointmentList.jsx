@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Eye, Pencil, Plus, X } from "lucide-react";
+import { MoreVertical, Eye, Pencil, Plus, X, Loader2 } from "lucide-react";
 
-export default function DoctorAppointmentList({ appointments = [] }) {
+export default function DoctorAppointmentList({ appointments = [], isLoading = false }) {
+  const [isMounted, setIsMounted] = useState(false);
   const [sidebar, setSidebar] = useState({
     isOpen: false,
     data: null,
   });
 
   const [activeDropdown, setActiveDropdown] = useState(null);
+
+  // Hydration aur initial state ko theek rakhne ke liye
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const openSidebar = (appointmentData) => {
     setSidebar({ isOpen: true, data: appointmentData });
@@ -38,6 +44,17 @@ export default function DoctorAppointmentList({ appointments = [] }) {
     }
   };
 
+  // Jab loading chal rahi ho toh loader dikhaye
+  if (!isMounted || isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 bg-card rounded-md border border-border shadow-sm text-center">
+        <Loader2 className="w-8 h-8 text-muted animate-spin mb-4" />
+        <p className="text-muted font-medium text-sm">Loading appointments...</p>
+      </div>
+    );
+  }
+
+  // Jab actual mein data khali ho tab "No appointments" aaye
   if (!appointments || appointments.length === 0) {
     return (
       <div className="p-8 text-center text-muted bg-card rounded-md border border-border shadow-sm">
@@ -177,7 +194,6 @@ export default function DoctorAppointmentList({ appointments = [] }) {
         </table>
       </div>
 
-      {/* Sidebar - View Details */}
       {sidebar.isOpen && sidebar.data && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div

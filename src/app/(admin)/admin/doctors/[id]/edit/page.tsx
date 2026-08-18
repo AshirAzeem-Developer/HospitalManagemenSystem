@@ -27,7 +27,7 @@ export default async function EditDoctorPage({
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-6 bg-[#F5F6F8]">
+    <div className="min-h-screen p-4 md:p-6 bg-[#F5F6F8] -m-8">
       {/* Header */}
       <div className="mb-8 mx-auto max-w-5xl flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>

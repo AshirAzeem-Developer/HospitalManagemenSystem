@@ -176,7 +176,7 @@ function RowActionsMenu({
             <button
               type="button"
               role="menuitem"
-              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-gray-700 transition hover:bg-gray-50"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--hover)]"
               onClick={() => {
                 onView();
                 onClose();
@@ -189,7 +189,7 @@ function RowActionsMenu({
             <button
               type="button"
               role="menuitem"
-              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-gray-700 transition hover:bg-gray-50"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--hover)]"
               onClick={() => {
                 onEdit();
                 onClose();
@@ -419,7 +419,7 @@ export default function PrescriptionTable({
           <button
             type="button"
             onClick={() => setShowExportMenu((v) => !v)}
-            className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--hover)] focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
           >
             Export
             <IoChevronDown
@@ -431,10 +431,10 @@ export default function PrescriptionTable({
           </button>
 
           {showExportMenu && (
-            <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black/5">
+            <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg ring-1 ring-black/5">
               <button
                 type="button"
-                className="w-full px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-gray-50"
+                className="w-full px-4 py-2.5 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--hover)]"
                 onClick={exportToPDF}
               >
                 Download As PDF
@@ -442,7 +442,7 @@ export default function PrescriptionTable({
 
               <button
                 type="button"
-                className="w-full px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-gray-50"
+                className="w-full px-4 py-2.5 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--hover)]"
                 onClick={exportToCSV}
               >
                 Download As Excel

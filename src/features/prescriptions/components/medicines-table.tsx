@@ -48,7 +48,8 @@ export default function MedicinesTable({
       !medicine.dosage ||
       !medicine.frequency ||
       !medicine.duration ||
-      !medicine.timing
+      !medicine.timing ||
+      !medicine.instructions
     ) {
       alert("Please fill all required medicine fields");
       return;
@@ -75,10 +76,10 @@ export default function MedicinesTable({
     <>
       {/* ================= MEDICINES SECTION ================= */}
 
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-foreground">Medicines</h2>
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">Medicines</h2>
 
           <button
             type="button"
@@ -93,28 +94,28 @@ export default function MedicinesTable({
         {/* ================= EMPTY STATE ================= */}
 
         {fields.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted">
+          <div className="rounded-lg border border-dashed border-[var(--border)] p-8 text-center text-[var(--muted)]">
             No medicine added yet.
           </div>
         ) : (
           /* ================= TABLE ================= */
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm text-[var(--foreground)]">
               <thead>
-                <tr className="border-b border-border bg-hover/50">
-                  <th className="px-4 py-3">Medicine</th>
-                  <th className="px-4 py-3">Dosage</th>
-                  <th className="px-4 py-3">Frequency</th>
-                  <th className="px-4 py-3">Duration</th>
-                  <th className="px-4 py-3">Timing</th>
-                  <th className="px-4 py-3 text-right">Action</th>
+                <tr className="border-b border-[var(--border)] bg-[var(--hover)]/50">
+                  <th className="px-4 py-3 text-[var(--foreground)]">Medicine</th>
+                  <th className="px-4 py-3 text-[var(--foreground)]">Dosage</th>
+                  <th className="px-4 py-3 text-[var(--foreground)]">Frequency</th>
+                  <th className="px-4 py-3 text-[var(--foreground)]">Duration</th>
+                  <th className="px-4 py-3 text-[var(--foreground)]">Timing</th>
+                  <th className="px-4 py-3 text-right text-[var(--foreground)]">Action</th>
                 </tr>
               </thead>
 
               <tbody>
                 {fields.map((field, index) => (
-                  <tr key={field.id} className="border-b border-border">
+                  <tr key={field.id} className="border-b border-[var(--border)]">
                     <td className="px-4 py-3">{field.medicineName}</td>
 
                     <td className="px-4 py-3">{field.dosage}</td>
@@ -129,7 +130,7 @@ export default function MedicinesTable({
                       <button
                         type="button"
                         onClick={() => remove(index)}
-                        className="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                        className="rounded-lg p-2 text-red-500 hover:bg-red-500/10"
                       >
                         <FiTrash2 size={18} />
                       </button>
@@ -153,17 +154,17 @@ export default function MedicinesTable({
           />
 
           {/* Sidebar */}
-          <div className="absolute right-0 top-0 h-full w-full max-w-lg overflow-y-auto bg-card p-6 shadow-xl">
+          <div className="absolute right-0 top-0 h-full w-full max-w-lg overflow-y-auto bg-[var(--card)] p-6 shadow-xl">
             {/* Header */}
-            <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
-              <h2 className="text-xl font-semibold text-foreground">
+            <div className="mb-6 flex items-center justify-between border-b border-[var(--border)] pb-4">
+              <h2 className="text-xl font-semibold text-[var(--foreground)]">
                 Add Medicine
               </h2>
 
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
-                className="rounded-lg p-2 hover:bg-hover"
+                className="rounded-lg p-2 hover:bg-[var(--hover)]"
               >
                 <FiX size={22} />
               </button>
@@ -174,7 +175,7 @@ export default function MedicinesTable({
             <div className="space-y-5">
               {/* Medicine Name */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">
+                <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
                   Medicine Name
                 </label>
 
@@ -187,13 +188,13 @@ export default function MedicinesTable({
                     })
                   }
                   placeholder="Enter medicine name"
-                  className="w-full rounded-lg border border-border bg-card px-4 py-2 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)] outline-none placeholder:text-[var(--muted)] focus:border-teal-500"
                 />
               </div>
 
               {/* Dosage */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">
+                <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
                   Dosage
                 </label>
 
@@ -206,13 +207,13 @@ export default function MedicinesTable({
                     })
                   }
                   placeholder="500mg"
-                  className="w-full rounded-lg border border-border bg-card px-4 py-2 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)] outline-none placeholder:text-[var(--muted)] focus:border-teal-500"
                 />
               </div>
 
               {/* Frequency */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">
+                <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
                   Frequency
                 </label>
 
@@ -225,13 +226,13 @@ export default function MedicinesTable({
                     })
                   }
                   placeholder="1-0-1"
-                  className="w-full rounded-lg border border-border bg-card px-4 py-2 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)] outline-none placeholder:text-[var(--muted)] focus:border-teal-500"
                 />
               </div>
 
               {/* Duration */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">
+                <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
                   Duration
                 </label>
 
@@ -244,13 +245,13 @@ export default function MedicinesTable({
                     })
                   }
                   placeholder="7 Days"
-                  className="w-full rounded-lg border border-border bg-card px-4 py-2 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)] outline-none placeholder:text-[var(--muted)] focus:border-teal-500"
                 />
               </div>
 
               {/* Timing */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">
+                <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
                   Timing
                 </label>
 
@@ -262,7 +263,7 @@ export default function MedicinesTable({
                       timing: e.target.value as MedicineForm["timing"],
                     })
                   }
-                  className="w-full rounded-lg border border-border bg-card px-4 py-2"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)] outline-none focus:border-teal-500"
                 >
                   <option value="before_meal">Before Meal</option>
 
@@ -274,7 +275,7 @@ export default function MedicinesTable({
 
               {/* Instructions */}
               <div>
-                <label className="mb-2 block text-sm font-medium text-foreground">
+                <label className="mb-2 block text-sm font-medium text-[var(--foreground)]">
                   Instructions
                 </label>
 
@@ -288,18 +289,18 @@ export default function MedicinesTable({
                   }
                   rows={4}
                   placeholder="Drink plenty of water"
-                  className="w-full rounded-lg border border-border bg-card px-4 py-3 outline-none focus:border-teal-500"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-[var(--foreground)] outline-none placeholder:text-[var(--muted)] focus:border-teal-500"
                 />
               </div>
             </div>
 
             {/* ================= FOOTER ================= */}
 
-            <div className="mt-8 flex justify-end gap-3 border-t border-border pt-5">
+            <div className="mt-8 flex justify-end gap-3 border-t border-[var(--border)] pt-5">
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
-                className="rounded-lg border border-border px-4 py-2 text-foreground"
+                className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-[var(--foreground)]"
               >
                 Cancel
               </button>

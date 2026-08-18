@@ -42,7 +42,7 @@ export default function MyDoctorsCard({
                   {doctor.profile?.full_name || "Unknown"}
                 </p>
                 <p className="truncate text-xs text-slate-500">
-                  {doctor.specialization || "General"}
+                 {doctor.specialization || "General"}
                 </p>
               </div>
             </div>

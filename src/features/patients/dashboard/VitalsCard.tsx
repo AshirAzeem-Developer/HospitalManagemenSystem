@@ -3,7 +3,6 @@
 import {
   Scale,
   Ruler,
-  UserRound,
   Activity,
   Wind,
   Thermometer,
@@ -20,7 +19,6 @@ type VitalItem = {
 type VitalsCardProps = {
   weight?: string | number | null;
   height?: string | number | null;
-  bmi?: string | number | null;
   pulse?: string | number | null;
   spo2?: string | number | null;
   temperature?: string | number | null;
@@ -29,7 +27,6 @@ type VitalsCardProps = {
 export default function VitalsCard({
   weight,
   height,
-  bmi,
   pulse,
   spo2,
   temperature,
@@ -37,14 +34,13 @@ export default function VitalsCard({
   const vitals: VitalItem[] = [
     { label: "Weight", value: weight, unit: "Kg", icon: Scale },
     { label: "Height", value: height, unit: "cm", icon: Ruler },
-    { label: "BMI", value: bmi, unit: "", icon: UserRound },
     { label: "Pulse", value: pulse, unit: "%", icon: Activity },
     { label: "SPO2", value: spo2, unit: "%", icon: Wind },
-    { label: "Temprature", value: temperature, unit: "C", icon: Thermometer },
+    { label: "Temperature", value: temperature, unit: "C", icon: Thermometer },
   ];
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white">
+    <div className="w-full rounded-xl border border-slate-200 bg-white">
       {/* Header */}
       <div className="border-b border-slate-100 px-4 py-4 sm:px-5">
         <h2 className="text-base font-bold text-slate-900">Vitals</h2>
@@ -52,11 +48,11 @@ export default function VitalsCard({
 
       {/* Vitals Grid */}
       <div className="p-4 sm:p-5">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5 lg:gap-5">
           {vitals.map(({ label, value, unit, icon: Icon }) => (
             <div
               key={label}
-              className="flex items-center gap-3 rounded-lg border border-slate-100 p-3"
+              className="flex w-full items-center gap-3 rounded-lg border border-slate-100 p-3"
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2E37A4] text-white">
                 <Icon size={18} />

@@ -1,13 +1,12 @@
 import { getAppointments, getDoctors } from "@/features/appointments/appointmentActions/appointmentAction";
 import { getPrescriptionsByAppointmentIds } from "@/features/prescriptions/actions";
-import PatientAppointmentsContainer from "@/features/appointmentContainers/patientApointmentContainer";
+import PatientAppointmentsContainer from "@/features/appointments/appointmentContainers/adminAppointmentsContainer";
 
 export default async function PatientAppointmentsPage() {
   const appointments = await getAppointments() || [];
   const doctors = await getDoctors() || [];
 
-  // Prescriptions ko bhi server par hi merge kar dete hain,
-  // taake client ko dobara fetch/loading state ki zaroorat na pare
+
   let appointmentsWithPrescriptions = appointments;
 
   if (appointments.length > 0) {

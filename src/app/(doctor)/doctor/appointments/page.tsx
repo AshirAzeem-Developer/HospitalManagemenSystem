@@ -1,6 +1,6 @@
 import { getAppointments } from "@/features/appointments/appointmentActions/appointmentAction";
 import { getPrescriptionsByAppointmentIds } from "@/features/prescriptions/actions";
-import DoctorAppointmentsContainer from "@/features/appointmentContainers/DoctorAppointmentsContainer";
+import DoctorAppointmentsContainer from "@/features/appointments/appointmentContainers/adminAppointmentsContainer";
 
 export default async function DoctorAppointmentsPage() {
   const appointments = await getAppointments() || [];

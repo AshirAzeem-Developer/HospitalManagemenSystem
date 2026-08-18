@@ -3,109 +3,125 @@
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { formatPakistaniPhone } from "@/lib/phone";
+import { paginateQuery } from "@/lib/paginateQuery";
 
 
 
-export async function getPatients() {
+export async function getPatients({
+  page = 1,
+  limit = 10,
+  query = "",
+}: {
+  page?: number;
+  limit?: number;
+  query?: string;
+} = {}): Promise<{
+  patients: any[];
+  totalPatients: number;
+  totalPages: number;
+}> {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  const safePage = Number.isFinite(page) && page > 0 ? page : 1;
+  const safeLimit = Number.isFinite(limit) && limit > 0 ? limit : 10;
+
+  let dbQuery = supabase
     .from("patients")
-    .select(`
-      id,
-      profile_id,
-      blood_group,
-      stay_address,
-      profile:profiles (
-        full_name,
-        gender,
-        avatar_url
-      ),
-      doctor:doctors (
-        specialization,
-        status,
+    .select(
+      `
+        id,
+        profile_id,
+        blood_group,
+        stay_address,
         profile:profiles (
           full_name,
+          gender,
           avatar_url
+        ),
+        doctor:doctors (
+          specialization,
+          status,
+          profile:profiles (
+            full_name,
+            avatar_url
+          )
         )
-      )
-    `);
+      `,
+      { count: "exact" },
+    );
+
+  const trimmedQuery = query?.trim();
+  if (trimmedQuery) {
+    const { data: profileMatches, error: profileError } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("full_name", `%${trimmedQuery}%`);
+
+    if (profileError) {
+      console.error("Error filtering patients by name:", profileError.message);
+      throw new Error(profileError.message);
+    }
+
+    const profileIds = (profileMatches ?? []).map((profile) => profile.id);
+
+    if (profileIds.length === 0) {
+      return {
+        patients: [],
+        totalPatients: 0,
+        totalPages: 1,
+      };
+    }
+
+    dbQuery = dbQuery.in("profile_id", profileIds);
+  }
+
+  const { data, count, totalPages, error } = await paginateQuery(dbQuery, {
+    page: safePage,
+    limit: safeLimit,
+  });
 
   if (error) {
     console.error(error);
     throw new Error(error.message);
   }
 
-
   const updatedPatients = await Promise.all(
-    data.map(async (patient: any) => {
-      // phone no
-     const { data: authUser } =
-        await supabaseAdmin.auth.admin.getUserById(
-          patient.profile_id
-        );
-
-      patient.phone = formatPakistaniPhone(
-      authUser?.user?.phone
+    (data ?? []).map(async (patient: any) => {
+      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(
+        patient.profile_id,
       );
-      // Patient Image
+
+      patient.phone = formatPakistaniPhone(authUser?.user?.phone);
+
       if (patient.profile?.[0]?.avatar_url) {
+        const path = patient.profile[0].avatar_url.split("/images/")[1];
 
-        const path =
-          patient.profile[0].avatar_url.split("/images/")[1];
+        const { data: image } = await supabase.storage
+          .from("images")
+          .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
 
-
-        const { data: image } =
-          await supabase.storage
-            .from("images")
-            .createSignedUrl(
-              path,
-              60 * 60 * 24 * 365 * 5
-            );
-
-
-        patient.profile[0].avatar_url =
-          image?.signedUrl ?? null;
+        patient.profile[0].avatar_url = image?.signedUrl ?? null;
       }
 
+      if (patient.doctor?.[0]?.profile?.[0]?.avatar_url) {
+        const path = patient.doctor[0].profile[0].avatar_url.split("/images/")[1];
 
+        const { data: image } = await supabase.storage
+          .from("images")
+          .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
 
-      // Doctor Image
-      if (
-        patient.doctor?.[0]?.profile?.[0]?.avatar_url
-      ) {
-
-        const path =
-          patient.doctor[0]
-            .profile[0]
-            .avatar_url
-            .split("/images/")[1];
-
-
-        const { data: image } =
-          await supabase.storage
-            .from("images")
-            .createSignedUrl(
-              path,
-              60 * 60 * 24 * 365 * 5
-            );
-
-
-        patient.doctor[0]
-          .profile[0]
-          .avatar_url =
-            image?.signedUrl ?? null;
+        patient.doctor[0].profile[0].avatar_url = image?.signedUrl ?? null;
       }
-
 
       return patient;
-    })
+    }),
   );
 
-
-  console.log("UPDATED PATIENTS:", updatedPatients);
-
-  return updatedPatients;
+  return {
+    patients: updatedPatients,
+    totalPatients: count ?? 0,
+    totalPages,
+  };
 }
 
 //edit

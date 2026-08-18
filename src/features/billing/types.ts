@@ -1,6 +1,7 @@
 // type.ts => defines TypeScript interfaces and types for the Billing module.
 export interface Invoice {
     id : string,
+    invoice_number: string;
     appointment_id : string | null,
     patient_id : string,
     issued_date : string,

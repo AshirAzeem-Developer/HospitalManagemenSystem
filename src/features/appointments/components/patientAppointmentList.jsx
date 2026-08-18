@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Eye, Edit, X, FileText, Loader2 } from "lucide-react";
+import { MoreVertical, Eye, Edit, X, FileText } from "lucide-react";
 import { getDoctors } from "../appointmentActions/appointmentAction";
 import { Dropdown } from "@/components/ui/select";
 
@@ -11,14 +11,9 @@ export default function PatientAppointmentList({
   appointments = [],
   doctorsList = [],
   onEdit,
-  isLoading = false, // Naya prop add kiya hai
 }) {
-  const [isMounted, setIsMounted] = useState(false);
   const [allDoctors, setAllDoctors] = useState([]);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
-  
-  // Empty state ko fauran dikhane se rokne ke liye
-  const [showEmptyState, setShowEmptyState] = useState(false);
 
   const [sidebar, setSidebar] = useState({
     isOpen: false,
@@ -28,24 +23,6 @@ export default function PatientAppointmentList({
 
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [editFormData, setEditFormData] = useState({});
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Jab appointments array empty ho, thoda wait karein taqay parent fetch kar le
-  useEffect(() => {
-    let timer;
-    if (!appointments || appointments.length === 0) {
-      // 800ms ka wait karega "No appointments" dikhane se pehle
-      timer = setTimeout(() => {
-        setShowEmptyState(true);
-      }, 800);
-    } else {
-      setShowEmptyState(false);
-    }
-    return () => clearTimeout(timer);
-  }, [appointments]);
 
   useEffect(() => {
     if (doctorsList && doctorsList.length > 0) {
@@ -116,19 +93,6 @@ export default function PatientAppointmentList({
     }
   };
 
-  // Agar component mount nahi hua, ya explicitly isLoading true hai, ya data empty hai aur wait kar raha hai
-  if (!isMounted || isLoading || (!appointments?.length && !showEmptyState)) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 bg-background rounded-xl border border-border shadow-sm text-center">
-        <Loader2 className="w-8 h-8 text-muted-foreground animate-spin mb-4" />
-        <p className="text-muted-foreground font-medium text-sm">
-          Loading appointments...
-        </p>
-      </div>
-    );
-  }
-
-  // Agar data wakaie mein null/empty hai aur waqt guzar chuka hai
   if (!appointments || appointments.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 bg-background rounded-xl border border-border shadow-sm text-center">
@@ -148,21 +112,11 @@ export default function PatientAppointmentList({
         <table className="w-full text-left text-sm text-foreground">
           <thead className="border-b border-border bg-black/[0.02] dark:bg-white/[0.02] text-muted-foreground">
             <tr>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">
-                Date & Time
-              </th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">
-                Doctor
-              </th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">
-                Status
-              </th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">
-                Prescription
-              </th>
-              <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">
-                Action
-              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">Date & Time</th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">Doctor</th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">Status</th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">Prescription</th>
+              <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -171,7 +125,6 @@ export default function PatientAppointmentList({
                 ? `app-${appointment.id}`
                 : `app-idx-${index}`;
               const isMenuOpen = activeDropdown === appointment.id;
-
               const currentStatus = appointment.status?.toLowerCase();
               const isEditable = currentStatus === "pending";
 

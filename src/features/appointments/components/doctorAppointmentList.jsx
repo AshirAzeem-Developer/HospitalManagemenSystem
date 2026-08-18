@@ -1,23 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Eye, Pencil, Plus, X, Loader2 } from "lucide-react";
+import { MoreVertical, Eye, Pencil, Plus, X } from "lucide-react";
 
-export default function DoctorAppointmentList({ appointments = [], isLoading = false }) {
-  const [isMounted, setIsMounted] = useState(false);
+export default function DoctorAppointmentList({ appointments = [] }) {
   const [sidebar, setSidebar] = useState({
     isOpen: false,
     data: null,
   });
 
   const [activeDropdown, setActiveDropdown] = useState(null);
-
-  // Hydration aur initial state ko theek rakhne ke liye
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const openSidebar = (appointmentData) => {
     setSidebar({ isOpen: true, data: appointmentData });
@@ -44,17 +38,6 @@ export default function DoctorAppointmentList({ appointments = [], isLoading = f
     }
   };
 
-  // Jab loading chal rahi ho toh loader dikhaye
-  if (!isMounted || isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 bg-card rounded-md border border-border shadow-sm text-center">
-        <Loader2 className="w-8 h-8 text-muted animate-spin mb-4" />
-        <p className="text-muted font-medium text-sm">Loading appointments...</p>
-      </div>
-    );
-  }
-
-  // Jab actual mein data khali ho tab "No appointments" aaye
   if (!appointments || appointments.length === 0) {
     return (
       <div className="p-8 text-center text-muted bg-card rounded-md border border-border shadow-sm">
@@ -69,11 +52,21 @@ export default function DoctorAppointmentList({ appointments = [], isLoading = f
         <table className="w-full text-left text-sm text-foreground">
           <thead className="border-b border-border bg-hover/50 text-muted">
             <tr>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">Date & Time</th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">Patient</th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">Status</th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">Prescription</th>
-              <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">Action</th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Date & Time
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Patient
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Status
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Prescription
+              </th>
+              <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -133,7 +126,9 @@ export default function DoctorAppointmentList({ appointments = [], isLoading = f
                   </td>
 
                   <td className="px-6 py-4">
-                    {appointment.prescriptionId ? (
+                    {appointment.status?.toLowerCase() === "pending" ? (
+                      <span className="text-muted text-xs italic">-</span>
+                    ) : appointment.prescriptionId ? (
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/doctor/prescriptions/${appointment.prescriptionId}`}

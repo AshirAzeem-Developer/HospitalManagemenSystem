@@ -30,7 +30,7 @@ export default function NewAppointmentPage() {
     date: '',
     time: '',
     reason: '',
-    status: ''
+    status: 'confirmed' // Status automatically 'confirmed' set kardi hai
   });
 
   useEffect(() => {
@@ -60,7 +60,17 @@ export default function NewAppointmentPage() {
     e.preventDefault();
     setLoading(true);
 
-    const response = await createAppointmentAction(formData);
+    // Agar database se statuses aye hain toh wahan se 'confirmed' ki ID nikal lein
+    // warna simple string 'confirmed' pass kar dein
+    let finalStatus = 'confirmed';
+    if (statuses.length > 0) {
+      const confirmStatusObj = statuses.find(s => (s.name || s.status)?.toLowerCase() === 'confirmed');
+      if (confirmStatusObj) {
+        finalStatus = confirmStatusObj.id;
+      }
+    }
+
+    const response = await createAppointmentAction({ ...formData, status: finalStatus });
     
     setLoading(false);
     if (response.success) {
@@ -195,24 +205,6 @@ export default function NewAppointmentPage() {
           <div className="md:col-span-2">
             <label className="block text-sm font-semibold text-foreground mb-2">Appointment Reason <span className="text-red-500">*</span></label>
             <textarea name="reason" value={formData.reason} onChange={handleChange} rows="4" required placeholder="Enter reason here..." className="w-full border border-border rounded-lg p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-background placeholder:text-muted"></textarea>
-          </div>
-
-          {/* Status Field */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-foreground mb-2">Status <span className="text-red-500">*</span></label>
-            <select name="status" value={formData.status} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 bg-background [&>option]:bg-background [&>option]:text-foreground">
-              <option value="">Select Status</option>
-              {statuses.length > 0 ? (
-                statuses.map(s => <option key={s.id} value={s.id}>{s.name || s.status}</option>)
-              ) : (
-                <>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </>
-              )}
-            </select>
           </div>
         </div>
 

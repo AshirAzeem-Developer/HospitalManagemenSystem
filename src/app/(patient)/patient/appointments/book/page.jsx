@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiChevronLeft, FiCalendar, FiClock, FiChevronDown } from "react-icons/fi";
@@ -13,6 +13,10 @@ export default function PatientNewAppointmentPage() {
 
   const [doctors, setDoctors] = useState([]);
   const [doctorOpen, setDoctorOpen] = useState(false);
+
+  // Date aur Time ke refs
+  const dateRef = useRef(null);
+  const timeRef = useRef(null);
 
   const [formData, setFormData] = useState({
     doctorId: '',
@@ -82,8 +86,7 @@ export default function PatientNewAppointmentPage() {
               <button 
                 type="button" 
                 onClick={() => setDoctorOpen(!doctorOpen)}
-                // Yahan hover:bg-gray-200 lagaya hai taake light mode mein properly nazar aaye
-                className="w-full flex justify-between items-center border border-border rounded-lg p-3 text-sm text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer hover:bg-gray-200 dark:hover:bg-white/10"
+                className="w-full flex justify-between items-center border border-border rounded-lg p-3 text-sm text-foreground bg-background focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
               >
                 <span className="truncate">
                   {selectedDoctor?.profile?.full_name || selectedDoctor?.name || "Select Doctor"}
@@ -96,8 +99,7 @@ export default function PatientNewAppointmentPage() {
                   <ul className="py-1">
                     <li 
                       onClick={() => { handleDropdownSelect('doctorId', ''); setDoctorOpen(false); }}
-                      // Yahan bhi hover:bg-gray-200
-                      className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors cursor-pointer text-sm text-muted-foreground"
+                      className="px-4 py-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-sm text-muted-foreground"
                     >
                       Select Doctor
                     </li>
@@ -105,8 +107,7 @@ export default function PatientNewAppointmentPage() {
                       <li 
                         key={d.id} 
                         onClick={() => { handleDropdownSelect('doctorId', d.id); setDoctorOpen(false); }}
-                        // Aur yahan bhi hover:bg-gray-200
-                        className="px-4 py-2 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors cursor-pointer text-sm text-foreground border-b border-border last:border-0"
+                        className="px-4 py-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-sm text-foreground border-b border-border last:border-0"
                       >
                         {d.profile?.full_name || d.name || "Doctor"}
                       </li>
@@ -125,14 +126,18 @@ export default function PatientNewAppointmentPage() {
             </label>
             <div className="relative">
               <input 
+                ref={dateRef}
                 type="date" 
                 name="date" 
                 value={formData.date} 
                 onChange={handleChange} 
                 required 
-                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer" 
+                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer [color-scheme:light_dark]" 
               />
-              <FiCalendar className="absolute right-3 top-3.5 text-muted-foreground pointer-events-none" />
+              <FiCalendar 
+                onClick={() => dateRef.current?.showPicker?.()} 
+                className="absolute right-3 top-3.5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
+              />
             </div>
           </div>
 
@@ -143,14 +148,18 @@ export default function PatientNewAppointmentPage() {
             </label>
             <div className="relative">
               <input 
+                ref={timeRef}
                 type="time" 
                 name="time" 
                 value={formData.time} 
                 onChange={handleChange} 
                 required 
-                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer" 
+                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer [color-scheme:light_dark]" 
               />
-              <FiClock className="absolute right-3 top-3.5 text-muted-foreground pointer-events-none" />
+              <FiClock 
+                onClick={() => timeRef.current?.showPicker?.()} 
+                className="absolute right-3 top-3.5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
+              />
             </div>
           </div>
 

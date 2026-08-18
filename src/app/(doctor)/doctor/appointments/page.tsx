@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   getAppointments,
   updateAppointmentAction,
@@ -14,9 +14,6 @@ import DataContainer, {
 import AppointmentHeader from "../../../../features/appointments/components/appointmentHeader";
 import DoctorAppointmentList from "../../../../features/appointments/components/doctorAppointmentList";
 
-// getAppointments() lives in an untyped .js action file and returns this
-// shape (see the formattedAppointments mapping there) — declared here since
-// TypeScript can't infer it across the JS/TS boundary.
 interface DoctorAppointment {
   id: string;
   date: string;
@@ -41,6 +38,11 @@ export default function DoctorAppointmentsPage({
   const [appointments, setAppointments] = useState<DoctorAppointment[]>(
     initialAppointments,
   );
+  
+  // 1. Loading state setup
+  const [isLoading, setIsLoading] = useState<boolean>(
+    !initialAppointments || initialAppointments.length === 0
+  );
 
   useEffect(() => {
     async function load() {
@@ -48,18 +50,21 @@ export default function DoctorAppointmentsPage({
 
       if (!list || list.length === 0) {
         try {
+          setIsLoading(true); // Loading Start
           const data = (await getAppointments()) as DoctorAppointment[];
           if (data) list = data;
         } catch (err) {
           console.error("Error fetching appointments:", err);
+          setIsLoading(false);
           return;
         }
       }
 
-      if (!list || list.length === 0) return;
+      if (!list || list.length === 0) {
+        setIsLoading(false); // Agar sach mein data nahi aya toh band karein
+        return;
+      }
 
-      // Attach prescriptionId (or null) to each appointment so the list
-      // can show View+Edit vs Create without a per-row round trip.
       const ids = list.map((a) => a.id).filter(Boolean);
       const statusResult = await getPrescriptionsByAppointmentIds(ids);
       const statusMap: Record<string, string> = statusResult.success
@@ -72,11 +77,10 @@ export default function DoctorAppointmentsPage({
       }));
 
       setAppointments(merged);
+      setIsLoading(false); // Data ready, Loading Stop
     }
 
     load();
-    // Intentionally run once on mount — initialAppointments is expected to
-    // be stable across renders.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -88,13 +92,19 @@ export default function DoctorAppointmentsPage({
     [],
   );
 
+  // 2. DataContainer ko Loading state pass karne ke liye Wrapper
+  const ListWrapper = useCallback(
+    (props: any) => <DoctorAppointmentList {...props} isLoading={isLoading} />,
+    [isLoading]
+  );
+
   return (
     <div className="min-h-screen bg-page p-4 md:p-6">
       <DataContainer
         initialData={appointments}
         HeaderComponent={AppointmentHeader}
         headerProps={headerProps}
-        ListComponent={DoctorAppointmentList}
+        ListComponent={ListWrapper} // 3. Yahan use kiya hai
         filterSortLogic={appointmentFilterLogic}
         onEditAction={updateAppointmentAction}
         onDeleteAction={deleteAppointmentAction}

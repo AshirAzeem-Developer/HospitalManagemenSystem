@@ -35,18 +35,34 @@ export default async function AdminPatientsPage({ searchParams }: Props) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-semibold text-foreground">Patient Directory</h1>
+            <h1 className="text-lg font-semibold text-slate-900 sm:text-2xl">
+              Patient Grid
+            </h1>
+
+            <Button
+              variant="status-primary"
+              text={`Total Patients : ${patients.length}`}
+              type="button"
+            />
           </div>
         </div>
 
         <div className="flex w-full items-center gap-2 sm:w-auto">
-          <div className="flex items-center gap-2 border border-border bg-background px-2 py-1">
-            <List size={16} className="text-foreground" />
+          {/* List / Grid Toggle */}
+          <div className="flex items-center gap-2 border border-slate-300 bg-white px-2 py-1">
+            {/* List View - Active */}
+            <List size={16} className="text-blue-600" />
+
+            {/* Grid View */}
             <Link href="/admin/patients/grid-view">
-              <LayoutGrid size={16} className="text-muted hover:text-foreground" />
+              <LayoutGrid
+                size={16}
+                className="text-slate-400 hover:text-slate-600"
+              />
             </Link>
           </div>
 
+          {/* New Patient */}
           <Link href="/admin/patients/NewPatient" className="w-full sm:w-auto">
             <Button
               text="New Patient"

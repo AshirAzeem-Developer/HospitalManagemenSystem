@@ -26,6 +26,10 @@ export default async function BillingPage() {
               Total Invoices: {invoices.length}
             </span>
           </div>
+
+          <p className="mt-1 text-sm text-slate-500">
+            Hospital invoices and financial records.
+          </p>
         </div>
 
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">

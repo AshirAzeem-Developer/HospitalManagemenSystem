@@ -17,7 +17,7 @@ export default async function PatientBillingPage() {
   const invoices = await getPatientInvoices(user.id);
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-hidden">
+    <div className="w-full min-w-0 max-w-full overflow-x-hidden">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">

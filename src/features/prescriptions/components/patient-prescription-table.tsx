@@ -1,9 +1,10 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FiEye } from "react-icons/fi";
 import { IoChevronDown } from "react-icons/io5";
+import PaginationSearchBar from "@/components/ui/PaginationSearchBar";
 
 interface PatientPrescriptionListItem {
   id: string;
@@ -24,8 +25,6 @@ export default function PatientPrescriptionTable({
 }: PatientPrescriptionTableProps) {
   const router = useRouter();
 
-  const [search, setSearch] = useState("");
-  const deferredSearch = useDeferredValue(search);
   const [sortOption, setSortOption] = useState<SortOption>("recent");
   const [showSortMenu, setShowSortMenu] = useState(false);
 
@@ -35,16 +34,7 @@ export default function PatientPrescriptionTable({
   };
 
   const visiblePrescriptions = useMemo(() => {
-    const normalizedSearch = deferredSearch.trim().toLowerCase();
-
-    let result = prescriptions.filter((p) => {
-      if (!normalizedSearch) return true;
-
-      return (
-        p.doctorName.toLowerCase().includes(normalizedSearch) ||
-        p.diagnosis.toLowerCase().includes(normalizedSearch)
-      );
-    });
+    let result = [...prescriptions];
 
     result = [...result].sort((a, b) => {
       const aTime = new Date(a.prescribedOnRaw).getTime();
@@ -53,7 +43,7 @@ export default function PatientPrescriptionTable({
     });
 
     return result;
-  }, [prescriptions, deferredSearch, sortOption]);
+  }, [prescriptions, sortOption]);
 
   return (
     <div className="rounded-xl border border-border bg-background shadow-sm">
@@ -62,13 +52,7 @@ export default function PatientPrescriptionTable({
       </div>
 
       <div className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
-        <input
-          type="text"
-          placeholder="Search by doctor or diagnosis"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 md:w-72"
-        />
+        <PaginationSearchBar placeholder="Search prescriptions" />
 
         <div className="relative">
           <button

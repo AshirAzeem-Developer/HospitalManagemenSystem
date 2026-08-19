@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useDeferredValue,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -20,6 +19,7 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import { IoChevronDown } from "react-icons/io5";
+import PaginationSearchBar from "@/components/ui/PaginationSearchBar";
 
 import { deletePrescription } from "@/features/prescriptions/actions";
 
@@ -176,7 +176,7 @@ function RowActionsMenu({
             <button
               type="button"
               role="menuitem"
-              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--hover)]"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-foreground transition hover:bg-hover"
               onClick={() => {
                 onView();
                 onClose();
@@ -189,7 +189,7 @@ function RowActionsMenu({
             <button
               type="button"
               role="menuitem"
-              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--hover)]"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-foreground transition hover:bg-hover"
               onClick={() => {
                 onEdit();
                 onClose();
@@ -226,8 +226,6 @@ export default function PrescriptionTable({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [search, setSearch] = useState("");
-  const deferredSearch = useDeferredValue(search);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -262,19 +260,10 @@ export default function PrescriptionTable({
   };
 
   // ---------------------------------------
-  // Search + Filter + Sort (derived, no extra state needed)
+  // Filter + Sort (derived, no extra state needed)
   // ---------------------------------------
   const visiblePrescriptions = useMemo(() => {
-    const normalizedSearch = deferredSearch.trim().toLowerCase();
-
-    let result = prescriptions.filter((prescription) => {
-      if (!normalizedSearch) return true;
-
-      return (
-        prescription.patientName.toLowerCase().includes(normalizedSearch) ||
-        prescription.id.toLowerCase().includes(normalizedSearch)
-      );
-    });
+    let result = [...prescriptions];
 
     if (appliedDateFrom) {
       const from = new Date(appliedDateFrom).getTime();
@@ -301,7 +290,7 @@ export default function PrescriptionTable({
     });
 
     return result;
-  }, [prescriptions, deferredSearch, appliedDateFrom, appliedDateTo, sortOption]);
+  }, [prescriptions, appliedDateFrom, appliedDateTo, sortOption]);
 
   const hasActiveFilter = Boolean(appliedDateFrom || appliedDateTo);
 
@@ -419,7 +408,7 @@ export default function PrescriptionTable({
           <button
             type="button"
             onClick={() => setShowExportMenu((v) => !v)}
-            className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--hover)] focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:bg-hover focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
           >
             Export
             <IoChevronDown
@@ -431,10 +420,10 @@ export default function PrescriptionTable({
           </button>
 
           {showExportMenu && (
-            <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg ring-1 ring-black/5">
+            <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-lg ring-1 ring-black/5">
               <button
                 type="button"
-                className="w-full px-4 py-2.5 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--hover)]"
+                className="w-full px-4 py-2.5 text-left text-sm text-foreground transition hover:bg-hover"
                 onClick={exportToPDF}
               >
                 Download As PDF
@@ -442,7 +431,7 @@ export default function PrescriptionTable({
 
               <button
                 type="button"
-                className="w-full px-4 py-2.5 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--hover)]"
+                className="w-full px-4 py-2.5 text-left text-sm text-foreground transition hover:bg-hover"
                 onClick={exportToCSV}
               >
                 Download As Excel
@@ -454,13 +443,7 @@ export default function PrescriptionTable({
 
       {/* Toolbar */}
       <div className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
-        <input
-          type="text"
-          placeholder="Search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground outline-none transition placeholder:text-muted focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 md:w-72"
-        />
+        <PaginationSearchBar placeholder="Search prescriptions" />
 
         <div className="flex gap-3">
           {/* Filters */}

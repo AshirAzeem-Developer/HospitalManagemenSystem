@@ -72,6 +72,7 @@ export async function getAppointments(filters = {}) {
       status,
       patient_id,
       doctor_id,
+      reason_of_visit, 
       patient:patients (
         profile:profiles ( full_name, avatar_url ) 
       ),
@@ -100,10 +101,11 @@ export async function getAppointments(filters = {}) {
     status: app.status,
     patientId: app.patient_id,
     doctorId: app.doctor_id,
+    reason: app.reason_of_visit, /* 🌟 YAHAN REASON RETURN KARWAYA HAI 🌟 */
     patientName: app.patient?.profile?.full_name || "Unknown Patient",
     patientImage: app.patient?.profile?.avatar_url || "/default-avatar.png", 
     doctorName: app.doctor?.profile?.full_name || "Unknown Doctor",
-    doctorImage: app.doctor?.profile?.avatar_url || "/default-avatar.png", // Fallback image 
+    doctorImage: app.doctor?.profile?.avatar_url || "/default-avatar.png", 
   }));
 
   return formattedAppointments;

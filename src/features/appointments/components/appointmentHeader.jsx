@@ -225,22 +225,7 @@ export default function AppointmentHeader({
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-foreground">{title}</h1>
         <div className="flex items-center gap-3">
-          <div className="flex bg-hover p-1 rounded-lg border border-border">
-            <button
-              type="button"
-              onClick={() => onViewChange?.("list")}
-              className={`cursor-pointer p-1.5 rounded-md transition ${currentView === "list" ? "bg-background shadow-sm text-indigo-700" : "text-muted"}`}
-            >
-              <FiList className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onViewChange?.("calendar")}
-              className={`cursor-pointer p-1.5 rounded-md transition ${currentView === "calendar" ? "bg-background shadow-sm text-indigo-700" : "text-muted"}`}
-            >
-              <FiCalendar className="w-4 h-4" />
-            </button>
-          </div>
+          
 
           {showNewButton && (
             <Link href={newAppointmentUrl}>

@@ -331,6 +331,24 @@ export default function AppointmentsList({
                     )}
                   </div>
 
+                  {/* 🌟 YAHAN REASON OF VISIT ADD KIYA HAI SIRF VIEW MODE KE LIYE 🌟 */}
+                  {sidebar.mode === "view" && (
+                    <div>
+                      <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
+                        Reason of Visit
+                      </label>
+                      <div className="mt-1.5 border-l-2 border-blue-500/40 dark:border-blue-400/40 pl-3 py-0.5">
+                        <p className="text-sm text-foreground/90 leading-relaxed">
+                          {sidebar.data.reason ? (
+                            sidebar.data.reason
+                          ) : (
+                            <span className="text-muted italic text-xs">No reason provided</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               )}
             </div>

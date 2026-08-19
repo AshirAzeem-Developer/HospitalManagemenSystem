@@ -126,9 +126,16 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                   </td>
 
                   <td className="px-6 py-4">
-                    {appointment.status?.toLowerCase() === "pending" ? (
-                      <span className="text-muted text-xs italic">-</span>
-                    ) : appointment.prescriptionId ? (
+                    {appointment.status?.toLowerCase() === "confirmed" ? (
+                      <Link
+                        href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
+                        className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border hover:bg-hover rounded-md transition-colors"
+                      >
+                        <Plus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                        Create Prescription
+                      </Link>
+                    ) : appointment.status?.toLowerCase() === "completed" &&
+                      appointment.prescriptionId ? (
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/doctor/prescriptions/${appointment.prescriptionId}`}
@@ -146,13 +153,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                         </Link>
                       </div>
                     ) : (
-                      <Link
-                        href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
-                        className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border hover:bg-hover rounded-md transition-colors"
-                      >
-                        <Plus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                        Create Prescription
-                      </Link>
+                      <span className="text-muted text-xs italic ml-6">-</span>
                     )}
                   </td>
 
@@ -210,7 +211,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
             </div>
 
             <div className="p-5 overflow-y-auto flex-1 bg-card">
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
                   <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
                     Patient Name
@@ -250,6 +251,21 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                       {sidebar.data.status || "Unknown"}
                     </span>
                   </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
+                    Reason of Visit
+                  </label>
+                  <p className="text-sm font-medium text-foreground mt-0.5 leading-relaxed">
+                    {sidebar.data.reason ? (
+                      sidebar.data.reason
+                    ) : (
+                      <span className="text-muted font-normal italic text-xs">
+                        No reason provided
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>

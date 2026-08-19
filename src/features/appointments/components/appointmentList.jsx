@@ -107,8 +107,8 @@ export default function AppointmentsList({
 
   return (
     <div className="w-full relative">
-      {/* Dropdown scrolling fix for last rows */}
-      <div className="w-full overflow-x-auto min-h-[300px] pb-28">
+      
+      <div className="w-full overflow-x-auto pb-2">
         <table className="w-full text-left text-sm text-foreground">
           <thead className="border-b border-border bg-hover/50 text-muted">
             <tr>
@@ -330,6 +330,23 @@ export default function AppointmentsList({
                       </div>
                     )}
                   </div>
+
+                  {sidebar.mode === "view" && (
+                    <div>
+                      <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
+                        Reason of Visit
+                      </label>
+                      <div className="mt-1.5 border-l-2 border-blue-500/40 dark:border-blue-400/40 pl-3 py-0.5">
+                        <p className="text-sm text-foreground/90 leading-relaxed">
+                          {sidebar.data.reason ? (
+                            sidebar.data.reason
+                          ) : (
+                            <span className="text-muted italic text-xs">No reason provided</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                 </div>
               )}

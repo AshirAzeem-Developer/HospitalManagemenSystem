@@ -1,8 +1,8 @@
 "use client";
 
 import DataContainer, { appointmentFilterLogic } from '@/components/ui/appointmentData';
-import AppointmentHeader from './appointmentHeader';
-import AppointmentsList from './appointmentList';
+import AppointmentHeader from '../components/appointmentHeader';
+import AppointmentsList from '../components/appointmentList';
 import { updateAppointmentAction, deleteAppointmentAction } from '../appointmentActions/appointmentAction';
 
 export default function AppointmentsContainer({ 

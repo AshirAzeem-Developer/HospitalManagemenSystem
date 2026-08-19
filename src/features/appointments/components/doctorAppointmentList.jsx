@@ -1,23 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Eye, Pencil, Plus, X, Loader2 } from "lucide-react";
+import { MoreVertical, Eye, Pencil, Plus, X } from "lucide-react";
 
-export default function DoctorAppointmentList({ appointments = [], isLoading = false }) {
-  const [isMounted, setIsMounted] = useState(false);
+export default function DoctorAppointmentList({ appointments = [] }) {
   const [sidebar, setSidebar] = useState({
     isOpen: false,
     data: null,
   });
 
   const [activeDropdown, setActiveDropdown] = useState(null);
-
-  // Hydration aur initial state ko theek rakhne ke liye
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const openSidebar = (appointmentData) => {
     setSidebar({ isOpen: true, data: appointmentData });
@@ -44,17 +38,6 @@ export default function DoctorAppointmentList({ appointments = [], isLoading = f
     }
   };
 
-  // Jab loading chal rahi ho toh loader dikhaye
-  if (!isMounted || isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 bg-card rounded-md border border-border shadow-sm text-center">
-        <Loader2 className="w-8 h-8 text-muted animate-spin mb-4" />
-        <p className="text-muted font-medium text-sm">Loading appointments...</p>
-      </div>
-    );
-  }
-
-  // Jab actual mein data khali ho tab "No appointments" aaye
   if (!appointments || appointments.length === 0) {
     return (
       <div className="p-8 text-center text-muted bg-card rounded-md border border-border shadow-sm">
@@ -69,11 +52,21 @@ export default function DoctorAppointmentList({ appointments = [], isLoading = f
         <table className="w-full text-left text-sm text-foreground">
           <thead className="border-b border-border bg-hover/50 text-muted">
             <tr>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">Date & Time</th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">Patient</th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">Status</th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">Prescription</th>
-              <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">Action</th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Date & Time
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Patient
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Status
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Prescription
+              </th>
+              <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">
+                Action
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -133,7 +126,16 @@ export default function DoctorAppointmentList({ appointments = [], isLoading = f
                   </td>
 
                   <td className="px-6 py-4">
-                    {appointment.prescriptionId ? (
+                    {appointment.status?.toLowerCase() === "confirmed" ? (
+                      <Link
+                        href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
+                        className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border hover:bg-hover rounded-md transition-colors"
+                      >
+                        <Plus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                        Create Prescription
+                      </Link>
+                    ) : appointment.status?.toLowerCase() === "completed" &&
+                      appointment.prescriptionId ? (
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/doctor/prescriptions/${appointment.prescriptionId}`}
@@ -151,13 +153,7 @@ export default function DoctorAppointmentList({ appointments = [], isLoading = f
                         </Link>
                       </div>
                     ) : (
-                      <Link
-                        href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
-                        className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border hover:bg-hover rounded-md transition-colors"
-                      >
-                        <Plus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                        Create Prescription
-                      </Link>
+                      <span className="text-muted text-xs italic ml-6">-</span>
                     )}
                   </td>
 
@@ -215,7 +211,7 @@ export default function DoctorAppointmentList({ appointments = [], isLoading = f
             </div>
 
             <div className="p-5 overflow-y-auto flex-1 bg-card">
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
                   <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
                     Patient Name
@@ -255,6 +251,21 @@ export default function DoctorAppointmentList({ appointments = [], isLoading = f
                       {sidebar.data.status || "Unknown"}
                     </span>
                   </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
+                    Reason of Visit
+                  </label>
+                  <p className="text-sm font-medium text-foreground mt-0.5 leading-relaxed">
+                    {sidebar.data.reason ? (
+                      sidebar.data.reason
+                    ) : (
+                      <span className="text-muted font-normal italic text-xs">
+                        No reason provided
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>

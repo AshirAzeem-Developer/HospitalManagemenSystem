@@ -11,6 +11,34 @@ import DataContainer, { appointmentFilterLogic } from "./../../../../../componen
 import AppointmentHeader from "../../../../../features/appointments/components/appointmentHeader"; 
 import PendingAppointmentsList from "../../../../../features/appointments/components/appointmentRequests"; 
 
+function StableListWrapper(props) {
+  const [processingIds, setProcessingIds] = useState([]);
+
+  const runAction = async (id, status) => {
+    const itemToUpdate = props.data.find((app) => app.id === id);
+    if (!itemToUpdate) return;
+
+    setProcessingIds((prev) => [...prev, id]);
+    try {
+      await props.onEdit({ ...itemToUpdate, status });
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+    } finally {
+      setProcessingIds((prev) => prev.filter((pid) => pid !== id));
+    }
+  };
+
+  return (
+    <PendingAppointmentsList
+      appointments={props.data}
+      processingIds={processingIds}
+      onConfirm={(id) => runAction(id, "confirmed")}
+      onCancel={(id) => runAction(id, "cancelled")}
+      onDelete={(id) => runAction(id, "cancelled")}
+    />
+  );
+}
+
 export default function PendingAppointmentsPage({ initialAppointments = [] }) {
   const [appointments, setAppointments] = useState(initialAppointments);
   const [loading, setLoading] = useState(!initialAppointments || initialAppointments.length === 0);
@@ -43,53 +71,26 @@ export default function PendingAppointmentsPage({ initialAppointments = [] }) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  // 🌟 FIX: Isko wapas [] kar diya hai taake loop/bar bar render na ho
+  }, []); 
 
   const pendingOnlyFilterLogic = useCallback((data, searchTerm, activeFilters, sortOrder) => {
     return appointmentFilterLogic(data, searchTerm, { ...activeFilters, status: "pending" }, sortOrder);
   }, []);
 
-  // UPDATE: Yahan se hardcoded 'confirmed' hata diya hai taake cancel/confirm dono chal sakein
-  const handleUpdateAppointment = async (id, updatedData) => {
-    const res = await updateAppointmentAction(id, updatedData);
-    return res;
-  };
+  // 🌟 FIX: In dono functions ko useCallback mein wrap kar diya taake DataContainer bar bar render na ho
+  const handleUpdateAppointment = useCallback(async (id, updatedData) => {
+    await updateAppointmentAction(id, updatedData);
+    return updatedData; 
+  }, []);
 
-  const handleDeleteAppointment = async (id) => {
-    const res = await deleteAppointmentAction(id);
-    return res;
-  };
+  const handleDeleteAppointment = useCallback(async (id) => {
+    await deleteAppointmentAction(id);
+    return { id };
+  }, []);
 
   const CustomHeaderWrapper = useCallback((props) => (
     <AppointmentHeader title="Appointment Requests" {...props} />
-  ), []);
-
-  const CustomListWrapper = useCallback((props) => (
-    <PendingAppointmentsList 
-      appointments={props.data} 
-      onConfirm={async (id) => {
-        const itemToUpdate = props.data.find(app => app.id === id);
-        if (itemToUpdate) {
-          // Tick click hone par status: 'confirmed' bheje ga
-          await props.onEdit({ ...itemToUpdate, status: "confirmed" });
-        }
-      }} 
-      
-      // Cross click hone par ab delete nahi hoga, balke status: 'cancelled' bheje ga
-      onCancel={async (id) => {
-        const itemToUpdate = props.data.find(app => app.id === id);
-        if (itemToUpdate) {
-          await props.onEdit({ ...itemToUpdate, status: "cancelled" });
-        }
-      }}
-      // (Fallback) Agar child component purana `onDelete` use kar raha hai tab bhi cancel hi hoga
-      onDelete={async (id) => {
-        const itemToUpdate = props.data.find(app => app.id === id);
-        if (itemToUpdate) {
-          await props.onEdit({ ...itemToUpdate, status: "cancelled" });
-        }
-      }} 
-    />
   ), []);
 
   if (loading) {
@@ -105,7 +106,7 @@ export default function PendingAppointmentsPage({ initialAppointments = [] }) {
       <DataContainer
         initialData={appointments}
         HeaderComponent={CustomHeaderWrapper}
-        ListComponent={CustomListWrapper}
+        ListComponent={StableListWrapper} 
         filterSortLogic={pendingOnlyFilterLogic}
         onEditAction={handleUpdateAppointment} 
         onDeleteAction={handleDeleteAppointment}

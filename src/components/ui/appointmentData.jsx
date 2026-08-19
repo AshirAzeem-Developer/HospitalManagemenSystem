@@ -123,6 +123,7 @@ export const appointmentFilterLogic = (data, searchTerm, activeFilters, sortOrde
  *   HeaderComponent?: any,
  *   headerProps?: object,
  *   ListComponent?: any,
+ *   listComponentProps?: object,
  *   filterSortLogic?: (data: T[], searchTerm: string, activeFilters: object, sortOrder: string) => T[],
  *   onEditAction?: (id: T["id"], updatedData: T) => Promise<any>,
  *   onDeleteAction?: (id: T["id"]) => Promise<any>,
@@ -134,6 +135,7 @@ export default function DataContainer({
   HeaderComponent,
   headerProps = {}, 
   ListComponent,
+  listComponentProps = {},
   filterSortLogic,
   onEditAction,
   onDeleteAction,
@@ -186,7 +188,8 @@ export default function DataContainer({
   const listProps = {
     [listPropName]: paginatedData, 
     onEdit: handleEdit,
-    onDelete: handleDelete
+    onDelete: handleDelete,
+    ...listComponentProps
   };
 
   return (

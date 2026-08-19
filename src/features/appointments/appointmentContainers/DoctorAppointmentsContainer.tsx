@@ -2,17 +2,20 @@
 
 import DataContainer, { appointmentFilterLogic } from '@/components/ui/appointmentData';
 import AppointmentHeader from '../components/appointmentHeader';
-import PatientAppointmentList from '../components/patientAppointmentList';
+import DoctorAppointmentList from '../components/doctorAppointmentList';
 import { updateAppointmentAction, deleteAppointmentAction } from '../appointmentActions/appointmentAction';
+import type { Appointment } from '@/app/(doctor)/doctor/appointments/page';
 
-export default function PatientAppointmentsContainer({
+interface DoctorAppointmentsContainerProps {
+  initialAppointments?: Appointment[];
+}
+
+export default function DoctorAppointmentsContainer({
   initialAppointments = [],
-  doctorsList = [],
-  newAppointmentUrl = "/patient/appointments/book",
-}) {
+}: DoctorAppointmentsContainerProps) {
   const headerProps = {
     title: "My Appointments",
-    newAppointmentUrl,
+    showNewButton: false,
   };
 
   return (
@@ -20,8 +23,7 @@ export default function PatientAppointmentsContainer({
       initialData={initialAppointments}
       HeaderComponent={AppointmentHeader}
       headerProps={headerProps}
-      ListComponent={PatientAppointmentList}
-      listComponentProps={{ doctorsList }}
+      ListComponent={DoctorAppointmentList}
       filterSortLogic={appointmentFilterLogic}
       onEditAction={updateAppointmentAction}
       onDeleteAction={deleteAppointmentAction}

@@ -329,17 +329,11 @@ export function Sidebar({
     setMounted(true);
   }, []);
 
-  /*
-   * Light theme:
-   * /Images/SafeHeal.png
-   *
-   * Dark theme:
-   * /Images/LogoDarkTheme.png
-   */
+ 
   const currentLogo =
     mounted && resolvedTheme === "dark"
-      ? "/Images/LogoDarkTheme.png"
-      : "/Images/SafeHeal.png";
+      ? "/Images/DarkTheme.png"
+      : "/Images/LogoLightTheme.png";
 
   return (
     <>
@@ -386,22 +380,21 @@ export function Sidebar({
           w-[276px]`}
       >
         {/* Logo Header */}
-        <div className="relative h-[78px] border-b border-[#E5E7EB] dark:border-[#2A3850] flex items-center px-6">
-          {!isCollapsed && (
-            <div className="relative w-[200px] h-[100px]">
-              {mounted && (
-                <Image
-                  src={currentLogo}
-                  alt="Hospital Logo"
-                  fill
-                  sizes="200px"
-                  className="object-contain object-center"
-                  priority
-                />
-              )}
-            </div>
-          )}
-
+       <div className="relative h-[78px] border-b border-[#E5E7EB] dark:border-[#2A3850] flex items-center px-6 overflow-hidden">
+  {!isCollapsed && (
+    <div className="relative w-[200px] h-[100px] -mb-1">
+      {mounted && (
+        <Image
+          src={currentLogo}
+          alt="Hospital Logo"
+          fill
+          sizes="200px"
+          className="object-contain object-center"
+          priority
+        />
+      )}
+    </div>
+  )}
           {/* Mobile Close Button */}
           <button
             onClick={() => setIsOpen(false)}
@@ -461,9 +454,13 @@ export function Sidebar({
                   const Icon =
                     iconMap[item.icon as keyof typeof iconMap];
 
-                  const isActive =
-                    pathname === item.href ||
-                    pathname.startsWith(item.href + "/");
+                const isActive =
+  item.href === "/admin" ||
+  item.href === "/doctor" ||
+  item.href === "/patient"
+    ? pathname === item.href
+    : pathname === item.href ||
+      pathname.startsWith(item.href + "/");
 
                   const isExpandable =
                     !!item.subItems?.length;

@@ -1,3 +1,4 @@
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -28,18 +29,18 @@ export default async function AdminLayout({
   if (role !== "admin") redirect("/unauthorized");
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      <Sidebar links={adminLinks} />
+    <div className="flex min-h-screen">
+      <Sidebar links={adminLinks} roleLabel="Admin" />
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col pt-[64px] md:pt-0 min-w-0">
         <Navbar profileSettingsHref="/settings/profile" />
 
         <main className="flex-1 bg-[#F7F8FC] dark:bg-[#0A162A] p-8">
-{children}</main>
+          {children}
+        </main>
 
-<footer className="border-t border-border bg-[#F7F8FC] dark:bg-[#0A162A] px-8 py-4 text-center text-sm text-muted">
-            © {new Date().getFullYear()} SafeHeal. All rights
-          reserved.
+        <footer className="border-t border-border bg-[#F7F8FC] dark:bg-[#0A162A] px-8 py-4 text-center text-sm text-muted">
+          © {new Date().getFullYear()} SafeHeal. All rights reserved.
         </footer>
       </div>
     </div>

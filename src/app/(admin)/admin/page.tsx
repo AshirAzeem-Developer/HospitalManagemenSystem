@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import DashboardStatCard from "@/components/ui/DashboardStatCard";
 
 import {
@@ -7,6 +6,7 @@ import {
   FaCalendarCheck,
   FaDollarSign,
 } from "react-icons/fa6";
+import { Card } from "@/components/ui/card";
 
 export default function AdminDashboardPage() {
   const stats = [
@@ -35,20 +35,22 @@ export default function AdminDashboardPage() {
       icon: <FaDollarSign />,
     },
   ];
+
   return (
     <div>
-      <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Dashboard</h1>
+      <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
+        Dashboard
+      </h1>
+
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat,i) => (
-          
-            <DashboardStatCard
-              title={stat.title}
-              key={stat.title || i}
-              value={stat.value}
-              percentage={stat.percentage}
-              icon={stat.icon}
-            />
-          
+        {stats.map((stat, i) => (
+          <DashboardStatCard
+            key={stat.title || i}
+            title={stat.title}
+            value={stat.value}
+            percentage={stat.percentage}
+            icon={stat.icon}
+          />
         ))}
       </div>
     </div>

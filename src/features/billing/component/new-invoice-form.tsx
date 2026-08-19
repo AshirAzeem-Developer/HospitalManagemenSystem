@@ -52,7 +52,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
 
   const isEditMode = Boolean(editId);
 
-  // Invoice states
+  // INVOICE STATES
 
   const [invoiceDate, setInvoiceDate] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -71,14 +71,17 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
   const [discount, setDiscount] = useState(0);
   const [roundOff, setRoundOff] = useState(false);
 
-  // Patients
+  // LOADING STATES
 
-  const [patients, setPatients] = useState<PatientOption[]>([]);
+  const [loadingInvoice, setLoadingInvoice] = useState(false);
   const [loadingPatients, setLoadingPatients] = useState(true);
 
+  // PATIENTS
+
+  const [patients, setPatients] = useState<PatientOption[]>([]);
   const [patientSearch, setPatientSearch] = useState("");
 
-  // Load patients
+  // LOAD PATIENTS
 
   useEffect(() => {
     const loadPatients = async () => {
@@ -111,11 +114,13 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
     loadPatients();
   }, []);
 
-  // Filter patients by name
+  // FILTER PATIENTS
 
   const filteredPatients = patients.filter((patient) =>
     patient.name.toLowerCase().includes(patientSearch.toLowerCase())
   );
+
+  // PATIENT CHANGE
 
   const handlePatientChange = (patient: PatientOption) => {
     setPatientId(patient.id);
@@ -129,20 +134,24 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
     setPatientSearch(patient.name);
   };
 
-  // Load invoice in edit mode
+  // LOAD INVOICE IN EDIT MODE
 
   useEffect(() => {
     if (!editId) return;
 
     const loadInvoice = async () => {
       try {
-        const invoice = await getInvoiceByIdAction(editId);
+        setLoadingInvoice(true);
 
-        const invoiceItems = await getInvoiceItemsByInvoiceIdAction(editId);
+        const [invoice, invoiceItems] = await Promise.all([
+          getInvoiceByIdAction(editId),
+          getInvoiceItemsByInvoiceIdAction(editId),
+        ]);
 
-        if (!invoice) return;
-
-        // Invoice information
+        if (!invoice) {
+          toast.error("Invoice not found.");
+          return;
+        }
 
         setInvoiceDate(invoice.issued_date || "");
 
@@ -155,6 +164,8 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         setTax(Number(invoice.tax_percentage || 0));
 
         setDiscount(Number(invoice.discount || 0));
+
+        // PATIENT
 
         if (invoice.patient_id) {
           setPatientId(invoice.patient_id);
@@ -180,6 +191,8 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           setBillingAddress(patient.stay_address);
         }
 
+        // INVOICE ITEMS
+
         const formattedItems: InvoiceItem[] = (invoiceItems ?? []).map(
           (item: any) => ({
             id: item.id,
@@ -201,13 +214,15 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         console.error("Failed to load invoice:", error);
 
         toast.error("Failed to load invoice. Please try again.");
+      } finally {
+        setLoadingInvoice(false);
       }
     };
 
     loadInvoice();
   }, [editId]);
 
-  // Handle patient data after patients load
+  // HANDLE PATIENT DATA AFTER PATIENTS LOAD
 
   useEffect(() => {
     if (!patientId || patients.length === 0) {
@@ -231,9 +246,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
     if (!billingAddress) {
       setBillingAddress(selectedPatient.address);
     }
-  }, [patientId, patients]);
-
-  // Save invoice
+  }, [patientId, patients, billingAddress]);
 
   const handleAddNewInvoice = async () => {
     try {
@@ -257,28 +270,18 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         return;
       }
 
-      // Subtotal
-
       const subtotal = items.reduce(
         (total, item) => total + Number(item.amount || 0),
         0
       );
 
-      // Tax
-
       const taxAmount = (subtotal * Number(tax || 0)) / 100;
 
-      // Discount
-
       const discountAmount = (subtotal * Number(discount || 0)) / 100;
-
-      // Final total
 
       const finalTotal = subtotal + taxAmount - discountAmount;
 
       const total = roundOff ? Math.round(finalTotal) : finalTotal;
-
-      // Valid items
 
       const validItems = items.filter(
         (item) => item.item_name && item.item_name.trim() !== ""
@@ -312,17 +315,13 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           notes: billingAddress || null,
         });
 
-        // Existing items
-
         const existingItems = await getInvoiceItemsByInvoiceIdAction(editId);
-
-        // Current item IDs
 
         const currentItemIds = validItems
           .filter((item) => Boolean(item.id))
           .map((item) => item.id);
 
-        // Delete removed items
+        // DELETE REMOVED ITEMS
 
         for (const existingItem of existingItems) {
           if (!currentItemIds.includes(existingItem.id)) {
@@ -330,7 +329,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           }
         }
 
-        // Update / create items
+        // UPDATE / CREATE ITEMS
 
         for (const item of validItems) {
           const itemData = {
@@ -363,14 +362,11 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
             });
           }
         }
-
-        // Success toast
-
         toast.success("Invoice updated successfully!");
 
-        router.push("/admin/billing");
-
-        router.refresh();
+        setTimeout(() => {
+          router.push("/admin/billing");
+        }, 1000);
 
         return;
       }
@@ -404,6 +400,8 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         notes: billingAddress || null,
       };
 
+      // CREATE INVOICE
+
       const createdInvoice = await createInvoiceAction(invoiceData);
 
       for (const item of validItems) {
@@ -422,13 +420,11 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         });
       }
 
-      // Success toast
-
       toast.success("Invoice created successfully!");
 
-      router.push("/admin/billing");
-
-      router.refresh();
+      setTimeout(() => {
+        router.push("/admin/billing");
+      }, 1000);
     } catch (error: any) {
       console.error("Failed to save invoice:", error);
 
@@ -437,6 +433,29 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
       );
     }
   };
+
+  // EDIT PAGE LOADING
+
+  if (isEditMode && loadingInvoice) {
+    return (
+      <div className="flex min-h-[400px] w-full items-center justify-center">
+        <div className="text-center">
+          <div
+            className="
+              mx-auto
+              h-8
+              w-8
+              animate-spin
+              rounded-full
+              border-4
+              border-[#E7E8EB]
+              border-t-[#2E37A4]
+            "
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-6">
@@ -465,6 +484,8 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         </h1>
       </div>
 
+      {/* INVOICE FORM */}
+
       <div className="w-full rounded-lg border border-[#E7E8EB] bg-white">
         <div
           className="
@@ -478,15 +499,13 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
             sm:p-6
           "
         >
-          {/* Patient Search */}
+          {/* PATIENT SEARCH */}
 
           <div className="relative">
             <Input
               label="Patient Name"
               placeholder={
-                loadingPatients
-                  ? "Loading patients..."
-                  : "Search patient by name"
+                loadingPatients ? "Loading patients" : "Search patient by name"
               }
               value={patientSearch}
               required
@@ -502,7 +521,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
               }}
             />
 
-            {/* Patient Results */}
+            {/* PATIENT RESULTS */}
 
             {patientSearch.trim() !== "" &&
               !patientId &&
@@ -550,7 +569,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
                 </div>
               )}
 
-            {/* No patients found */}
+            {/* NO PATIENT */}
 
             {patientSearch.trim() !== "" &&
               !patientId &&
@@ -579,7 +598,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
               )}
           </div>
 
-          {/* Email */}
+          {/* EMAIL */}
 
           <Input
             label="Email"
@@ -588,7 +607,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
             disabled
           />
 
-          {/* Invoice Date */}
+          {/* INVOICE DATE */}
 
           <Input
             label="Invoice Date"
@@ -598,7 +617,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
             onChange={(e) => setInvoiceDate(e.target.value)}
           />
 
-          {/* Due Date */}
+          {/* DUE DATE */}
 
           <Input
             label="Due Date"
@@ -608,7 +627,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
             onChange={(e) => setDueDate(e.target.value)}
           />
 
-          {/* Payment Method */}
+          {/* PAYMENT METHOD */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
@@ -623,7 +642,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
             />
           </div>
 
-          {/* Payment Status */}
+          {/* PAYMENT STATUS */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
@@ -639,7 +658,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
             />
           </div>
 
-          {/* Billing Address */}
+          {/* BILLING ADDRESS */}
 
           <div className="col-span-1 sm:col-span-2">
             <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
@@ -666,13 +685,13 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         </div>
       </div>
 
-      {/* Invoice Items */}
+      {/* INVOICE ITEMS */}
 
       <div className="w-full overflow-x-auto">
         <InvoiceItemsTable initialItems={items} onItemsChange={setItems} />
       </div>
 
-      {/* Summary */}
+      {/* SUMMARY */}
 
       <div className="w-full">
         <InvoiceSummary
@@ -685,6 +704,8 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           setRoundOff={setRoundOff}
         />
       </div>
+
+      {/* BUTTONS */}
 
       <div
         className="

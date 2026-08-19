@@ -24,6 +24,8 @@ export default function AppointmentsList({
 
   const [editFormData, setEditFormData] = useState({});
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   useEffect(() => {
     if (doctorsList && doctorsList.length > 0) {
       setAllDoctors(doctorsList);
@@ -67,6 +69,11 @@ export default function AppointmentsList({
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "date" && value && value < todayStr) {
+      return;
+    }
+
     setEditFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -286,6 +293,8 @@ export default function AppointmentsList({
                           name="date"
                           value={editFormData.date || ""}
                           onChange={handleInputChange}
+                          onKeyDown={(e) => e.preventDefault()}
+                          min={todayStr}
                           className="w-full mt-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-foreground bg-background"
                         />
                       ) : (

@@ -18,6 +18,8 @@ export default function PatientNewAppointmentPage() {
   const dateRef = useRef(null);
   const timeRef = useRef(null);
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const [formData, setFormData] = useState({
     doctorId: '',
     date: '',
@@ -40,6 +42,11 @@ export default function PatientNewAppointmentPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'date' && value && value < todayStr) {
+      return;
+    }
+
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -131,6 +138,8 @@ export default function PatientNewAppointmentPage() {
                 name="date" 
                 value={formData.date} 
                 onChange={handleChange} 
+                onKeyDown={(e) => e.preventDefault()}
+                min={todayStr}
                 required 
                 className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer [color-scheme:light_dark]" 
               />

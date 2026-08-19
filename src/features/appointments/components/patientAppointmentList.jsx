@@ -24,6 +24,8 @@ export default function PatientAppointmentList({
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [editFormData, setEditFormData] = useState({});
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   useEffect(() => {
     if (doctorsList && doctorsList.length > 0) {
       setAllDoctors(doctorsList);
@@ -67,6 +69,11 @@ export default function PatientAppointmentList({
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "date" && value && value < todayStr) {
+      return;
+    }
+
     setEditFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -346,6 +353,8 @@ export default function PatientAppointmentList({
                           name="date"
                           value={editFormData.date || ""}
                           onChange={handleInputChange}
+                          onKeyDown={(e) => e.preventDefault()}
+                          min={todayStr}
                           className="w-full mt-1 px-2.5 py-1.5 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-foreground bg-background"
                         />
                       ) : (

@@ -24,6 +24,8 @@ export default function NewAppointmentPage() {
   const dateRef = useRef(null);
   const timeRef = useRef(null);
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const [formData, setFormData] = useState({
     patientId: '',
     doctorId: '',
@@ -47,10 +49,15 @@ export default function NewAppointmentPage() {
     fetchDropdowns();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+ const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  if (name === 'date' && value && value < todayStr) {
+    return;
+  }
+
+  setFormData(prev => ({ ...prev, [name]: value }));
+};
 
   const handleDropdownSelect = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -184,13 +191,23 @@ export default function NewAppointmentPage() {
           </div>
 
           {/* Date Field */}
-          <div className="relative">
-            <label className="block text-sm font-semibold text-foreground mb-2">Date of Appointment <span className="text-red-500">*</span></label>
-            <div className="relative">
-              <input ref={dateRef} type="date" name="date" value={formData.date} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark]" />
-              <FiCalendar onClick={() => dateRef.current?.showPicker?.()} className="absolute right-3 top-3.5 text-muted cursor-pointer" />
-            </div>
-          </div>
+<div className="relative">
+  <label className="block text-sm font-semibold text-foreground mb-2">Date of Appointment <span className="text-red-500">*</span></label>
+  <div className="relative">
+    <input
+      ref={dateRef}
+      type="date"
+      name="date"
+      value={formData.date}
+      onChange={handleChange}
+      onKeyDown={(e) => e.preventDefault()}
+      min={todayStr}
+      required
+      className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark] cursor-pointer"
+    />
+    <FiCalendar onClick={() => dateRef.current?.showPicker?.()} className="absolute right-3 top-3.5 text-muted cursor-pointer" />
+  </div>
+</div>
 
           {/* Time Field */}
           <div className="relative">

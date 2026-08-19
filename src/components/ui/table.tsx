@@ -24,7 +24,7 @@ export default function Table<T extends { id: string }>({
               {columns.map((column) => (
                 <th
                   key={column.key.toString()}
-                  className="whitespace-nowrap px-4 py-3 text-left text-[13px] font-semibold text-gray-800 sm:px-5 sm:py-4"
+                  className="whitespace-nowrap px-6 py-4 text-left text-[13px] font-semibold text-gray-800"
                 >
                   {column.label}
                 </th>
@@ -32,7 +32,6 @@ export default function Table<T extends { id: string }>({
             </tr>
           </thead>
 
-          {/* Body */}
           <tbody>
             {data.map((row) => (
               <tr

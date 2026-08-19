@@ -35,7 +35,8 @@
     "src/hooks/usePagination.js",
     "src/components/ui/table.jsx",
     "src/features/doctors/queries.ts",
-    "src/app/(admin)/admin/appointments/page.jsx"
+    "src/app/(admin)/admin/appointments/page.jsx",
+    "src/features/doctors/queries.ts"
   ],
   "exclude": ["node_modules"]
 }

@@ -8,43 +8,31 @@ export default async function BillingPage() {
   const invoices = await getInvoicesAction();
 
   return (
-    <div className="w-full">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        {/* Left Side */}
-        <div>
-          <Link
-            href="/admin/billing"
-            className="mb-3 inline-flex items-center gap-2 text-base font-medium text-gray-600 hover:text-[#2E37A4]"
-          >
-            <ArrowLeft size={18} strokeWidth={2} />
-            <span>Invoices</span>
-          </Link>
-        <div className="flex gap-2">
-          <h1 className="text-2xl font-semibold text-[#0A1B39]">
+    <div className="w-full text-[#0A1B39]">
+      <div className="mb-4">
+        <Link
+          href="/admin/billing"
+          className="inline-flex items-center gap-2 text-base font-medium text-[#0A1B39] hover:text-[#2E37A4]"
+        >
+          <ArrowLeft size={18} strokeWidth={2} />
+          <span>Invoices</span>
+        </Link>
+      </div>
+
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <h1 className="whitespace-nowrap text-2xl font-semibold text-[#0A1B39]">
             Invoices
           </h1>
-          <span className="rounded-md border border-[#2E37A4] bg-[#EEF2FF] px-3 py-1.5 text-sm font-medium text-[#2E37A4]">
+
+          <span className="whitespace-nowrap rounded-md border border-[#2E37A4] bg-[#EEF2FF] px-3 py-1.5 text-sm font-medium text-[#2E37A4]">
             Total Invoices: {invoices.length}
           </span>
-          </div>
         </div>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-3">
-
-          <Button
-            variant="ghost"
-            text="Export"
-          />
-
-          <Link href="/admin/billing/new">
-            <Button
-              variant="primary"
-              text="+ New Invoice"
-            />
-          </Link>
-        </div>
+        <Link href="/admin/billing/new" className="w-full sm:w-auto">
+          <Button variant="primary" text="+ New Invoice" />
+        </Link>
       </div>
 
       {/* Invoice Table */}

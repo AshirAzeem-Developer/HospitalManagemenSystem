@@ -34,7 +34,7 @@ export default async function AdminLayout({
       <div className="flex-1 min-w-0">
         <Navbar />
 
-        <main className="flex-1 bg-background p-6">{children}</main>
+        <main className="flex-1 bg-background p-8">{children}</main>
 
         <footer className="border-t border-border bg-background px-8 py-4 text-center text-sm text-muted">
           © {new Date().getFullYear()} Hospital Management System. All rights

@@ -6,9 +6,7 @@ type PageProps = {
   }>;
 };
 
-export default async function NewInvoicePage({
-  searchParams,
-}: PageProps) {
+export default async function NewInvoicePage({ searchParams }: PageProps) {
   const params = await searchParams;
 
   return <NewInvoiceForm editId={params.edit} />;

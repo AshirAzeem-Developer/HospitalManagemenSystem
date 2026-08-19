@@ -62,19 +62,11 @@ export default function InvoiceItemsTable({
           [field]: value,
         };
 
-        if (
-          field === "unit_cost" ||
-          field === "quantity"
-        ) {
-          const unitCost =
-            Number(updatedItem.unit_cost) || 0;
+        if (field === "unit_cost" || field === "quantity") {
+          const unitCost = Number(updatedItem.unit_cost) || 0;
+          const quantity = Number(updatedItem.quantity) || 0;
 
-          const quantity =
-            Number(updatedItem.quantity) || 0;
-
-          updatedItem.amount = String(
-            unitCost * quantity
-          );
+          updatedItem.amount = String(unitCost * quantity);
         }
 
         return updatedItem;
@@ -83,27 +75,23 @@ export default function InvoiceItemsTable({
   };
 
   const addItem = () => {
-    setItems((currentItems) => [
-      ...currentItems,
-      emptyItem(),
-    ]);
+    setItems((currentItems) => [...currentItems, emptyItem()]);
   };
 
   const removeItem = (index: number) => {
     setItems((currentItems) =>
-      currentItems.filter(
-        (_, itemIndex) => itemIndex !== index
-      )
+      currentItems.filter((_, itemIndex) => itemIndex !== index)
     );
   };
 
   return (
-    <div className="rounded-xl border border-[#E7E8EB] bg-white p-6">
+    <div className="rounded-xl border border-[#E7E8EB] bg-white p-4 sm:p-5 lg:p-6">
       <h2 className="mb-5 text-lg font-semibold text-[#0A1B39]">
         Invoice Items
       </h2>
 
-      <div className="grid grid-cols-12 gap-3 pb-3 text-sm font-semibold text-[#0A1B39]">
+      {/* Desktop / Tablet Header */}
+      <div className="hidden min-w-[850px] grid-cols-12 gap-3 pb-3 text-sm font-semibold text-[#0A1B39] md:grid">
         <div className="col-span-2">Item</div>
         <div className="col-span-4">Description</div>
         <div className="col-span-2">Unit Cost</div>
@@ -112,99 +100,128 @@ export default function InvoiceItemsTable({
         <div className="col-span-1" />
       </div>
 
-      {items.map((item, index) => (
-        <div
-          key={item.id ?? `new-${index}`}
-          className="mt-3 grid grid-cols-12 items-end gap-3"
-        >
-          <div className="col-span-2">
-            <Input
-              label=""
-              value={item.item_name}
-              onChange={(e) =>
-                updateItem(
-                  index,
-                  "item_name",
-                  e.target.value
-                )
-              }
-            />
-          </div>
+      {/* Items */}
+      <div className="space-y-4 md:space-y-3">
+        {items.map((item, index) => (
+          <div
+            key={item.id ?? `new-${index}`}
+            className="
+              rounded-lg
+              border border-[#E7E8EB]
+              p-4
+              md:grid
+              md:min-w-[850px]
+              md:grid-cols-12
+              md:items-end
+              md:gap-3
+              md:border-0
+              md:p-0
+            "
+          >
+            {/* Mobile labels */}
+            <div className="mb-3 md:mb-0 md:col-span-2">
+              <label className="mb-1.5 block text-xs font-medium text-[#0A1B39] md:hidden">
+                Item
+              </label>
 
-          <div className="col-span-4">
-            <Input
-              label=""
-              value={item.description}
-              onChange={(e) =>
-                updateItem(
-                  index,
-                  "description",
-                  e.target.value
-                )
-              }
-            />
-          </div>
+              <Input
+                label=""
+                value={item.item_name}
+                onChange={(e) =>
+                  updateItem(index, "item_name", e.target.value)
+                }
+              />
+            </div>
 
-          <div className="col-span-2">
-            <Input
-              label=""
-              type="number"
-              value={item.unit_cost}
-              onChange={(e) =>
-                updateItem(
-                  index,
-                  "unit_cost",
-                  e.target.value
-                )
-              }
-            />
-          </div>
+            <div className="mb-3 md:mb-0 md:col-span-4">
+              <label className="mb-1.5 block text-xs font-medium text-[#0A1B39] md:hidden">
+                Description
+              </label>
 
-          <div className="col-span-1">
-            <Input
-              label=""
-              type="number"
-              value={item.quantity}
-              onChange={(e) =>
-                updateItem(
-                  index,
-                  "quantity",
-                  e.target.value
-                )
-              }
-            />
-          </div>
+              <Input
+                label=""
+                value={item.description}
+                onChange={(e) =>
+                  updateItem(index, "description", e.target.value)
+                }
+              />
+            </div>
 
-          <div className="col-span-2">
-            <Input
-              label=""
-              type="number"
-              value={item.amount}
-              disabled
-            />
-          </div>
+            <div className="mb-3 md:mb-0 md:col-span-2">
+              <label className="mb-1.5 block text-xs font-medium text-[#0A1B39] md:hidden">
+                Unit Cost
+              </label>
 
-          <div className="col-span-1 flex justify-center">
-            {items.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeItem(index)}
-                className="flex h-8 w-8 items-center justify-center rounded-md border border-[#E7E8EB] hover:bg-gray-50"
-              >
-                <Trash2
-                  size={15}
-                  className="text-gray-500"
-                />
-              </button>
-            )}
+              <Input
+                label=""
+                type="number"
+                value={item.unit_cost}
+                onChange={(e) =>
+                  updateItem(index, "unit_cost", e.target.value)
+                }
+              />
+            </div>
+
+            <div className="mb-3 md:mb-0 md:col-span-1">
+              <label className="mb-1.5 block text-xs font-medium text-[#0A1B39] md:hidden">
+                Qty
+              </label>
+
+              <Input
+                label=""
+                type="number"
+                value={item.quantity}
+                onChange={(e) =>
+                  updateItem(index, "quantity", e.target.value)
+                }
+              />
+            </div>
+
+            <div className="mb-3 md:mb-0 md:col-span-2">
+              <label className="mb-1.5 block text-xs font-medium text-[#0A1B39] md:hidden">
+                Amount
+              </label>
+
+              <Input
+                label=""
+                type="number"
+                value={item.amount}
+                disabled
+              />
+            </div>
+
+            <div className="flex justify-end md:col-span-1 md:justify-center">
+              {items.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeItem(index)}
+                  className="
+                    flex h-8 w-8
+                    items-center justify-center
+                    rounded-md
+                    border border-[#E7E8EB]
+                    hover:bg-gray-50
+                  "
+                  aria-label="Remove item"
+                >
+                  <Trash2 size={15} className="text-gray-500" />
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       <button
         type="button"
         onClick={addItem}
-        className="mt-5 flex items-center gap-2 text-sm font-medium text-[#2E37A4]"
+        className="
+          mt-5
+          flex items-center gap-2
+          text-sm font-medium
+          text-[#2E37A4]
+          hover:opacity-80
+        "
       >
         <PlusCircle size={16} />
         Add new

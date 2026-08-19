@@ -38,9 +38,8 @@ interface DoctorAppointmentsPageProps {
 export default function DoctorAppointmentsPage({
   initialAppointments = [],
 }: DoctorAppointmentsPageProps) {
-  const [appointments, setAppointments] = useState<DoctorAppointment[]>(
-    initialAppointments,
-  );
+  const [appointments, setAppointments] =
+    useState<DoctorAppointment[]>(initialAppointments);
 
   useEffect(() => {
     async function load() {

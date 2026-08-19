@@ -1,13 +1,53 @@
-import { Card } from "@/components/ui/card";
+import { getAppointments, getDoctors } from "@/features/appointments/appointmentActions/appointmentAction";
+import { getPrescriptionsByAppointmentIds } from "@/features/prescriptions/actions";
+import PatientAppointmentsContainer from "@/features/appointments/appointmentContainers/patientApointmentContainer";
 
-export default function PatientAppointmentsPage() {
+export type Appointment = {
+  id: string | number;
+  date: string;
+  time: string;
+  status: string;
+  patientId: string | number;
+  doctorId: string | number;
+  patientName: string;
+  patientImage?: string | null;
+  doctorName: string;
+  doctorImage?: string | null;
+  prescriptionId?: string | null;
+};
+
+type Doctor = {
+  id?: string | number;
+  _id?: string | number;
+  name?: string;
+  profile?: { full_name?: string };
+  [key: string]: unknown;
+};
+
+export default async function PatientAppointmentsPage() {
+  const appointments: Appointment[] = (await getAppointments()) || [];
+  const doctors: Doctor[] = (await getDoctors()) || [];
+
+  let appointmentsWithPrescriptions: Appointment[] = appointments;
+
+  if (appointments.length > 0) {
+    const ids = appointments.map((a) => String(a.id)).filter(Boolean);
+    const statusResult = await getPrescriptionsByAppointmentIds(ids);
+    const statusMap = statusResult?.success ? statusResult.data : {};
+
+    appointmentsWithPrescriptions = appointments.map((appointment) => ({
+      ...appointment,
+      prescriptionId: statusMap?.[String(appointment.id)] ?? null,
+    }));
+  }
+
   return (
-    <div>
-      <h1 className="text-xl font-semibold text-slate-900">My Appointments</h1>
-      <p className="mt-1 text-sm text-slate-500">Book and view your upcoming medical appointments.</p>
-      <div className="mt-6">
-        <Card label="Upcoming Visits" value="0" hint="Wired up in feature update" />
-      </div>
+    <div className="min-h-screen bg-page p-4 md:p-6">
+      <PatientAppointmentsContainer
+        initialAppointments={appointmentsWithPrescriptions}
+        doctorsList={doctors}
+        newAppointmentUrl="/patient/appointments/book"
+      />
     </div>
   );
 }

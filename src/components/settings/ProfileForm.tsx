@@ -263,7 +263,7 @@ export default function ProfileForm({
         <button
           type="submit"
           disabled={isPending}
-  className="w-full sm:w-auto rounded-lg bg-[#2E37A4] dark:bg-[#1E3A8A] px-5 py-2 text-sm font-medium text-white dark:text-white hover:bg-[#252d8c] dark:hover:bg-[[#3154A3] active:scale-95 transition-all duration-150 disabled:opacity-50"
+  className="w-full sm:w-auto rounded-lg bg-[#2E37A4] dark:bg-[#1E3A8A] px-5 py-2 text-sm font-medium text-white dark:text-white hover:bg-[#252d8c] dark:hover:bg-[#3154A3] active:scale-95 transition-all duration-150 disabled:opacity-50"
         >
           {isPending ? "Saving..." : "Save Changes"}
         </button>

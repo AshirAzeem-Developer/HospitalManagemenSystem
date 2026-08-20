@@ -90,16 +90,16 @@ export default function DoctorAppointmentsPage({
 
   return (
     <div className="min-h-screen bg-page p-4 md:p-6">
-      <DataContainer
-        initialData={appointments}
-        HeaderComponent={AppointmentHeader}
-        headerProps={headerProps}
-        ListComponent={DoctorAppointmentList}
-        filterSortLogic={appointmentFilterLogic}
-        onEditAction={updateAppointmentAction}
-        onDeleteAction={deleteAppointmentAction}
-        listPropName="appointments"
-      />
+      <DataContainer<DoctorAppointment>
+  initialData={appointments}
+  HeaderComponent={AppointmentHeader}
+  headerProps={headerProps}
+  ListComponent={DoctorAppointmentList}
+  filterSortLogic={appointmentFilterLogic}
+  onEditAction={updateAppointmentAction}
+  onDeleteAction={deleteAppointmentAction}
+  listPropName="appointments"
+/>
     </div>
   );
 }

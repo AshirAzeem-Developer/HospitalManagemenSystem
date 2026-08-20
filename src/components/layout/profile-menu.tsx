@@ -3,11 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  UserCog,
-  LogOut,
-  History,
-} from "lucide-react";
+import { UserCog, LogOut } from "lucide-react";
 
 export function ProfileMenu({
   userName,
@@ -25,7 +21,6 @@ export function ProfileMenu({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const initial = userName?.charAt(0).toUpperCase() || "U";
-  const isAdmin = userRole?.toLowerCase() === "admin";
 
   return (
     <div className="relative">
@@ -80,39 +75,6 @@ export function ProfileMenu({
               <UserCog size={18} />
               <span>Profile Settings</span>
             </Link>
-
-            {isAdmin && (
-              <>
-                {/* <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
-                  <Settings size={18} />
-                  <span>Account Settings</span>
-                </button>
-
-                <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
-                  <CreditCard size={18} />
-                  <span>Transactions</span>
-                </button> */}
-
-                <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
-                  <History size={18} />
-                  <span>Activity Logs</span>
-                </button>
-              </>
-            )}
-
-            {/* {!isAdmin && (
-              <>
-                <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
-                  <History size={18} />
-                  <span>Activity Logs</span>
-                </button>
-
-                <button className="flex w-full items-center gap-3 px-5 py-2.5 text-sm text-[#344054] hover:bg-[#F7F8FC]">
-                  <HelpCircle size={18} />
-                  <span>Help & Support</span>
-                </button>
-              </>
-            )} */}
           </div>
 
           <div className="border-t border-[#E5E7EB]" />

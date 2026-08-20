@@ -20,11 +20,11 @@ export default async function PatientBillingPage() {
     <div className="w-full min-w-0 max-w-full overflow-x-hidden">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
+        <h1 className="text-xl font-semibold text-[#0A1B39] dark:text-white sm:text-2xl">
           Billing & Statements
         </h1>
 
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           View payment history and outstanding invoices.
         </p>
       </div>

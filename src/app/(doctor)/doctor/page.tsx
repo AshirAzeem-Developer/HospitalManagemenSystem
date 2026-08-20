@@ -29,15 +29,15 @@ export default async function DoctorDashboardPage() {
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="border-b border-gray-200 pb-5">
-        <h1 className="text-2xl font-semibold text-[#0A1B39]">
-          Doctor Dashboard
-        </h1>
+   <div className="pb-5">
+  <h1 className="text-2xl font-semibold text-[#0A1B39] dark:text-white">
+    Doctor Dashboard
+  </h1>
 
-        <p className="mt-1 text-sm text-[#667085]">
-          Welcome back, {dashboard.doctor.full_name}
-        </p>
-      </div>
+  <p className="mt-1 text-sm text-[#667085]">
+    Welcome back, {dashboard.doctor.full_name}
+  </p>
+</div>
 
       {/* Statistics */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

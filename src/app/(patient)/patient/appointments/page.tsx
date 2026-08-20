@@ -7,7 +7,7 @@ import {
   deleteAppointmentAction,
 } from "../../../../features/appointments/appointmentActions/appointmentAction";
 import { getPrescriptionsByAppointmentIds } from "../../../../features/prescriptions/actions";
-
+import { Card } from "@/components/ui/card";
 import DataContainer, {
   appointmentFilterLogic,
 } from "../../../../components/ui/appointmentData";
@@ -82,17 +82,12 @@ export default function PatientAppointmentsPage({
   );
 
   return (
-    <div className="min-h-screen bg-page p-4 md:p-6">
-      <DataContainer
-        initialData={appointments}
-        HeaderComponent={AppointmentHeader}
-        headerProps={headerProps}
-        ListComponent={PatientAppointmentList}
-        filterSortLogic={appointmentFilterLogic}
-        onEditAction={updateAppointmentAction}
-        onDeleteAction={deleteAppointmentAction}
-        listPropName="appointments"
-      />
+    <div>
+<h1 className="text-xl font-semibold text-slate-900 dark:text-white">My Appointments</h1>   
+   <p className="mt-1 text-sm text-slate-500">Book and view your upcoming medical appointments.</p>
+      <div className="mt-6">
+        <Card label="Upcoming Visits" value="0" hint="Wired up in feature update" />
+      </div>
     </div>
   );
 }

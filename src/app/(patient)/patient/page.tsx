@@ -37,8 +37,8 @@ export default async function PatientDashboardPage() {
 
   if (!user) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-6">
-        <p className="text-sm text-slate-500">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Please log in to view your dashboard.
         </p>
       </div>
@@ -59,8 +59,8 @@ export default async function PatientDashboardPage() {
     console.error("PATIENT RECORD ERROR:", patientError);
 
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-6">
-        <p className="text-sm text-slate-500">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Patient profile not found.
         </p>
       </div>
@@ -89,42 +89,21 @@ export default async function PatientDashboardPage() {
     ...new Set(
       myAppointments
         .map((appointment: any) => appointment.doctorId)
-        .filter(Boolean)
+        .filter(Boolean),
     ),
   ];
 
   const myDoctors = (allDoctors || []).filter((doctor: any) =>
-    doctorIds.includes(doctor.id)
+    doctorIds.includes(doctor.id),
   );
 
   // -----------------------------------
   // Patient's invoices
-  // invoices table uses patient_id
   // -----------------------------------
 
   const myInvoices = (allInvoices || []).filter(
-    (invoice: any) => invoice.patient_id === patientId
+    (invoice: any) => invoice.patient_id === patientId,
   );
-
-  // -----------------------------------
-  // Debug
-  // -----------------------------------
-
-  console.log("=================================");
-  console.log("CURRENT PATIENT ID:", patientId);
-
-  console.log(
-    "ALL INVOICES:",
-    (allInvoices || []).map((invoice: any) => ({
-      invoice_number: invoice.invoice_number,
-      patient_id: invoice.patient_id,
-      appointment_id: invoice.appointment_id,
-      total: invoice.total,
-      status: invoice.status,
-    }))
-  );
-
-  console.log("MY INVOICES:", myInvoices);
 
   // -----------------------------------
   // Prescriptions
@@ -162,7 +141,7 @@ export default async function PatientDashboardPage() {
   if (prescriptionError) {
     console.error(
       "ERROR FETCHING PRESCRIPTIONS:",
-      prescriptionError.message
+      prescriptionError.message,
     );
   }
 
@@ -187,105 +166,95 @@ export default async function PatientDashboardPage() {
 
   const invoicesWithItems = await Promise.all(
     recentInvoices.map(async (invoice: any) => {
-      const items = await getInvoiceItemsByInvoiceIdAction(
-        invoice.id
-      );
+      const items = await getInvoiceItemsByInvoiceIdAction(invoice.id);
 
       return {
         ...invoice,
         items,
       };
-    })
+    }),
   );
 
   // -----------------------------------
   // Consultation By Department
   // -----------------------------------
 
- // -----------------------------------
-// Consultation By Department
-// -----------------------------------
+  const departmentMap: Record<
+    string,
+    {
+      department: string;
+      current: number;
+      previous: number;
+    }
+  > = {};
 
-const departmentMap: Record<
-  string,
-  {
-    department: string;
-    current: number;
-    previous: number;
-  }
-> = {};
+  myAppointments.forEach((appointment: any) => {
+    const doctor = myDoctors.find(
+      (doctor: any) =>
+        String(doctor.id) === String(appointment.doctorId),
+    );
 
-myAppointments.forEach((appointment: any) => {
-  const doctor = myDoctors.find(
-    (doctor: any) => String(doctor.id) === String(appointment.doctorId)
-  );
+    const department = doctor?.specialization || "General";
 
-  const department = doctor?.specialization || "General";
+    if (!departmentMap[department]) {
+      departmentMap[department] = {
+        department,
+        current: 0,
+        previous: 0,
+      };
+    }
 
-  if (!departmentMap[department]) {
-    departmentMap[department] = {
-      department,
-      current: 0,
-      previous: 0,
-    };
-  }
+    departmentMap[department].current += 1;
+  });
 
-  departmentMap[department].current += 1;
-});
-
-const departmentData = Object.values(departmentMap);
+  const departmentData = Object.values(departmentMap);
 
   // -----------------------------------
   // Recent Transactions
   // -----------------------------------
 
-  const recentTransactions = invoicesWithItems.map(
-    (invoice: any) => {
-      const appointment = invoice.appointment_id
-        ? myAppointments.find(
-            (appointment: any) =>
-              appointment.id === invoice.appointment_id
-          )
-        : null;
+  const recentTransactions = invoicesWithItems.map((invoice: any) => {
+    const appointment = invoice.appointment_id
+      ? myAppointments.find(
+          (appointment: any) =>
+            appointment.id === invoice.appointment_id,
+        )
+      : null;
 
-      const doctor = appointment
-        ? myDoctors.find(
-            (doctor: any) =>
-              doctor.id === appointment.doctorId
-          )
-        : null;
+    const doctor = appointment
+      ? myDoctors.find(
+          (doctor: any) =>
+            doctor.id === appointment.doctorId,
+        )
+      : null;
 
-      const firstItem = invoice.items?.[0];
+    const firstItem = invoice.items?.[0];
 
-      return {
-        id: invoice.id,
+    return {
+      id: invoice.id,
 
-        invoice_number: invoice.invoice_number,
+      invoice_number: invoice.invoice_number,
 
-        doctor_name:
-          doctor?.name || "Walk-in / Direct",
+      doctor_name: doctor?.name || "Walk-in / Direct",
 
-        specialty:
-          doctor?.specialty ||
-          firstItem?.description ||
-          firstItem?.item_description ||
-          "",
+      specialty:
+        doctor?.specialty ||
+        firstItem?.description ||
+        firstItem?.item_description ||
+        "",
 
-        label:
-          firstItem?.item_name ||
-          firstItem?.itemName ||
-          "Invoice",
+      label:
+        firstItem?.item_name ||
+        firstItem?.itemName ||
+        "Invoice",
 
-        amount: Number(invoice.total) || 0,
+      amount: Number(invoice.total) || 0,
 
-        avatar_url: doctor?.avatar_url || null,
+      avatar_url: doctor?.avatar_url || null,
 
-        status: invoice.status,
-      };
-    }
-  );
-
-  console.log("RECENT TRANSACTIONS:", recentTransactions);
+      status: invoice.status,
+    };
+  });
 
   // -----------------------------------
   // Dashboard
@@ -293,22 +262,22 @@ const departmentData = Object.values(departmentMap);
 
   return (
     <div className="space-y-6">
-
       {/* Heading */}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-  <h1 className="text-xl font-semibold text-slate-900">
-    Patient Dashboard
-  </h1>
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
+          Patient Dashboard
+        </h1>
 
-  <Link href="/patient/appointments/book">
-    <Button
-      variant="primary"
-      text="New Appointment"
-      icon={<FiPlus />}
-    />
-  </Link>
-</div>
+        <Link href="/patient/appointments/book">
+          <Button
+            variant="primary"
+            text="New Appointment"
+            icon={<FiPlus />}
+          />
+        </Link>
+      </div>
+
       {/* Stats */}
 
       <StatsGrid
@@ -317,11 +286,9 @@ const departmentData = Object.values(departmentMap);
         vitals={patient?.vitals}
       />
 
-
       {/* Dashboard Cards */}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-
         <MyDoctorsCard doctors={myDoctors} />
 
         <PrescriptionsCard
@@ -332,9 +299,8 @@ const departmentData = Object.values(departmentMap);
           appointments={myAppointments}
           invoices={myInvoices}
         />
-
       </div>
-    
+
       {/* Vitals */}
 
       <VitalsCard
@@ -344,10 +310,10 @@ const departmentData = Object.values(departmentMap);
         spo2={latestPrescription?.spo2}
         temperature={latestPrescription?.temperature}
       />
+
       {/* Consultation + Transactions */}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-
         <ConsultationByDepartment
           departmentData={departmentData}
         />
@@ -355,19 +321,16 @@ const departmentData = Object.values(departmentMap);
         <RecentTransactions
           transactions={recentTransactions}
         />
-
       </div>
-{/* Patient Appointments */}
 
-<div className="space-y-4">
- 
-  <PatientDashboardAppointments
-    appointments={myAppointments}
-    doctorsList={allDoctors}
-  />
-</div>
+      {/* Patient Appointments */}
+
+      <div className="space-y-4">
+        <PatientDashboardAppointments
+          appointments={myAppointments}
+          doctorsList={allDoctors}
+        />
+      </div>
     </div>
-    
   );
 }
-

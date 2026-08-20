@@ -1,3 +1,4 @@
+
 import type { SelectHTMLAttributes } from "react";
 
 type SelectOption = {
@@ -19,7 +20,7 @@ export default function FormSelect({
 }: FormSelectProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
         {label}
         {required && <span className="text-red-500"> *</span>}
       </label>
@@ -43,6 +44,9 @@ export default function FormSelect({
             focus:border-blue-500
             focus:ring-1
             focus:ring-blue-500
+            dark:border-gray-700
+            dark:bg-gray-900
+            dark:text-white
           "
           {...props}
         >
@@ -56,7 +60,7 @@ export default function FormSelect({
         </select>
 
         <svg
-          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+          className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-gray-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

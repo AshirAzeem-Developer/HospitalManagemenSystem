@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -34,7 +35,7 @@ export default function PatientBillingTable({
       key: "total",
       label: "Amount",
       render: (row: any) => (
-        <span className="font-semibold text-[#0A1B39]">
+        <span className="font-semibold text-[#0A1B39] dark:text-white">
           ${Number(row.total || 0).toFixed(2)}
         </span>
       ),
@@ -71,13 +72,13 @@ export default function PatientBillingTable({
   ];
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5">
-      <h2 className="mb-5 text-base font-bold text-[#0A1B39]">
+    <div className="rounded-lg border border-slate-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
+      <h2 className="mb-5 text-base font-bold text-[#0A1B39] dark:text-white">
         My Billing
       </h2>
 
       {invoices.length === 0 ? (
-        <p className="py-8 text-center text-sm text-gray-500">
+        <p className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
           No billing records found.
         </p>
       ) : (
@@ -86,3 +87,4 @@ export default function PatientBillingTable({
     </div>
   );
 }
+

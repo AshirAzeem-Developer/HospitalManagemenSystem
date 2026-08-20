@@ -1,3 +1,4 @@
+
 "use client";
 
 import PatientAppointmentList from "@/features/appointments/components/patientAppointmentList";
@@ -20,7 +21,7 @@ export default function PatientDashboardAppointments({
 }: PatientDashboardAppointmentsProps) {
   return (
     <div className="space-y-4">
-      <h2 className="text-base font-bold text-slate-900">
+      <h2 className="text-base font-bold text-slate-900 dark:text-white">
         My Appointments
       </h2>
 
@@ -31,3 +32,4 @@ export default function PatientDashboardAppointments({
     </div>
   );
 }
+

@@ -27,27 +27,19 @@ import PatientDashboardAppointments from "@/features/patients/dashboard/PatientD
 export default async function PatientDashboardPage() {
   const supabase = await createClient();
 
-  // -----------------------------------
-  // Logged-in user
-  // -----------------------------------
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-6">
-        <p className="text-sm text-slate-500">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
+        <p className="text-sm text-slate-500 dark:text-gray-400">
           Please log in to view your dashboard.
         </p>
       </div>
     );
   }
-
-  // -----------------------------------
-  // Auth user -> patients.id
-  // -----------------------------------
 
   const { data: patientRecord, error: patientError } = await supabase
     .from("patients")
@@ -59,8 +51,8 @@ export default async function PatientDashboardPage() {
     console.error("PATIENT RECORD ERROR:", patientError);
 
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-6">
-        <p className="text-sm text-slate-500">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
+        <p className="text-sm text-slate-500 dark:text-gray-400">
           Patient profile not found.
         </p>
       </div>
@@ -68,10 +60,6 @@ export default async function PatientDashboardPage() {
   }
 
   const patientId = patientRecord.id;
-
-  // -----------------------------------
-  // Patient + appointments + doctors + invoices
-  // -----------------------------------
 
   const [patient, myAppointments, allDoctors, allInvoices] =
     await Promise.all([
@@ -81,10 +69,6 @@ export default async function PatientDashboardPage() {
       getInvoicesAction(),
     ]);
 
-  // -----------------------------------
-  // Patient's doctors
-  // -----------------------------------
-
   const doctorIds = [
     ...new Set(
       myAppointments
@@ -93,25 +77,19 @@ export default async function PatientDashboardPage() {
     ),
   ];
 
-  const myDoctors = (allDoctors || []).filter((doctor: any) =>
-    doctorIds.includes(doctor.id)
-  );
-
-  // -----------------------------------
-  // Patient's invoices
-  // invoices table uses patient_id
-  // -----------------------------------
+  const myDoctors = (allDoctors || [])
+  .filter((doctor: any) => doctorIds.includes(doctor.id))
+  .map((doctor: any) => ({
+    ...doctor,
+    bookings_count: myAppointments.filter(
+      (appointment: any) =>
+        String(appointment.doctorId) === String(doctor.id)
+    ).length,
+  }));
 
   const myInvoices = (allInvoices || []).filter(
     (invoice: any) => invoice.patient_id === patientId
   );
-
-  // -----------------------------------
-  // Debug
-  // -----------------------------------
-
-  console.log("=================================");
-  console.log("CURRENT PATIENT ID:", patientId);
 
   console.log(
     "ALL INVOICES:",
@@ -125,10 +103,6 @@ export default async function PatientDashboardPage() {
   );
 
   console.log("MY INVOICES:", myInvoices);
-
-  // -----------------------------------
-  // Prescriptions
-  // -----------------------------------
 
   const {
     data: prescriptions,
@@ -168,10 +142,6 @@ export default async function PatientDashboardPage() {
 
   const latestPrescription = prescriptions?.[0] || null;
 
-  // -----------------------------------
-  // Recent invoices
-  // -----------------------------------
-
   const recentInvoices = [...myInvoices]
     .sort((a: any, b: any) => {
       const dateA = new Date(a.issued_date).getTime();
@@ -180,10 +150,6 @@ export default async function PatientDashboardPage() {
       return dateB - dateA;
     })
     .slice(0, 5);
-
-  // -----------------------------------
-  // Attach invoice items
-  // -----------------------------------
 
   const invoicesWithItems = await Promise.all(
     recentInvoices.map(async (invoice: any) => {
@@ -198,15 +164,7 @@ export default async function PatientDashboardPage() {
     })
   );
 
-  // -----------------------------------
-  // Consultation By Department
-  // -----------------------------------
-
- // -----------------------------------
-// Consultation By Department
-// -----------------------------------
-
-const departmentMap: Record<
+ const departmentMap: Record<
   string,
   {
     department: string;
@@ -215,12 +173,32 @@ const departmentMap: Record<
   }
 > = {};
 
+const now = new Date();
+
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth();
+
+const previousDate = new Date(
+  currentYear,
+  currentMonth - 1,
+  1
+);
+
+const previousYear = previousDate.getFullYear();
+const previousMonth = previousDate.getMonth();
+
 myAppointments.forEach((appointment: any) => {
+  const doctorId =
+    appointment.doctorId ??
+    appointment.doctor_id;
+
   const doctor = myDoctors.find(
-    (doctor: any) => String(doctor.id) === String(appointment.doctorId)
+    (doctor: any) =>
+      String(doctor.id) === String(doctorId)
   );
 
-  const department = doctor?.specialization || "General";
+  const department =
+    doctor?.specialization || "General";
 
   if (!departmentMap[department]) {
     departmentMap[department] = {
@@ -230,14 +208,46 @@ myAppointments.forEach((appointment: any) => {
     };
   }
 
-  departmentMap[department].current += 1;
+  // IMPORTANT:
+  // getAppointments() mein date kis naam se aa rahi hai
+  const rawDate =
+    appointment.appointment_date ??
+    appointment.appointmentDate ??
+    appointment.date;
+
+  if (!rawDate) {
+    console.log("NO APPOINTMENT DATE:", appointment);
+    return;
+  }
+
+  // YYYY-MM-DD ko directly split karna safer hai
+  const [year, month] = String(rawDate)
+    .slice(0, 10)
+    .split("-")
+    .map(Number);
+
+  const appointmentYear = year;
+  const appointmentMonth = month - 1;
+
+  if (
+    appointmentYear === currentYear &&
+    appointmentMonth === currentMonth
+  ) {
+    departmentMap[department].current += 1;
+  }
+
+  if (
+    appointmentYear === previousYear &&
+    appointmentMonth === previousMonth
+  ) {
+    departmentMap[department].previous += 1;
+  }
 });
 
 const departmentData = Object.values(departmentMap);
 
-  // -----------------------------------
-  // Recent Transactions
-  // -----------------------------------
+console.log("MY APPOINTMENTS:", myAppointments);
+console.log("DEPARTMENT DATA:", departmentData);
 
   const recentTransactions = invoicesWithItems.map(
     (invoice: any) => {
@@ -259,27 +269,20 @@ const departmentData = Object.values(departmentMap);
 
       return {
         id: invoice.id,
-
         invoice_number: invoice.invoice_number,
-
         doctor_name:
           doctor?.name || "Walk-in / Direct",
-
         specialty:
           doctor?.specialty ||
           firstItem?.description ||
           firstItem?.item_description ||
           "",
-
         label:
           firstItem?.item_name ||
           firstItem?.itemName ||
           "Invoice",
-
         amount: Number(invoice.total) || 0,
-
         avatar_url: doctor?.avatar_url || null,
-
         status: invoice.status,
       };
     }
@@ -287,28 +290,24 @@ const departmentData = Object.values(departmentMap);
 
   console.log("RECENT TRANSACTIONS:", recentTransactions);
 
-  // -----------------------------------
-  // Dashboard
-  // -----------------------------------
-
   return (
-    <div className="space-y-6">
-
+    <div className="space-y-6 dark:text-gray-100">
       {/* Heading */}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-  <h1 className="text-xl font-semibold text-slate-900">
-    Patient Dashboard
-  </h1>
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-white">
+          Patient Dashboard
+        </h1>
 
-  <Link href="/patient/appointments/book">
-    <Button
-      variant="primary"
-      text="New Appointment"
-      icon={<FiPlus />}
-    />
-  </Link>
-</div>
+        <Link href="/patient/appointments/book">
+          <Button
+            variant="primary"
+            text="New Appointment"
+            icon={<FiPlus />}
+          />
+        </Link>
+      </div>
+
       {/* Stats */}
 
       <StatsGrid
@@ -317,11 +316,9 @@ const departmentData = Object.values(departmentMap);
         vitals={patient?.vitals}
       />
 
-
       {/* Dashboard Cards */}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-
         <MyDoctorsCard doctors={myDoctors} />
 
         <PrescriptionsCard
@@ -332,9 +329,8 @@ const departmentData = Object.values(departmentMap);
           appointments={myAppointments}
           invoices={myInvoices}
         />
-
       </div>
-    
+
       {/* Vitals */}
 
       <VitalsCard
@@ -344,10 +340,10 @@ const departmentData = Object.values(departmentMap);
         spo2={latestPrescription?.spo2}
         temperature={latestPrescription?.temperature}
       />
+
       {/* Consultation + Transactions */}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-
         <ConsultationByDepartment
           departmentData={departmentData}
         />
@@ -355,19 +351,16 @@ const departmentData = Object.values(departmentMap);
         <RecentTransactions
           transactions={recentTransactions}
         />
-
       </div>
-{/* Patient Appointments */}
 
-<div className="space-y-4">
- 
-  <PatientDashboardAppointments
-    appointments={myAppointments}
-    doctorsList={allDoctors}
-  />
-</div>
+      {/* Patient Appointments */}
+
+      <div className="space-y-4">
+        <PatientDashboardAppointments
+          appointments={myAppointments}
+          doctorsList={allDoctors}
+        />
+      </div>
     </div>
-    
   );
 }
-

@@ -8,10 +8,10 @@ export default async function PatientsGridViewPage() {
   const patients = await getPatientsForGrid();
 
   return (
-    <div className="min-h-screen space-y-6 bg-[#F5F6F8] p-6 -m-6">
+    <div className="min-h-screen space-y-6 bg-[#F5F6F8] p-6 -m-6 dark:bg-gray-950">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-lg font-semibold text-slate-900 sm:text-2xl">
+          <h1 className="text-lg font-semibold text-slate-900 dark:text-white sm:text-2xl">
             Patient Grid
           </h1>
 
@@ -23,7 +23,7 @@ export default async function PatientsGridViewPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 border border-slate-300 bg-white px-2 py-1">
+          <div className="flex items-center gap-2 border border-slate-300 bg-white px-2 py-1 dark:border-gray-700 dark:bg-gray-900">
             <Link href="/admin/patients">
               <List
                 size={16}

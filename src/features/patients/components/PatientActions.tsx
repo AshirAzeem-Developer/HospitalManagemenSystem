@@ -60,27 +60,27 @@ export default function PatientActions({
           type="button"
           variant="ghost"
           text=""
-          icon={<Eye className="h-4 w-4 text-slate-600" />}
+          icon={<Eye className="h-4 w-4 text-slate-600 dark:text-gray-300" />}
           title="View"
           onClick={() =>
             router.push(`/admin/patients/${id}`)
           }
-          className="h-8 w-8 border-0 p-0 hover:bg-slate-100"
+          className="h-8 w-8 border-0 bg-transparent p-0 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-gray-800"
         />
 
         {/* Edit */}
         <Button
-  type="button"
-  variant="ghost"
-  text=""
-  icon={<Pencil className="h-4 w-4 text-blue-600" />}
-  title="Edit"
-  onClick={() => {
-    console.log("EDIT CLICKED", id);
-    router.push(`/admin/patients/${id}/edit`);
-  }}
-  className="h-8 w-8 border-0 p-0 hover:bg-slate-100"
-/>
+          type="button"
+          variant="ghost"
+          text=""
+          icon={<Pencil className="h-4 w-4 text-blue-600" />}
+          title="Edit"
+          onClick={() => {
+            console.log("EDIT CLICKED", id);
+            router.push(`/admin/patients/${id}/edit`);
+          }}
+          className="h-8 w-8 border-0 bg-transparent p-0 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-gray-800"
+        />
 
         {/* Delete */}
         <Button
@@ -93,26 +93,26 @@ export default function PatientActions({
             setErrorMessage("");
             setShowModal(true);
           }}
-          className="h-8 w-8 border-0 p-0 hover:bg-slate-100"
+          className="h-8 w-8 border-0 bg-transparent p-0 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-gray-800"
         />
       </div>
 
       {/* Delete Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[85vh] w-full max-w-md overflow-y-auto overflow-x-hidden rounded-xl bg-white p-5 shadow-xl sm:p-6">
-            <h2 className="w-full break-words text-lg font-semibold text-slate-900">
+          <div className="max-h-[85vh] w-full max-w-md overflow-y-auto overflow-x-hidden rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900 sm:p-6">
+            <h2 className="w-full break-words text-lg font-semibold text-slate-900 dark:text-white">
               Delete Patient
             </h2>
 
             {errorMessage ? (
-              <div className="mt-3 w-full rounded-lg border border-red-200 bg-red-50 p-3">
-                <p className="w-full whitespace-normal break-words text-sm leading-5 text-red-700">
+              <div className="mt-3 w-full rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-900/50 dark:bg-red-950/40">
+                <p className="w-full whitespace-normal break-words text-sm leading-5 text-red-700 dark:text-red-400">
                   {errorMessage}
                 </p>
               </div>
             ) : (
-              <p className="mt-2 w-full whitespace-normal break-words text-sm leading-5 text-slate-500">
+              <p className="mt-2 w-full whitespace-normal break-words text-sm leading-5 text-slate-500 dark:text-gray-400">
                 Are you sure you want to delete this patient?
               </p>
             )}
@@ -125,7 +125,7 @@ export default function PatientActions({
                 text="Cancel"
                 onClick={handleCloseModal}
                 disabled={loading}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto dark:text-gray-200 dark:hover:bg-gray-800"
               />
 
               {/* Delete */}
@@ -146,3 +146,4 @@ export default function PatientActions({
     </>
   );
 }
+

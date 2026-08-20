@@ -1,4 +1,5 @@
 "use client";
+
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -157,57 +158,58 @@ export default function PatientForm({
     handleChange("password", password);
   }
 
- async function handleSubmit(
-  e: React.FormEvent<HTMLFormElement>
-) {
-  e.preventDefault();
+  async function handleSubmit(
+    e: React.FormEvent<HTMLFormElement>
+  ) {
+    e.preventDefault();
 
-  const result = patientSchema.safeParse(form);
+    const result = patientSchema.safeParse(form);
 
-  if (!result.success) {
-    const fieldErrors: Partial<
-      Record<keyof PatientFormData, string>
-    > = {};
+    if (!result.success) {
+      const fieldErrors: Partial<
+        Record<keyof PatientFormData, string>
+      > = {};
 
-    result.error.issues.forEach((issue) => {
-      const field = issue.path[0] as keyof PatientFormData;
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof PatientFormData;
 
-      if (!fieldErrors[field]) {
-        fieldErrors[field] = issue.message;
-      }
-    });
-
-    setErrors(fieldErrors);
-    return;
-  }
-
-  setErrors({});
-  setLoading(true);
-
-  try {
-    if (patientId) {
-      await updatePatient(patientId, form);
-      toast.success("Patient updated successfully");
-    } else {
-      await createPatient({
-        ...form,
-        imageFile,
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
       });
-      toast.success("Patient added successfully");
+
+      setErrors(fieldErrors);
+      return;
     }
 
-    router.push("/admin/patients");
-  } catch (err) {
-    const message =
-      err instanceof Error
-        ? err.message
-        : "Something went wrong";
+    setErrors({});
+    setLoading(true);
 
-    toast.error(message);
-  } finally {
-    setLoading(false);
+    try {
+      if (patientId) {
+        await updatePatient(patientId, form);
+        toast.success("Patient updated successfully");
+      } else {
+        await createPatient({
+          ...form,
+          imageFile,
+        });
+        toast.success("Patient added successfully");
+      }
+
+      router.push("/admin/patients");
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Something went wrong";
+
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   }
-}
+
   const doctorOptions = doctors.map((doctor: any) => ({
     label: doctor.profile?.full_name || "Unknown",
     value: doctor.id,
@@ -216,8 +218,8 @@ export default function PatientForm({
   return (
     <form onSubmit={handleSubmit}>
       <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-0">
-        <div className="w-full rounded-lg bg-white p-4 shadow-sm sm:p-6 lg:rounded-none lg:p-8">
-          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+        <div className="w-full rounded-lg bg-white p-4 shadow-sm dark:bg-gray-900 sm:p-6 lg:rounded-none lg:p-8">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white sm:text-xl">
             Patient Information
           </h2>
 
@@ -251,7 +253,7 @@ export default function PatientForm({
             />
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 dark:text-gray-300">
                 Password
               </label>
 
@@ -267,7 +269,7 @@ export default function PatientForm({
                       ? "Leave blank to keep unchanged"
                       : "Enter or generate a password"
                   }
-                  className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-blue-500 dark:focus:ring-blue-500/20"
                 />
 
                 <button
@@ -275,7 +277,7 @@ export default function PatientForm({
                   onClick={generatePassword}
                   title="Generate Password"
                   aria-label="Generate Password"
-                  className="inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 active:scale-[0.95]"
+                  className="inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-700 transition hover:border-blue-300 hover:bg-blue-100 active:scale-[0.95] dark:border-blue-900 dark:bg-blue-950 dark:text-blue-400 dark:hover:border-blue-800 dark:hover:bg-blue-900"
                 >
                   <RefreshCw size={17} />
                 </button>
@@ -357,7 +359,7 @@ export default function PatientForm({
             />
           </div>
 
-          <h2 className="mt-8 border-t pt-6 text-lg font-semibold text-slate-900 sm:mt-10 sm:pt-8 sm:text-xl">
+          <h2 className="mt-8 border-t border-slate-200 pt-6 text-lg font-semibold text-slate-900 dark:border-gray-700 dark:text-white sm:mt-10 sm:pt-8 sm:text-xl">
             Address Information
           </h2>
 
@@ -417,15 +419,16 @@ export default function PatientForm({
           </div>
         </div>
 
-       <div className="mt-6 flex flex-col-reverse gap-3 sm:mt-8 sm:flex-row sm:justify-end lg:mt-10">
- <Button
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:mt-8 sm:flex-row sm:justify-end lg:mt-10">
+          <Button
             type="button"
             variant="ghost"
             text="Cancel"
             onClick={() => router.push("/admin/patients")}
             className="w-full sm:w-auto"
           />
-   <Button
+
+          <Button
             type="submit"
             variant="primary"
             text={
@@ -438,7 +441,7 @@ export default function PatientForm({
             disabled={loading}
             className="w-full sm:w-auto"
           />
-</div>
+        </div>
       </div>
     </form>
   );

@@ -33,7 +33,6 @@ export default function Table<T extends { id: string }>({
             className="
               sticky top-0 z-10
               bg-white
-
               dark:bg-[#0D1B31]
             "
           >
@@ -53,7 +52,6 @@ export default function Table<T extends { id: string }>({
                     text-[13px]
                     font-semibold
                     text-gray-800
-
                     dark:text-[#CBD5E1]
                   "
                 >
@@ -63,7 +61,8 @@ export default function Table<T extends { id: string }>({
             </tr>
           </thead>
 
-          <tbody>
+          {/* Body */}
+          <tbody className="bg-white dark:bg-[#0A162A]">
             {data.map((row) => (
               <tr
                 key={row.id}
@@ -86,15 +85,15 @@ export default function Table<T extends { id: string }>({
                       align-middle
                       text-sm
                       text-gray-700
-
                       dark:text-[#CBD5E1]
-
                       sm:px-5 sm:py-4
                     "
                   >
                     {column.render
                       ? column.render(row)
-                      : String(row[column.key as keyof T] ?? "")}
+                      : String(
+                          row[column.key as keyof T] ?? "",
+                        )}
                   </td>
                 ))}
               </tr>

@@ -1,3 +1,4 @@
+
 import type { InputHTMLAttributes } from "react";
 
 type FormInputProps = InputHTMLAttributes<HTMLInputElement> & {
@@ -16,7 +17,7 @@ export default function FormInput({
 }: FormInputProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="block text-sm font-medium text-slate-700 dark:text-gray-200">
         {label}
         {required && <span className="text-red-500"> *</span>}
       </label>
@@ -40,6 +41,10 @@ export default function FormInput({
           focus:border-blue-500
           focus:ring-1
           focus:ring-blue-500
+          dark:border-gray-700
+          dark:bg-gray-900
+          dark:text-white
+          dark:placeholder:text-gray-500
         "
         {...props}
       />
@@ -52,3 +57,4 @@ export default function FormInput({
     </div>
   );
 }
+

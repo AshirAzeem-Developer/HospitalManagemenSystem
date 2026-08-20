@@ -18,8 +18,8 @@ type Vitals = {
   spo2?: string | null;
   temperature?: string | null;
   weight?: string | null;
-  blood_pressure_trend?: number[]; // wire this once historical data exists
-  heart_rate_trend?: number[]; // wire this once historical data exists
+  blood_pressure_trend?: number[];
+  heart_rate_trend?: number[];
 };
 
 type StatsGridProps = {
@@ -28,8 +28,6 @@ type StatsGridProps = {
   vitals?: Vitals;
 };
 
-// Placeholder shape — replace by passing real trendData once
-// a vitals-history table/query is available.
 const DEFAULT_TREND = [40, 55, 45, 62, 50, 68, 58];
 
 function Sparkline({
@@ -64,9 +62,7 @@ function StatCard({
   label,
   value,
   unit,
-  trend,
-  trendUp,
-  trendLabel,
+  subtitle,
   sparklineData,
   sparklineColor,
 }: {
@@ -75,14 +71,12 @@ function StatCard({
   label: string;
   value: string | number;
   unit?: string;
-  trend?: string;
-  trendUp?: boolean;
-  trendLabel?: string;
+  subtitle?: string;
   sparklineData?: number[];
   sparklineColor?: string;
 }) {
   return (
-    <div className="flex w-full flex-col rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+    <div className="flex w-full flex-col rounded-xl border border-slate-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900 sm:p-5">
       <div className="flex items-center gap-3">
         <span
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${iconBg}`}
@@ -90,35 +84,27 @@ function StatCard({
           {icon}
         </span>
 
-        <p className="text-sm font-medium text-slate-600">{label}</p>
+        <p className="text-sm font-medium text-slate-600 dark:text-gray-300">
+          {label}
+        </p>
       </div>
 
       <div className="mt-3 flex items-baseline gap-1">
-        <span className="text-2xl font-semibold text-slate-900 sm:text-[28px]">
+        <span className="text-xl font-semibold text-slate-900 dark:text-white sm:text-2xl">
           {value}
         </span>
 
         {unit && (
-          <span className="text-sm font-medium text-slate-500">{unit}</span>
+          <span className="text-xs font-medium text-slate-500 dark:text-gray-400">
+            {unit}
+          </span>
         )}
       </div>
 
-      {trend && (
-        <div className="mt-2 flex items-center gap-2">
-          <span
-            className={`rounded-md px-1.5 py-0.5 text-xs font-semibold ${
-              trendUp
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {trend}
-          </span>
-
-          {trendLabel && (
-            <span className="text-xs text-slate-500">{trendLabel}</span>
-          )}
-        </div>
+      {subtitle && (
+        <p className="mt-2 text-xs text-slate-400 dark:text-gray-500">
+          {subtitle}
+        </p>
       )}
 
       {sparklineData && (
@@ -144,7 +130,7 @@ export default function StatsGrid({
         iconBg="bg-indigo-100"
         label="Total Appointments"
         value={totalAppointments}
-        trendLabel="all time"
+        subtitle="All appointments"
       />
 
       {/* Consultations */}
@@ -153,6 +139,7 @@ export default function StatsGrid({
         iconBg="bg-red-100"
         label="Consultations"
         value={totalConsultations}
+        subtitle="All consultations"
       />
 
       {/* Blood Pressure */}

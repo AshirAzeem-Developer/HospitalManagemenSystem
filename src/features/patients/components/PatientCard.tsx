@@ -21,11 +21,11 @@ export function PatientCard({
   patient: PatientCardData;
 }) {
   return (
-    <div className="border border-slate-200 bg-white p-4">
+    <div className="border border-slate-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
       {/* Patient Header */}
       <div className="flex min-w-0 items-center gap-3">
         {/* Patient Image */}
-        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-slate-100">
+        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-slate-100 dark:bg-gray-800">
           {patient.profile?.avatar_url ? (
             <img
               src={patient.profile.avatar_url}
@@ -33,7 +33,7 @@ export function PatientCard({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
+            <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500 dark:text-gray-400">
               {patient.profile?.full_name
                 ?.charAt(0)
                 ?.toUpperCase() || "P"}
@@ -43,11 +43,11 @@ export function PatientCard({
 
         {/* Patient Info */}
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-slate-900">
+          <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
             {patient.profile?.full_name || "Unknown"}
           </p>
 
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-gray-400">
             {patient.profile?.gender || "—"},{" "}
             {patient.blood_group || "—"}
           </p>
@@ -55,14 +55,14 @@ export function PatientCard({
       </div>
 
       {/* Divider */}
-      <hr className="my-3 border-slate-100" />
+      <hr className="my-3 border-slate-100 dark:border-gray-700" />
 
       {/* Last Visit */}
       <div className="space-y-2">
-        <p className="flex items-center gap-2 text-xs text-slate-500">
+        <p className="flex items-center gap-2 text-xs text-slate-500 dark:text-gray-400">
           <CalendarDays
             size={14}
-            className="shrink-0 text-slate-400"
+            className="shrink-0 text-slate-400 dark:text-gray-500"
           />
 
           <span className="truncate">
@@ -71,10 +71,10 @@ export function PatientCard({
         </p>
 
         {/* Address */}
-        <p className="flex items-center gap-2 text-xs text-slate-500">
+        <p className="flex items-center gap-2 text-xs text-slate-500 dark:text-gray-400">
           <MapPin
             size={14}
-            className="shrink-0 text-slate-400"
+            className="shrink-0 text-slate-400 dark:text-gray-500"
           />
 
           <span className="truncate">

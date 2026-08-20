@@ -7,8 +7,6 @@ export default function RecentActivityCard({
   appointments = [],
   invoices = [],
 }: RecentActivityCardProps) {
-  // Build a simple activity feed from real appointments + invoices,
-  // most recent first.
   const activity = [
     ...appointments.map((a: any) => ({
       id: `apt-${a.id}`,
@@ -37,14 +35,16 @@ export default function RecentActivityCard({
     .slice(0, 5);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
-      <h2 className="mb-4 text-base font-semibold text-slate-900">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900 sm:p-5">
+      <h2 className="mb-4 text-base font-semibold text-slate-900 dark:text-white">
         Recent Activity
       </h2>
 
       <div className="space-y-4">
         {activity.length === 0 && (
-          <p className="text-sm text-slate-500">No recent activity.</p>
+          <p className="text-sm text-slate-500 dark:text-gray-400">
+            No recent activity.
+          </p>
         )}
 
         {activity.map((a) => (
@@ -54,8 +54,13 @@ export default function RecentActivityCard({
             />
 
             <div className="min-w-0">
-              <p className="text-sm text-slate-700">{a.title}</p>
-              <p className="text-xs text-slate-500">{a.time}</p>
+              <p className="text-sm text-slate-700 dark:text-gray-300">
+                {a.title}
+              </p>
+
+              <p className="text-xs text-slate-500 dark:text-gray-400">
+                {a.time}
+              </p>
             </div>
           </div>
         ))}

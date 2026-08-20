@@ -166,9 +166,7 @@ export default function AppointmentsList({
                         <span className="font-bold text-foreground text-sm leading-tight">
                           {appointment.doctorName}
                         </span>
-                        <span className="text-xs text-muted mt-0.5">
-                          {appointment.doctorSpecialization || "General"}
-                        </span>
+                       
                       </div>
                     </div>
                   </td>

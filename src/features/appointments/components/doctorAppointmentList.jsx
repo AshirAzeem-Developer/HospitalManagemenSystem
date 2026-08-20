@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Eye, Pencil, Stethoscope, X } from "lucide-react";
+import { MoreVertical, Eye, Pencil, Stethoscope, X, Plus } from "lucide-react";
 
 export default function DoctorAppointmentList({ appointments = [] }) {
   const [sidebar, setSidebar] = useState({

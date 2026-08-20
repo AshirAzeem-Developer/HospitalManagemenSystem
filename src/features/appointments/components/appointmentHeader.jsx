@@ -6,8 +6,6 @@ import { Dropdown } from "@/components/ui/select";
 import Button from "@/components/ui/button";
 import SearchBar from "@/components/ui/SearchBar";
 import {
-  FiList,
-  FiCalendar,
   FiFilter,
   FiPlus,
   FiChevronDown,
@@ -20,12 +18,10 @@ import {
 
 export default function AppointmentHeader({
   title = "Appointment",
-  currentView = "list",
   newAppointmentUrl = "/admin/appointments/new",
   showNewButton = true,
   onSearch,
   onSortChange,
-  onViewChange,
   onFilterApply,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -222,18 +218,18 @@ export default function AppointmentHeader({
 
   return (
     <div className="w-full text-foreground bg-background p-4 shadow-sm space-y-4 rounded-lg border border-border">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-        <div className="flex items-center gap-3">
-          
-
+      
+      {/* Title aur Button ka hissa yahan update kiya hai */}
+      <div className="flex justify-between items-center gap-2">
+        <h1 className="text-lg sm:text-2xl font-bold text-foreground truncate">{title}</h1>
+        <div className="flex items-center gap-3 shrink-0">
           {showNewButton && (
             <Link href={newAppointmentUrl}>
               <Button
                 variant="primary"
                 text="New Appointment"
                 icon={<FiPlus />}
-                className="cursor-pointer"
+                className="cursor-pointer whitespace-nowrap text-xs sm:text-sm px-2.5 py-1.5 sm:px-4 sm:py-2"
               />
             </Link>
           )}

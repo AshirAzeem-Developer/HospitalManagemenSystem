@@ -29,10 +29,12 @@ export default async function AdminLayout({
   if (role !== "admin") redirect("/unauthorized");
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex">
+      
       <Sidebar links={adminLinks} roleLabel="Admin" />
 
-      <div className="flex flex-1 flex-col pt-[64px] md:pt-0 min-w-0">
+      <div className="flex flex-1 flex-col overflow-y-auto min-w-0 pt-[64px] md:pt-0">
+        
         <Navbar profileSettingsHref="/settings/profile" />
 
         <main className="flex-1 bg-[#F7F8FC] dark:bg-[#0A162A] p-8">
@@ -42,6 +44,7 @@ export default async function AdminLayout({
         <footer className="border-t border-border bg-[#F7F8FC] dark:bg-[#0A162A] px-8 py-4 text-center text-sm text-muted">
           © {new Date().getFullYear()} SafeHeal. All rights reserved.
         </footer>
+        
       </div>
     </div>
   );

@@ -6,10 +6,10 @@ export default async function DoctorPatientsPage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="mb-6 flex items-center gap-3 border-b border-gray-200 pb-5">
-        <h1 className="text-xl font-semibold text-[#0A1B39] md:text-2xl">
-          My Patients
-        </h1>
+   <div className="mb-6 flex items-center gap-3 pb-5">
+  <h1 className="text-xl font-semibold text-[#0A1B39] md:text-2xl dark:text-white">
+    My Patients
+  </h1>
 
         <span className="rounded-md bg-[#EEF0FF] px-2.5 py-1 text-xs font-medium text-[#2E37A4] md:text-sm">
           Total Patients : {patients.length}

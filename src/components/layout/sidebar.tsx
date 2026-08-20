@@ -226,7 +226,8 @@ export function Sidebar({
                   const isActive =
                     item.href === "/admin" ||
                     item.href === "/doctor" ||
-                    item.href === "/patient"
+                    item.href === "/patient" ||
+  item.href === "/patient/appointments"
                       ? pathname === item.href
                       : pathname === item.href ||
                         pathname.startsWith(item.href + "/");

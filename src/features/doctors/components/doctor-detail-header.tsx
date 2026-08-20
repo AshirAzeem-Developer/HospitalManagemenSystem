@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { CalendarDays, Building2 } from "lucide-react";
-
+import Link from "next/link";
 import type { DoctorDetail } from "../types";
 
 type DoctorDetailHeaderProps = {
@@ -86,19 +86,18 @@ export default function DoctorDetailHeader({
           <p className="text-sm text-slate-500">Consultation Charge</p>
 
           <p className="mt-1 text-xl font-semibold text-[#0A1B39]">
-            ${doctor.consultation_fee}
+            Rs/- {doctor.consultation_fee}
             <span className="ml-1 text-sm font-normal text-slate-500">
               / 30 Min
             </span>
           </p>
-
-          <button
-            type="button"
-            className="mt-3 inline-flex items-center justify-center gap-2 rounded-md bg-[#2E37A4] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#252D8C]"
+          <Link
+            href={"/admin/appointments"}
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#2E37A4] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#252d89]"
           >
             <CalendarDays className="h-4 w-4" />
             Book Appointment
-          </button>
+          </Link>
         </div>
       </div>
     </div>

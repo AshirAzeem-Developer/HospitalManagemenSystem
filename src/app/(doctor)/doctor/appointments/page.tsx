@@ -21,6 +21,7 @@ interface DoctorAppointment {
   id: string;
   date: string;
   time: string;
+  reasonOfVisit?: string | null;
   status: string;
   patientId: string;
   doctorId: string;

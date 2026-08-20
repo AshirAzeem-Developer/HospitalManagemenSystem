@@ -151,6 +151,8 @@ export type DoctorDashboardAppointment = {
     full_name: string;
     avatar_url: string | null;
   };
+    prescriptionId?: string | null;
+
 };
 
 export type DoctorTopPatient = {

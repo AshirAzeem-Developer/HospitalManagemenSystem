@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, Clock, Stethoscope } from "lucide-react";
+import { CalendarDays, Clock, Stethoscope, Eye } from "lucide-react";
 
 import type { DoctorDashboardAppointment } from "../types";
 
@@ -39,9 +39,7 @@ function formatTime(time: string) {
   });
 }
 
-export default function DoctorUpcomingAppointments({
-  appointments,
-}: Props) {
+export default function DoctorUpcomingAppointments({ appointments }: Props) {
   const appointment = appointments[0];
 
   return (
@@ -89,9 +87,8 @@ export default function DoctorUpcomingAppointments({
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
-                    {appointment.patient.full_name
-                      ?.charAt(0)
-                      .toUpperCase() ?? "P"}
+                    {appointment.patient.full_name?.charAt(0).toUpperCase() ??
+                      "P"}
                   </div>
                 )}
               </div>
@@ -144,13 +141,23 @@ export default function DoctorUpcomingAppointments({
             </div>
 
             {/* Action */}
-            <Link
-              href={`/doctor/consultation/${appointment.id}`}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#2E37A4] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#252d89]"
-            >
-              <Stethoscope size={16} />
-              Start Consultation
-            </Link>
+            {appointment.prescriptionId ? (
+              <Link
+                href={`/doctor/prescriptions/${appointment.prescriptionId}`}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#2E37A4] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#252d89]"
+              >
+                <Eye size={16} />
+                View Prescription
+              </Link>
+            ) : (
+              <Link
+                href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#2E37A4] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#252d89]"
+              >
+                <Stethoscope size={16} />
+                Start Consultation
+              </Link>
+            )}
           </div>
         )}
       </div>

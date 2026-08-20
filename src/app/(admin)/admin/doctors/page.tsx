@@ -2,7 +2,7 @@ import DoctorGrid from "@/features/doctors/components/doctor-grid";
 import { getDoctors, getDoctorsParams } from "@/features/doctors/queries";
 import Button from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Filter, LayoutGrid, Plus, CalendarClock } from "lucide-react";
+import { Filter, LayoutGrid, Plus, Calendar } from "lucide-react";
 import Link from "next/link";
 import PaginationControlsWrapper from "@/components/ui/PaginationControlsWrapper";
 import PaginationSearchBar from "@/components/ui/PaginationSearchBar";
@@ -39,22 +39,37 @@ export default async function AdminDoctorsPage({ searchParams }: Props) {
           hint={`Page ${page} of ${totalPages}`}
         />
 
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="w-full md:max-w-xs">
-            <PaginationSearchBar placeholder="Search doctors" />
-          </div>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+  {/* Search */}
+  <div className="w-full lg:max-w-xs">
+    <PaginationSearchBar placeholder="Search doctors" />
+  </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Link href="/admin/doctors/add">
-              <Button
-                text="New Doctor"
-                variant="primary"
-                icon={<Plus size={18} />}
-              />
-            </Link>
-          </div>
-        </div>
+  {/* Buttons */}
+  <div className="flex w-full items-center gap-2 lg:w-auto">
+    <Link
+      href="/admin/doctors/schedule"
+      className="shrink-0"
+    >
+      <Button
+        text="Doctor Schedule"
+        variant="ghost"
+        icon={<Calendar size={18} />}
+      />
+    </Link>
 
+    <Link
+      href="/admin/doctors/add"
+      className="shrink-0"
+    >
+      <Button
+        text="New Doctor"
+        variant="primary"
+        icon={<Plus size={18} />}
+      />
+    </Link>
+  </div>
+</div>
         <DoctorGrid doctors={doctors} />
 
         <div className="mt-4">

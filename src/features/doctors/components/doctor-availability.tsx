@@ -34,15 +34,15 @@ export default function DoctorAvailability({
   );
 
   return (
-    <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+    <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-[#0A162A] sm:p-5">
       
       {/* Heading */}
       <div>
-        <h2 className="text-base font-semibold text-[#0A1B39] sm:text-lg">
+        <h2 className="text-base font-semibold text-[#0A1B39] dark:text-white sm:text-lg">
           Availability
         </h2>
 
-        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
           Doctor's available consultation hours
         </p>
       </div>
@@ -59,28 +59,28 @@ export default function DoctorAvailability({
               key={day.value}
               className={`min-w-[100px] rounded-lg border px-3 py-3 text-center ${
                 schedule
-                  ? "border-[#2E37A4] bg-[#F1F2FF]"
-                  : "border-slate-200 bg-slate-50"
+                  ? "border-[#2E37A4] bg-[#F1F2FF] dark:border-[#4A54C6] dark:bg-[#1A2550]"
+                  : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-[#111F35]"
               }`}
             >
               <p
                 className={`text-xs font-semibold ${
                   schedule
-                    ? "text-[#2E37A4]"
-                    : "text-slate-400"
+                    ? "text-[#2E37A4] dark:text-[#8B92E8]"
+                    : "text-slate-400 dark:text-slate-500"
                 }`}
               >
                 {day.label}
               </p>
 
               {schedule ? (
-                <p className="mt-1 text-xs text-slate-600">
+                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
                   {formatTime(schedule.startTime)}
                   {" - "}
                   {formatTime(schedule.endTime)}
                 </p>
               ) : (
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
                   Not available
                 </p>
               )}
@@ -92,8 +92,8 @@ export default function DoctorAvailability({
       {/* Schedule Details */}
       <div className="mt-5 space-y-3">
         {activeSchedules.length === 0 ? (
-          <div className="rounded-lg bg-slate-50 p-4 text-center">
-            <p className="text-sm text-slate-500">
+          <div className="rounded-lg bg-slate-50 p-4 text-center dark:bg-[#111F35]">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               No active schedule available.
             </p>
           </div>
@@ -106,26 +106,26 @@ export default function DoctorAvailability({
             return (
               <div
                 key={schedule.id}
-                className="flex flex-col gap-2 rounded-lg border border-slate-100 p-3 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-2 rounded-lg border border-slate-100 p-3 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <p className="text-sm font-medium text-slate-800">
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
                     {day?.label ?? "Unknown Day"}
                   </p>
 
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Consultation hours
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="rounded-md bg-[#F1F2FF] px-3 py-1.5 text-xs font-medium text-[#2E37A4]">
+                  <span className="rounded-md bg-[#F1F2FF] px-3 py-1.5 text-xs font-medium text-[#2E37A4] dark:bg-[#1A2550] dark:text-[#8B92E8]">
                     {formatTime(schedule.startTime)}
                     {" - "}
                     {formatTime(schedule.endTime)}
                   </span>
 
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     {schedule.slotDurationMinutes} min slots
                   </span>
                 </div>

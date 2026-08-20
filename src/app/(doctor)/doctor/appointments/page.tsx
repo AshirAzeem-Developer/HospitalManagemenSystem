@@ -6,6 +6,7 @@ export type Appointment = {
   id: string | number;
   date: string;
   time: string;
+  reasonOfVisit?: string | null;
   status: string;
   patientId: string | number;
   doctorId: string | number;
@@ -23,7 +24,7 @@ export default async function DoctorAppointmentsPage() {
     (appointment) => ({
       ...appointment,
       prescriptionId: null,
-    })
+    }),
   );
 
   if (appointments.length > 0) {
@@ -34,14 +35,11 @@ export default async function DoctorAppointmentsPage() {
     const statusResult = await getPrescriptionsByAppointmentIds(ids);
 
     const statusMap =
-      statusResult?.success && statusResult.data
-        ? statusResult.data
-        : {};
+      statusResult?.success && statusResult.data ? statusResult.data : {};
 
     appointmentsWithPrescriptions = appointments.map((appointment) => ({
       ...appointment,
-      prescriptionId:
-        statusMap?.[String(appointment.id)] ?? null,
+      prescriptionId: statusMap?.[String(appointment.id)] ?? null,
     }));
   }
 

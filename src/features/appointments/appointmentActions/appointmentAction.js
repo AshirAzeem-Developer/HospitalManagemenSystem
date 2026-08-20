@@ -60,6 +60,7 @@ export async function getStatuses() {
 }
 
 // 4. Server Action file (Backend)
+
 export async function getAppointments(filters = {}) {
   const supabase = await createClient();
   
@@ -69,6 +70,7 @@ export async function getAppointments(filters = {}) {
       id,
       appointment_date,
       time_slot,
+      reason_of_visit,
       status,
       patient_id,
       doctor_id,
@@ -97,7 +99,8 @@ export async function getAppointments(filters = {}) {
   const formattedAppointments = data.map((app) => ({
     id: app.id,
     date: app.appointment_date, 
-    time: app.time_slot,        
+    time: app.time_slot, 
+    reasonOfVisit: app.reason_of_visit,       
     status: app.status,
     patientId: app.patient_id,
     doctorId: app.doctor_id,

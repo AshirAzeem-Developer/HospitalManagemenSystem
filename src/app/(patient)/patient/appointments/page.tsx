@@ -1,4 +1,7 @@
-import { getAppointments, getDoctors } from "@/features/appointments/appointmentActions/appointmentAction";
+import {
+  getAppointments,
+  getDoctors,
+} from "@/features/appointments/appointmentActions/appointmentAction";
 import { getPrescriptionsByAppointmentIds } from "@/features/prescriptions/actions";
 import PatientAppointmentsContainer from "@/features/appointments/appointmentContainers/patientApointmentContainer";
 

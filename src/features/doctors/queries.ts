@@ -59,7 +59,7 @@ import { paginateQuery } from "@/lib/paginateQuery";
 //   });
 // }
 
-const DEFAULT_PAGE_SIZE = 9;
+const DEFAULT_PAGE_SIZE = 10;
 
 export function getDoctorsParams(
   searchParams: { page?: string; limit?: string; q?: string } = {},

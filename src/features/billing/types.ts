@@ -1,23 +1,23 @@
 export interface Invoice {
-  id: string;
-
-  appointment_id: string | null;
-  patient_id: string;
-
-  issued_date: string;
-  due_date: string | null;
-
-  subtotal: number;
-  tax_percentage: number;
-  discount: number;
-  total: number;
-
-  status: "draft" | "paid" | "partially_paid" | "unpaid" | "overdue";
-
-  notes: string | null;
-
-  // DB trigger generates this
-  invoice_number: string | null;
+    id : string,
+    invoice_number: string;
+    appointment_id : string | null,
+    patient_id : string,
+    issued_date : string,
+    due_date : string,
+    subtotal : number,
+    tax_percentage : number,
+    discount : number,
+    total : number,
+    status : "draft" | "paid" | "partially_paid" | "unpaid" | "overdue",
+    notes : string | null,
+     patients?: {
+    profile_id: string;
+    profiles?: {
+      full_name: string;
+      avatar_url: string | null;
+    };
+  };
 }
 
 export type NewInvoice = Omit<Invoice, "id" | "invoice_number"> & {

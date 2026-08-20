@@ -54,21 +54,51 @@ export default function DoctorAppointmentStatusChart({
   );
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div
+      className="
+        rounded-xl
+        border border-gray-200
+        bg-white
+        p-5
+        shadow-sm
+
+        dark:border-[#2A3850]
+        dark:bg-[#0A162A]
+        dark:shadow-none
+      "
+    >
       {/* Header */}
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-[#0A1B39]">
+        <h2
+          className="
+            text-lg font-semibold
+            text-[#0A1B39]
+            dark:text-[#F1F5F9]
+          "
+        >
           Appointment Status
         </h2>
 
-        <p className="mt-1 text-sm text-[#667085]">
+        <p
+          className="
+            mt-1 text-sm
+            text-[#667085]
+            dark:text-[#94A3B8]
+          "
+        >
           Overview of your appointment statuses
         </p>
       </div>
 
       {total === 0 ? (
         <div className="flex h-[300px] items-center justify-center">
-          <p className="text-sm text-gray-500">
+          <p
+            className="
+              text-sm
+              text-gray-500
+              dark:text-[#94A3B8]
+            "
+          >
             No appointment data available.
           </p>
         </div>
@@ -104,17 +134,50 @@ export default function DoctorAppointmentStatusChart({
                     `${value}`,
                     "Appointments",
                   ]}
+                  contentStyle={{
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                    color: "var(--foreground)",
+                  }}
+                  labelStyle={{
+                    color: "var(--foreground)",
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
 
             {/* Center Total */}
-            <div className="pointer-events-none absolute left-1/2 top-[45%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-              <span className="text-2xl font-bold text-[#0A1B39]">
+            <div
+              className="
+                pointer-events-none
+                absolute
+                left-1/2
+                top-[45%]
+                flex
+                -translate-x-1/2
+                -translate-y-1/2
+                flex-col
+                items-center
+              "
+            >
+              <span
+                className="
+                  text-2xl font-bold
+                  text-[#0A1B39]
+                  dark:text-[#F1F5F9]
+                "
+              >
                 {total}
               </span>
 
-              <span className="text-xs text-[#667085]">
+              <span
+                className="
+                  text-xs
+                  text-[#667085]
+                  dark:text-[#94A3B8]
+                "
+              >
                 Total
               </span>
             </div>
@@ -134,7 +197,16 @@ export default function DoctorAppointmentStatusChart({
                   }}
                 />
 
-                <span className="truncate text-xs font-medium text-[#667085] sm:text-sm">
+                <span
+                  className="
+                    truncate
+                    text-xs
+                    font-medium
+                    text-[#667085]
+                    dark:text-[#CBD5E1]
+                    sm:text-sm
+                  "
+                >
                   {item.name}
                 </span>
               </div>

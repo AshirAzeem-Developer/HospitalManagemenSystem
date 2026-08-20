@@ -5,6 +5,7 @@ import { getDoctorById } from "@/features/doctors/queries";
 import DoctorDetailHeader from "@/features/doctors/components/doctor-detail-header";
 import DoctorAvailability from "@/features/doctors/components/doctor-availability";
 import DoctorAbout from "@/features/doctors/components/doctor-about";
+
 type PageProps = {
   params: Promise<{
     id: string;
@@ -18,21 +19,38 @@ export default async function DoctorDetailPage({ params }: PageProps) {
 
   if (!doctor) {
     return (
-      <div className="min-h-screen bg-[#F5F6F8] p-6">
+      <div
+        className="
+          min-h-screen bg-[#F5F6F8] p-6
+          dark:bg-[#0A162A]
+        "
+      >
         <Link
           href="/admin/doctors"
-          className="inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-[#2E37A4]"
+          className="
+            inline-flex items-center gap-1 text-sm font-medium
+            text-slate-700 hover:text-[#2E37A4]
+            dark:text-[#CBD5E1]
+            dark:hover:text-[#818CF8]
+          "
         >
           <ChevronLeft className="h-4 w-4" />
           Doctors
         </Link>
 
-        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-8 text-center">
-          <h1 className="text-lg font-semibold text-slate-900">
+        <div
+          className="
+            mt-6 rounded-xl border border-slate-200 bg-white
+            p-8 text-center
+            dark:border-[#2A3850]
+            dark:bg-[#111318]
+          "
+        >
+          <h1 className="text-lg font-semibold text-slate-900 dark:text-[#F1F5F9]">
             Doctor not found
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-2 text-sm text-slate-500 dark:text-[#94A3B8]">
             The doctor you are looking for does not exist.
           </p>
         </div>
@@ -41,13 +59,24 @@ export default async function DoctorDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F6F8] p-4 md:p-6 -m-8">
+    <div
+      className="
+        -m-8 min-h-screen bg-[#F5F6F8] p-4
+        dark:bg-[#0A162A]
+        md:p-6
+      "
+    >
       {/* Back */}
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <Link
             href="/admin/doctors"
-            className="inline-flex items-center gap-1 text-lg font-bold text-slate-900 hover:text-[#2E37A4]"
+            className="
+              inline-flex items-center gap-1 text-lg font-bold
+              text-slate-900 hover:text-[#2E37A4]
+              dark:text-[#F1F5F9]
+              dark:hover:text-[#818CF8]
+            "
           >
             <ChevronLeft size={20} />
             Doctor
@@ -56,7 +85,12 @@ export default async function DoctorDetailPage({ params }: PageProps) {
       </div>
 
       {/* Page Heading */}
-      <h1 className="mt-3 text-xl font-semibold text-[#0A1B39]">
+      <h1
+        className="
+          mt-3 text-xl font-semibold text-[#0A1B39]
+          dark:text-[#F1F5F9]
+        "
+      >
         Doctor Details
       </h1>
 
@@ -73,19 +107,38 @@ export default async function DoctorDetailPage({ params }: PageProps) {
           <DoctorAvailability schedules={doctor.doctor_schedules} />
 
           {/* Short Bio */}
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-            <h2 className="text-base font-semibold text-[#0A1B39] sm:text-lg">
+          <div
+            className="
+              rounded-xl border border-slate-200 bg-white
+              p-4 shadow-sm
+              dark:border-[#2A3850]
+              dark:bg-[#0A162A]
+              sm:p-5
+            "
+          >
+            <h2
+              className="
+                text-base font-semibold text-[#0A1B39]
+                dark:text-[#F1F5F9]
+                sm:text-lg
+              "
+            >
               Short Bio
             </h2>
 
-            <p className="mt-4 text-sm leading-6 text-slate-600">
+            <p
+              className="
+                mt-4 text-sm leading-6 text-slate-600
+                dark:text-[#94A3B8]
+              "
+            >
               {doctor.bio || "No bio available for this doctor."}
             </p>
           </div>
         </div>
 
         {/* RIGHT — 1/3 */}
-        <div className="lg:col-span-1 mt-5">
+        <div className="mt-5 lg:col-span-1">
           <DoctorAbout doctor={doctor} />
         </div>
       </div>

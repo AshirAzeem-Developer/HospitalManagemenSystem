@@ -136,7 +136,6 @@ export default function BillingTable({ invoices }: BillingTableProps) {
     {
       key: "action",
       label: "Action",
-
       render: (row: any) => (
         <Dropdown>
           <Dropdown.Trigger
@@ -198,7 +197,7 @@ export default function BillingTable({ invoices }: BillingTableProps) {
 
                   toast.error(
                     error?.message ||
-                      "Failed to delete invoice. Please try again."
+                      "Failed to delete invoice. Please try again.",
                   );
                 }
               }}
@@ -238,14 +237,14 @@ export default function BillingTable({ invoices }: BillingTableProps) {
   if (sortBy === "recent") {
     sortedInvoices.sort(
       (a, b) =>
-        new Date(b.issued_date).getTime() - new Date(a.issued_date).getTime()
+        new Date(b.issued_date).getTime() - new Date(a.issued_date).getTime(),
     );
   }
 
   if (sortBy === "oldest") {
     sortedInvoices.sort(
       (a, b) =>
-        new Date(a.issued_date).getTime() - new Date(b.issued_date).getTime()
+        new Date(a.issued_date).getTime() - new Date(b.issued_date).getTime(),
     );
   }
 
@@ -430,7 +429,7 @@ export default function BillingTable({ invoices }: BillingTableProps) {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto">
+        <div className="w-full ">
           <div className="min-w-[850px]">
             <Table columns={columns} data={paginatedInvoices} />
           </div>

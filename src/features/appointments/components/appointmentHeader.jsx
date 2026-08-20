@@ -237,7 +237,7 @@ export default function AppointmentHeader({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border">
-        <div className="flex flex-wrap items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1 overflow-hidden">
           <SearchBar
             defaultValue={searchTerm}
             onSearch={(val) => {

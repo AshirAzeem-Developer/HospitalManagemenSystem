@@ -53,19 +53,11 @@ export const AddressInfoSchema = z.object({
 
 export const DoctorScheduleSchema = z
   .object({
-    dayOfWeek: z
-      .number()
-      .int()
-      .min(0)
-      .max(6),
+    dayOfWeek: z.number().int().min(0).max(6),
 
-    startTime: z
-      .string()
-      .min(1, "Start time is required."),
+    startTime: z.string().min(1, "Start time is required."),
 
-    endTime: z
-      .string()
-      .min(1, "End time is required."),
+    endTime: z.string().min(1, "End time is required."),
 
     slotDurationMinutes: z
       .number()
@@ -74,25 +66,32 @@ export const DoctorScheduleSchema = z
 
     isActive: z.boolean(),
   })
+  .refine((data) => data.startTime < data.endTime, {
+    message: "End time must be after start time.",
+    path: ["endTime"],
+  })
   .refine(
-    (data) => data.startTime < data.endTime,
+    (data) => {
+      const start = new Date(`1970-01-01T${data.startTime}:00`).getTime();
+      const end = new Date(`1970-01-01T${data.endTime}:00`).getTime();
+
+      const durationMinutes = (end - start) / (1000 * 60);
+
+      return durationMinutes >= data.slotDurationMinutes;
+    },
     {
-      message: "End time must be after start time.",
+      message: "Time duration must be greater than or equal to slot duration.",
       path: ["endTime"],
-    }
+    },
   );
 
 export const DoctorSchedulesSchema = z
   .array(DoctorScheduleSchema)
   .min(1, "At least one schedule is required.");
 
-export type DoctorScheduleInput = z.infer<
-  typeof DoctorScheduleSchema
->;
+export type DoctorScheduleInput = z.infer<typeof DoctorScheduleSchema>;
 
-export type DoctorSchedulesInput = z.infer<
-  typeof DoctorSchedulesSchema
->;
+export type DoctorSchedulesInput = z.infer<typeof DoctorSchedulesSchema>;
 
 export const editContactInfoSchema = z.object({
   fullName: z
@@ -101,10 +100,7 @@ export const editContactInfoSchema = z.object({
     .min(3, "Full name must be at least 3 characters."),
 
   // Email is read-only in the UI, but still required for validation.
-  email: z
-    .string()
-    .trim()
-    .email("Please enter a valid email address."),
+  email: z.string().trim().email("Please enter a valid email address."),
 
   // Optional during edit.
   // Empty string = keep the existing password.
@@ -126,13 +122,9 @@ export const editContactInfoSchema = z.object({
 
   gender: z.string().min(1, "Please select a gender."),
 
-  specialization: z
-    .string()
-    .min(1, "Please select a specialization."),
+  specialization: z.string().min(1, "Please select a specialization."),
 
-  qualification: z
-    .string()
-    .min(1, "Please select a qualification."),
+  qualification: z.string().min(1, "Please select a qualification."),
 
   consultationFee: z
     .number({
@@ -143,10 +135,7 @@ export const editContactInfoSchema = z.object({
 
   status: z.string().min(1, "Please select a status."),
 
-  bio: z
-    .string()
-    .trim()
-    .min(20, "Bio should be at least 20 characters."),
+  bio: z.string().trim().min(20, "Bio should be at least 20 characters."),
 
   // Optional during edit.
   // null = don't replace existing image.

@@ -5,11 +5,12 @@ import Button from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import PaymentsTable from "@/features/billing/component/payments-table";
+import type { Invoice, InvoiceItems, Payment } from "../types";
 
 type InvoiceDetailProps = {
-  invoice: any;
-  items: any[];
-  payments: any[];
+  invoice: Invoice;
+  items: InvoiceItems[];
+  payments: Payment[];
 };
 
 export default function InvoiceDetail({

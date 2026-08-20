@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
 import {
   ChevronLeft,
@@ -18,7 +19,8 @@ import {
   BookOpen,
   
 } from "lucide-react";
-import Search from "./Search";
+import BillingTable from "@/features/billing/component/billing-table";
+import AppointmentsContainer from "@/features/appointments/components/AppointmentsContainer";
 
 type PatientVitals = {
   blood_pressure: string;
@@ -103,13 +105,19 @@ function SectionHeader({
 
 export default function PatientDetail({
   patient,
+  invoices = [],
+  appointments = [],
+  doctors = [],
 }: {
   patient: PatientData;
+  invoices?: any[];
+  appointments?: any[];
+  doctors?: any[];
 }) {
-  const [tab, setTab] = useState<
-    "appointments" | "transactions"
-  >("appointments");
-const [search, setSearch] = useState("");
+  const router = useRouter();
+  const [tab, setTab] = useState<"appointments" | "transactions">(
+    "appointments"
+  );
   return (
     <div className="min-h-screen space-y-6 bg-[#F5F6F8] p-6 -m-6">
       {/* Back link */}
@@ -212,7 +220,7 @@ const [search, setSearch] = useState("");
                 text="Book Appointment"
                 icon={<CalendarDays size={16} />}
                 onClick={() => {
-                  console.log("Book appointment clicked");
+                  router.push("/admin/appointments/new");
                 }}
                 className="w-full sm:w-auto"
               />
@@ -324,13 +332,23 @@ const [search, setSearch] = useState("");
               </button>
             ))}
           </div>
-         
         </div>
-        
+
+        {/* Tab content */}
+        <div className="p-4 sm:p-6">
+          {tab === "appointments" && (
+            <AppointmentsContainer
+              initialAppointments={appointments as any}
+              doctorsList={doctors as any}
+              showNewButton={false}
+            />
+          )}
+
+          {tab === "transactions" && (
+            <BillingTable invoices={invoices} />
+          )}
+        </div>
       </div>
-      <div className="pb-3 sm:pb-4">
-            <Search search={search} setSearch={setSearch} />
-          </div>
     </div>
   );
 }

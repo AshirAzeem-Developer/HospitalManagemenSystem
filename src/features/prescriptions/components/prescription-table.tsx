@@ -1,47 +1,423 @@
 "use client";
 
-import { useState } from "react";
-import Image, { StaticImageData } from "next/image";
-import { FiFilter, FiMoreVertical, FiEye, FiTrash2 } from "react-icons/fi";
-import { IoChevronDown } from "react-icons/io5";
-import { FaL } from "react-icons/fa6";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
+import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 
-interface Prescription {
+import {
+  FiFilter,
+  FiMoreVertical,
+  FiEye,
+  FiEdit2,
+  FiTrash2,
+} from "react-icons/fi";
+import { IoChevronDown } from "react-icons/io5";
+
+import { deletePrescription } from "@/features/prescriptions/actions";
+
+interface PrescriptionListItem {
   id: string;
   patientName: string;
-  patientImage: StaticImageData;
-  prescribedOn: string;
+  patientImage: string | null;
+  prescribedOn: string; // formatted for display, e.g. "11/08/2026"
+  prescribedOnRaw: string; // ISO date string, used for sorting/filtering
 }
 
 interface PrescriptionTableProps {
-  prescriptions: Prescription[];
+  prescriptions: PrescriptionListItem[];
+}
+
+type SortOption = "recent" | "oldest" | "name";
+
+const MENU_WIDTH = 224; // matches w-56
+const MENU_GAP = 8;
+
+// ---------------------------------------
+// Closes a dropdown when the user clicks outside it or presses Escape.
+// Used by the Export / Filters / Sort menus, which stay in normal flow
+// (no clipping risk, so no portal needed for these).
+// ---------------------------------------
+function useClickOutside<T extends HTMLElement>(
+  active: boolean,
+  onOutside: () => void,
+) {
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    if (!active) return;
+
+    function handlePointer(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        onOutside();
+      }
+    }
+
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === "Escape") onOutside();
+    }
+
+    document.addEventListener("mousedown", handlePointer);
+    document.addEventListener("keydown", handleKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointer);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [active, onOutside]);
+
+  return ref;
+}
+
+// ---------------------------------------
+// Row actions menu. Rendered through a portal to document.body so it can
+// never be clipped by the table's overflow-x-auto wrapper, and positioned
+// with a fixed rect computed off the trigger button.
+// ---------------------------------------
+function RowActionsMenu({
+  isOpen,
+  onOpen,
+  onClose,
+  onView,
+  onEdit,
+  onDelete,
+}: {
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  onView: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !buttonRef.current) return;
+
+    const rect = buttonRef.current.getBoundingClientRect();
+
+    setPosition({
+      top: rect.bottom + MENU_GAP,
+      left: Math.min(
+        rect.right - MENU_WIDTH,
+        window.innerWidth - MENU_WIDTH - MENU_GAP,
+      ),
+    });
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handlePointer(event: MouseEvent) {
+      const target = event.target as Node;
+      if (buttonRef.current?.contains(target)) return;
+      if (menuRef.current?.contains(target)) return;
+      onClose();
+    }
+
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+
+    // Closing on scroll/resize is simpler and more robust than tracking a
+    // repositioning loop, and matches how most dropdown libraries behave.
+    function handleDismiss() {
+      onClose();
+    }
+
+    document.addEventListener("mousedown", handlePointer);
+    document.addEventListener("keydown", handleKey);
+    window.addEventListener("scroll", handleDismiss, true);
+    window.addEventListener("resize", handleDismiss);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointer);
+      document.removeEventListener("keydown", handleKey);
+      window.removeEventListener("scroll", handleDismiss, true);
+      window.removeEventListener("resize", handleDismiss);
+    };
+  }, [isOpen, onClose]);
+
+  return (
+    <div className="relative inline-block">
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-label="Prescription actions"
+        onClick={() => (isOpen ? onClose() : onOpen())}
+        className="rounded-lg border border-gray-200 p-2 text-gray-500 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+      >
+        <FiMoreVertical size={18} />
+      </button>
+
+      {isOpen &&
+        position &&
+        createPortal(
+          <div
+            ref={menuRef}
+            role="menu"
+            style={{ top: position.top, left: position.left }}
+            className="fixed z-[9999] w-56 overflow-hidden rounded-xl border border-gray-100 bg-white py-2 shadow-lg ring-1 ring-black/5"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-gray-700 transition hover:bg-gray-50"
+              onClick={() => {
+                onView();
+                onClose();
+              }}
+            >
+              <FiEye size={17} />
+              View
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-gray-700 transition hover:bg-gray-50"
+              onClick={() => {
+                onEdit();
+                onClose();
+              }}
+            >
+              <FiEdit2 size={17} />
+              Edit
+            </button>
+
+            <div className="my-1 border-t border-gray-100" />
+
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-red-600 transition hover:bg-red-50"
+              onClick={() => {
+                onDelete();
+                onClose();
+              }}
+            >
+              <FiTrash2 size={17} />
+              Delete
+            </button>
+          </div>,
+          document.body,
+        )}
+    </div>
+  );
 }
 
 export default function PrescriptionTable({
   prescriptions,
 }: PrescriptionTableProps) {
-  const [showExportMenu, setShowExportMenu] = useState(false);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
   const [search, setSearch] = useState("");
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  const filteredPrescriptions = prescriptions.filter(
-    (prescription) =>
-      prescription.patientName.toLowerCase().includes(search.toLowerCase()) ||
-      prescription.id.toLowerCase().includes(search.toLowerCase()),
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [showSortMenu, setShowSortMenu] = useState(false);
+
+  const exportRef = useClickOutside<HTMLDivElement>(showExportMenu, () =>
+    setShowExportMenu(false),
   );
-  return (
-    <div className="rounded-xl border bg-white shadow-sm">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b p-6">
-        <h2 className="text-3xl font-bold text-slate-900">Prescriptions</h2>
+  const filterRef = useClickOutside<HTMLDivElement>(showFilterMenu, () =>
+    setShowFilterMenu(false),
+  );
+  const sortRef = useClickOutside<HTMLDivElement>(showSortMenu, () =>
+    setShowSortMenu(false),
+  );
 
-        <div className="relative">
+  const [sortOption, setSortOption] = useState<SortOption>("recent");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [appliedDateFrom, setAppliedDateFrom] = useState("");
+  const [appliedDateTo, setAppliedDateTo] = useState("");
+
+  const [deleteTarget, setDeleteTarget] = useState<PrescriptionListItem | null>(
+    null,
+  );
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const sortLabels: Record<SortOption, string> = {
+    recent: "Recent",
+    oldest: "Oldest",
+    name: "Patient Name (A-Z)",
+  };
+
+  // ---------------------------------------
+  // Search + Filter + Sort (derived, no extra state needed)
+  // ---------------------------------------
+  const visiblePrescriptions = useMemo(() => {
+    let result = prescriptions.filter(
+      (prescription) =>
+        prescription.patientName.toLowerCase().includes(search.toLowerCase()) ||
+        prescription.id.toLowerCase().includes(search.toLowerCase()),
+    );
+
+    if (appliedDateFrom) {
+      const from = new Date(appliedDateFrom).getTime();
+      result = result.filter(
+        (p) => new Date(p.prescribedOnRaw).getTime() >= from,
+      );
+    }
+
+    if (appliedDateTo) {
+      // include the whole "to" day
+      const to = new Date(appliedDateTo).getTime() + 24 * 60 * 60 * 1000 - 1;
+      result = result.filter(
+        (p) => new Date(p.prescribedOnRaw).getTime() <= to,
+      );
+    }
+
+    result = [...result].sort((a, b) => {
+      if (sortOption === "name") {
+        return a.patientName.localeCompare(b.patientName);
+      }
+      const aTime = new Date(a.prescribedOnRaw).getTime();
+      const bTime = new Date(b.prescribedOnRaw).getTime();
+      return sortOption === "recent" ? bTime - aTime : aTime - bTime;
+    });
+
+    return result;
+  }, [prescriptions, search, appliedDateFrom, appliedDateTo, sortOption]);
+
+  const hasActiveFilter = Boolean(appliedDateFrom || appliedDateTo);
+
+  // ---------------------------------------
+  // Export
+  // ---------------------------------------
+  function exportToCSV() {
+    const headers = ["Prescription ID", "Patient", "Prescribed On"];
+    const rows = visiblePrescriptions.map((p) => [
+      p.id,
+      p.patientName,
+      p.prescribedOn,
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `prescriptions-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+  }
+
+  function exportToPDF() {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const rows = visiblePrescriptions
+      .map(
+        (p) =>
+          `<tr><td>${p.id}</td><td>${p.patientName}</td><td>${p.prescribedOn}</td></tr>`,
+      )
+      .join("");
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Prescriptions</title>
+          <style>
+            body { font-family: sans-serif; padding: 24px; color: #1e293b; }
+            table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+            th, td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; font-size: 14px; }
+            th { background: #f8fafc; }
+          </style>
+        </head>
+        <body>
+          <h2>Prescriptions</h2>
+          <table>
+            <thead><tr><th>Prescription ID</th><th>Patient</th><th>Prescribed On</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    setShowExportMenu(false);
+  }
+
+  // ---------------------------------------
+  // Filter apply/clear
+  // ---------------------------------------
+  function applyFilters() {
+    setAppliedDateFrom(dateFrom);
+    setAppliedDateTo(dateTo);
+    setShowFilterMenu(false);
+  }
+
+  function clearFilters() {
+    setDateFrom("");
+    setDateTo("");
+    setAppliedDateFrom("");
+    setAppliedDateTo("");
+    setShowFilterMenu(false);
+  }
+
+  // ---------------------------------------
+  // Delete
+  // ---------------------------------------
+  function confirmDelete() {
+    if (!deleteTarget) return;
+
+    setDeleteError(null);
+
+    startTransition(async () => {
+      const result = await deletePrescription(deleteTarget.id);
+
+      if (!result?.success) {
+        setDeleteError(result?.message ?? "Failed to delete prescription.");
+        return;
+      }
+
+      setDeleteTarget(null);
+      router.refresh();
+    });
+  }
+
+  return (
+    <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-gray-100 p-6">
+        <h2 className="text-xl font-semibold text-slate-800">Prescriptions</h2>
+
+        <div className="relative" ref={exportRef}>
           <button
-            onClick={() => setShowExportMenu(!showExportMenu)}
-            className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50"
+            type="button"
+            onClick={() => setShowExportMenu((v) => !v)}
+            className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
           >
             Export
             <IoChevronDown
+              size={16}
               className={`transition-transform ${
                 showExportMenu ? "rotate-180" : ""
               }`}
@@ -49,25 +425,21 @@ export default function PrescriptionTable({
           </button>
 
           {showExportMenu && (
-            <div className="absolute right-0 mt-2 w-48 overflow-hidden rounded-lg border bg-white shadow-lg z-10">
+            <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black/5">
               <button
-                className="w-full px-4 py-3 text-left hover:bg-gray-100"
-                onClick={() => {
-                  console.log("Download PDF");
-                  setShowExportMenu(false);
-                }}
+                type="button"
+                className="w-full px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-gray-50"
+                onClick={exportToPDF}
               >
                 Download As PDF
               </button>
 
               <button
-                className="w-full px-4 py-3 text-left hover:bg-gray-100"
-                onClick={() => {
-                  console.log("Download Excel");
-                  setShowExportMenu(false);
-                }}
+                type="button"
+                className="w-full px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-gray-50"
+                onClick={exportToCSV}
               >
-                Download as Excel
+                Download As Excel
               </button>
             </div>
           )}
@@ -81,118 +453,247 @@ export default function PrescriptionTable({
           placeholder="Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border px-4 py-2 outline-none focus:border-indigo-500 md:w-72"
+          className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 md:w-72"
         />
 
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50">
-            <FiFilter />
-            Filters
-          </button>
+          {/* Filters */}
+          <div className="relative" ref={filterRef}>
+            <button
+              type="button"
+              onClick={() => setShowFilterMenu((v) => !v)}
+              className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 ${
+                hasActiveFilter
+                  ? "border-indigo-500 text-indigo-600"
+                  : "border-gray-200 text-slate-700 hover:border-gray-300"
+              }`}
+            >
+              <FiFilter size={15} />
+              Filters
+              {hasActiveFilter && (
+                <span className="ml-1 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
+                  1
+                </span>
+              )}
+            </button>
 
-          <button className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50">
-            Sort By : Recent
-            <IoChevronDown />
-          </button>
+            {showFilterMenu && (
+              <div className="absolute right-0 z-20 mt-2 w-64 rounded-lg border border-gray-100 bg-white p-4 shadow-lg ring-1 ring-black/5">
+                <p className="mb-3 text-sm font-medium text-slate-700">
+                  Prescribed On
+                </p>
+
+                <label className="mb-1 block text-xs text-gray-500">From</label>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="mb-3 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                />
+
+                <label className="mb-1 block text-xs text-gray-500">To</label>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                />
+
+                <div className="flex justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-gray-100"
+                  >
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    onClick={applyFilters}
+                    className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sort */}
+          <div className="relative" ref={sortRef}>
+            <button
+              type="button"
+              onClick={() => setShowSortMenu((v) => !v)}
+              className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            >
+              Sort By : {sortLabels[sortOption]}
+              <IoChevronDown
+                size={16}
+                className={`transition-transform ${
+                  showSortMenu ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {showSortMenu && (
+              <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black/5">
+                {(Object.keys(sortLabels) as SortOption[]).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    className={`w-full px-4 py-2.5 text-left text-sm transition hover:bg-gray-50 ${
+                      sortOption === option
+                        ? "font-medium text-indigo-600"
+                        : "text-slate-700"
+                    }`}
+                    onClick={() => {
+                      setSortOption(option);
+                      setShowSortMenu(false);
+                    }}
+                  >
+                    {sortLabels[option]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="border-y bg-gray-50">
+          <thead className="border-y border-gray-100 bg-gray-50">
             <tr>
-              <th className="px-6 py-4 text-left font-semibold">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
                 Prescription ID
               </th>
-
-              <th className="px-6 py-4 text-left font-semibold">Patient</th>
-
-              <th className="px-6 py-4 text-left font-semibold">
+              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
+                Patient
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
                 Prescribed On
               </th>
-
               <th className="w-20"></th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredPrescriptions.map((prescription) => (
+            {visiblePrescriptions.map((prescription) => (
               <tr
                 key={prescription.id}
-                className="border-b transition hover:bg-gray-50"
+                className="border-b border-gray-100 transition hover:bg-gray-50/60"
               >
-                <td className="px-6 py-5 font-medium text-indigo-900">
+                <td className="px-6 py-5 text-sm font-medium text-indigo-900">
                   #{prescription.id}
                 </td>
 
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-3">
-                    <Image
-                      src={prescription.patientImage}
-                      alt={prescription.patientName}
-                      width={42}
-                      height={42}
-                      className="rounded-full object-cover"
-                    />
+                    {prescription.patientImage ? (
+                      <img
+                        src={prescription.patientImage}
+                        alt={prescription.patientName}
+                        width={42}
+                        height={42}
+                        className="h-[42px] w-[42px] rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-500">
+                        ?
+                      </div>
+                    )}
 
-                    <span className="font-medium text-slate-800">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        router.push(`/doctor/prescriptions/${prescription.id}`)
+                      }
+                      className="cursor-pointer text-sm font-medium text-slate-800 transition hover:text-teal-700"
+                    >
                       {prescription.patientName}
-                    </span>
+                    </button>
                   </div>
                 </td>
 
-                <td className="px-6 py-5 text-gray-500">
+                <td className="px-6 py-5 text-sm text-gray-500">
                   {prescription.prescribedOn}
                 </td>
 
                 <td className="px-6 py-5 text-center">
-            {/* 3 dots wala kam hwa hw yhan edit and delete */}
-
-                  <div className="relative">
-                    <button
-                      onClick={() =>
-                        setOpenMenu(
-                          openMenu === prescription.id ? null : prescription.id,
-                        )
-                      }
-                      className="rounded-lg border p-2 hover:bg-gray-100"
-                    >
-                      <FiMoreVertical size={18} />
-                    </button>
-
-                    {openMenu === prescription.id && (
-                      <div className="absolute right-0 top-12 z-10 w-56 rounded-xl border bg-white py-2 shadow-lg">
-                        <button
-                          className="flex w-full items-center gap-3 px-5 py-3 text-left text-gray-700 hover:bg-gray-100"
-                          onClick={() => {
-                            console.log("View", prescription.id);
-                            setOpenMenu(null);
-                          }}
-                        >
-                          <FiEye size={18} />
-                          View
-                        </button>
-
-                        <button
-                          className="flex w-full items-center gap-3 px-5 py-3 text-left text-red-600 hover:bg-red-50"
-                          onClick={() => {
-                            console.log("Delete", prescription.id);
-                            setOpenMenu(null);
-                          }}
-                        >
-                          <FiTrash2 size={18} />
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <RowActionsMenu
+                    isOpen={openMenuId === prescription.id}
+                    onOpen={() => setOpenMenuId(prescription.id)}
+                    onClose={() => setOpenMenuId(null)}
+                    onView={() =>
+                      router.push(`/doctor/prescriptions/${prescription.id}`)
+                    }
+                    onEdit={() =>
+                      router.push(
+                        `/doctor/prescriptions/${prescription.id}/edit`,
+                      )
+                    }
+                    onDelete={() => {
+                      setDeleteTarget(prescription);
+                      setDeleteError(null);
+                    }}
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {visiblePrescriptions.length === 0 && (
+          <div className="p-8 text-center text-sm text-gray-500">
+            No prescriptions found.
+          </div>
+        )}
       </div>
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-slate-800">
+              Delete prescription?
+            </h3>
+            <p className="mt-2 text-sm text-gray-500">
+              This will permanently delete prescription{" "}
+              <span className="font-medium text-slate-700">
+                #{deleteTarget.id}
+              </span>{" "}
+              for {deleteTarget.patientName}. This action can&apos;t be undone.
+            </p>
+
+            {deleteError && (
+              <p className="mt-3 text-sm text-red-600">{deleteError}</p>
+            )}
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setDeleteError(null);
+                }}
+                className="rounded-lg px-4 py-2 text-sm text-gray-600 transition hover:bg-gray-100 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={confirmDelete}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+              >
+                {isPending ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

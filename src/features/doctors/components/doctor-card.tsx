@@ -63,9 +63,9 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
   return (
     <div className="rounded border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
       {" "}
-      <div className="flex flex-row items-start gap-3">
+      <div className="flex min-w-0 flex-row items-start gap-3">
         {/* Doctor Image */}
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded bg-slate-100 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-28 lg:w-28">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded bg-slate-100 sm:h-24 sm:w-24 lg:h-28 lg:w-28">
           <Image
             src={doctor.profile.avatar_url ?? "/default-doctor.png"}
             alt={doctor.profile.full_name}
@@ -150,7 +150,7 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
 
           {/* Doctor Information */}
           <div className="mt-2 space-y-1.5">
-            <p className="text-[11px] text-slate-500 sm:text-xs">
+            <p className="min-w-0 break-words text-[11px] text-slate-500 sm:text-xs">
               Qualification:
               <span className="ml-1 font-medium text-slate-700">
                 {doctor.qualification}
@@ -160,7 +160,7 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
             <p className="text-[11px] text-slate-500 sm:text-xs">
               Starts From:
               <span className="ml-1 font-semibold text-[#2E37A4]">
-                $ {doctor.consultation_fee}
+                Rs {doctor.consultation_fee}
               </span>
             </p>
 
@@ -176,7 +176,6 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
               >
                 {doctor.status}
               </span>
-
             </div>
           </div>
         </div>

@@ -469,7 +469,7 @@ export default function ContactInformation({
             </div>
             <div className={columnClass}>
               <label style={labelStyle}>
-                Consultation Fee $ <span className="text-red-500">*</span>
+                Consultation Fee Rs/- <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"

@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, Stethoscope } from "lucide-react";
-
+import { Eye, Stethoscope, X, Pencil } from "lucide-react";
+import { useState } from "react";
 import type { DoctorDashboardAppointment } from "../types";
 
 type Props = {
@@ -80,9 +80,29 @@ function getStatusClass(status: string | null) {
   }
 }
 
-export default function DoctorRecentAppointments({
-  appointments,
-}: Props) {
+export default function DoctorRecentAppointments({ appointments }: Props) {
+  const [sidebar, setSidebar] = useState<{
+    isOpen: boolean;
+    data: DoctorDashboardAppointment | null;
+  }>({
+    isOpen: false,
+    data: null,
+  });
+
+  const openSidebar = (appointment: DoctorDashboardAppointment) => {
+    setSidebar({
+      isOpen: true,
+      data: appointment,
+    });
+  };
+
+  const closeSidebar = () => {
+    setSidebar({
+      isOpen: false,
+      data: null,
+    });
+  };
+
   return (
     <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* Header */}
@@ -108,9 +128,7 @@ export default function DoctorRecentAppointments({
       {/* Empty state */}
       {appointments.length === 0 ? (
         <div className="flex min-h-[180px] items-center justify-center px-5 py-8 text-center">
-          <p className="text-sm text-gray-500">
-            No recent appointments found.
-          </p>
+          <p className="text-sm text-gray-500">No recent appointments found.</p>
         </div>
       ) : (
         <>
@@ -170,8 +188,7 @@ export default function DoctorRecentAppointments({
 
                         <div className="min-w-0">
                           <p className="max-w-[180px] truncate text-sm font-medium text-[#0A1B39]">
-                            {appointment.patient.full_name ||
-                              "Unknown Patient"}
+                            {appointment.patient.full_name || "Unknown Patient"}
                           </p>
 
                           <p className="text-xs text-[#667085]">
@@ -203,7 +220,7 @@ export default function DoctorRecentAppointments({
                     <td className="px-5 py-4">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(
-                          appointment.status
+                          appointment.status,
                         )}`}
                       >
                         {formatStatus(appointment.status)}
@@ -213,23 +230,46 @@ export default function DoctorRecentAppointments({
                     {/* Action */}
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2">
-                        <Link
-                          href={`/doctor/consultation/${appointment.id}`}
+                        <button
+                          type="button"
+                          onClick={() => openSidebar(appointment)}
                           className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-[#0A1B39] transition hover:bg-gray-50"
                         >
                           <Eye size={14} />
                           View
-                        </Link>
+                        </button>
 
                         {appointment.status !== "completed" &&
                           appointment.status !== "cancelled" && (
-                            <Link
-                              href={`/doctor/consultation/${appointment.id}`}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
-                            >
-                              <Stethoscope size={14} />
-                              Consultation
-                            </Link>
+                            <>
+                              {appointment.prescriptionId ? (
+                                <div className="flex items-center gap-2">
+                                  <Link
+                                    href={`/doctor/prescriptions/${appointment.prescriptionId}`}
+                                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
+                                  >
+                                    <Eye size={14} />
+                                    View
+                                  </Link>
+
+                                  <Link
+                                    href={`/doctor/prescriptions/${appointment.prescriptionId}/edit`}
+                                    className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-amber-500"
+                                  >
+                                    <Pencil size={14} />
+                                    Edit
+                                  </Link>
+                                </div>
+                              ) : (
+                                <Link
+                                  href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
+                                  className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
+                                >
+                                  <Stethoscope size={16} />
+                                  Consultation
+                                </Link>
+                              )}
+                            </>
                           )}
                       </div>
                     </td>
@@ -264,8 +304,7 @@ export default function DoctorRecentAppointments({
 
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-[#0A1B39]">
-                      {appointment.patient.full_name ||
-                        "Unknown Patient"}
+                      {appointment.patient.full_name || "Unknown Patient"}
                     </p>
 
                     <p className="text-xs text-[#667085]">
@@ -278,24 +317,132 @@ export default function DoctorRecentAppointments({
                 <div className="flex items-center justify-between gap-3">
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(
-                      appointment.status
+                      appointment.status,
                     )}`}
                   >
                     {formatStatus(appointment.status)}
                   </span>
 
-                  <Link
-                    href={`/doctor/consultation/${appointment.id}`}
+                  <button
+                    type="button"
+                    onClick={() => openSidebar(appointment)}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-[#0A1B39]"
                   >
                     <Eye size={14} />
                     View
-                  </Link>
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         </>
+      )}
+
+      {/* Appointment Details Sidebar */}
+      {sidebar.isOpen && sidebar.data && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={closeSidebar}
+          />
+
+          {/* Sidebar */}
+          <div className="relative z-10 flex h-full w-full max-w-xs flex-col bg-white shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+              <h2 className="text-base font-semibold text-[#0A1B39]">
+                Appointment Details
+              </h2>
+
+              <button
+                type="button"
+                onClick={closeSidebar}
+                className="cursor-pointer rounded-full p-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-5">
+              <div className="space-y-5">
+                {/* Patient */}
+                <div>
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                    Patient Name
+                  </label>
+
+                  <p className="mt-1 text-sm font-medium text-[#0A1B39]">
+                    {sidebar.data.patient?.full_name || "N/A"}
+                  </p>
+                </div>
+
+                {/* Date & Time */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                      Date
+                    </label>
+
+                    <p className="mt-1 text-sm font-medium text-[#0A1B39]">
+                      {formatDate(sidebar.data.appointment_date)}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                      Time
+                    </label>
+
+                    <p className="mt-1 text-sm font-medium text-[#0A1B39]">
+                      {formatTime(sidebar.data.time_slot)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Reason */}
+                <div>
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                    Reason of Visit
+                  </label>
+
+                  <p className="mt-1 break-words whitespace-pre-wrap text-sm font-medium text-[#0A1B39]">
+                    {sidebar.data.reason_of_visit || "Not provided"}
+                  </p>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                    Status
+                  </label>
+
+                  <div className="mt-1">
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(
+                        sidebar.data.status,
+                      )}`}
+                    >
+                      {formatStatus(sidebar.data.status)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end border-t border-gray-200 bg-gray-50 p-4">
+              <button
+                type="button"
+                onClick={closeSidebar}
+                className="cursor-pointer rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-100"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );

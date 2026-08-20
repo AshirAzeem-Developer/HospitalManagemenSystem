@@ -1,13 +1,20 @@
-import { Card } from "@/components/ui/card";
+import {
+  getAppointments,
+  getDoctors,
+} from "@/features/appointments/appointmentActions/appointmentAction";
+import AppointmentsContainer from "@/features/appointments/components/AppointmentsContainer";
 
-export default function AdminAppointmentsPage() {
+export default async function AdminAppointmentsPage() {
+  const appointments = (await getAppointments()) || [];
+  const doctors = (await getDoctors()) || [];
+
   return (
-    <div>
-      <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Appointments</h1>
-      <p className="mt-1 text-sm text-slate-500">Manage all hospital appointments.</p>
-      <div className="mt-6">
-        <Card label="Total Appointments" value="0" hint="Wired up in feature update" />
-      </div>
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <AppointmentsContainer
+        initialAppointments={appointments}
+        doctorsList={doctors}
+        newAppointmentUrl="/admin/appointments/new"
+      />
     </div>
   );
 }

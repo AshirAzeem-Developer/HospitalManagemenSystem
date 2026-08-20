@@ -8,10 +8,6 @@
   --border: #e7e8eb;
   --muted: #64748b;
   --hover: #f3f4f6;
-
-  /* Added: distinct surfaces for cards/panels vs. the page they sit on. */
-  --card: #ffffff;
-  --page: #f5f6f8;
 }
 
 .dark {
@@ -20,6 +16,7 @@
   --border: #334155;
   --muted: #94a3b8;
   --hover: #1e293b;
+
   --card: #111318;
   --page: #0a0a0a;
 }
@@ -30,17 +27,12 @@
   --color-border: var(--border);
   --color-muted: var(--muted);
   --color-hover: var(--hover);
+
   --color-card: var(--card);
   --color-page: var(--page);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ededed;
-    --foreground: #ededed;
-  }
 }
 
 body {
@@ -55,4 +47,3 @@ body {
     display: none !important;
   }
 }
-

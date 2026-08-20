@@ -40,10 +40,12 @@ export default function VitalsCard({
   ];
 
   return (
-    <div className="w-full rounded-xl border border-slate-200 bg-white">
+    <div className="w-full rounded-xl border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-900">
       {/* Header */}
-      <div className="border-b border-slate-100 px-4 py-4 sm:px-5">
-        <h2 className="text-base font-bold text-slate-900">Vitals</h2>
+      <div className="border-b border-slate-100 px-4 py-4 dark:border-gray-700 sm:px-5">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white">
+          Vitals
+        </h2>
       </div>
 
       {/* Vitals Grid */}
@@ -52,18 +54,22 @@ export default function VitalsCard({
           {vitals.map(({ label, value, unit, icon: Icon }) => (
             <div
               key={label}
-              className="flex w-full items-center gap-3 rounded-lg border border-slate-100 p-3"
+              className="flex w-full items-center gap-3 rounded-lg border border-slate-100 p-3 dark:border-gray-700"
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2E37A4] text-white">
                 <Icon size={18} />
               </span>
 
               <div className="min-w-0">
-                <p className="truncate text-xs text-slate-500">{label}</p>
-                <p className="truncate text-base font-bold text-slate-900">
+                <p className="truncate text-xs text-slate-500 dark:text-gray-400">
+                  {label}
+                </p>
+
+                <p className="truncate text-base font-bold text-slate-900 dark:text-white">
                   {value ?? "—"}
+
                   {value != null && unit ? (
-                    <span className="ml-1 text-xs font-normal text-slate-500">
+                    <span className="ml-1 text-xs font-normal text-slate-500 dark:text-gray-400">
                       {unit}
                     </span>
                   ) : null}

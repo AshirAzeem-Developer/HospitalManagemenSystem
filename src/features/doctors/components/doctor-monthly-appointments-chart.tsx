@@ -25,20 +25,50 @@ export default function DoctorMonthlyAppointmentsChart({
   const total = data.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div
+      className="
+        rounded-xl
+        border border-gray-200
+        bg-white
+        p-5
+        shadow-sm
+
+        dark:border-[#2A3850]
+        dark:bg-[#0A162A]
+        dark:shadow-none
+      "
+    >
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-[#0A1B39]">
+        <h2
+          className="
+            text-lg font-semibold
+            text-[#0A1B39]
+            dark:text-[#F1F5F9]
+          "
+        >
           Monthly Appointments
         </h2>
 
-        <p className="mt-1 text-sm text-[#667085]">
+        <p
+          className="
+            mt-1 text-sm
+            text-[#667085]
+            dark:text-[#94A3B8]
+          "
+        >
           Your appointments over the last 6 months
         </p>
       </div>
 
       {total === 0 ? (
         <div className="flex h-[320px] items-center justify-center">
-          <p className="text-sm text-gray-500">
+          <p
+            className="
+              text-sm
+              text-gray-500
+              dark:text-[#94A3B8]
+            "
+          >
             No appointment data available.
           </p>
         </div>
@@ -57,26 +87,49 @@ export default function DoctorMonthlyAppointmentsChart({
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
+                stroke="var(--border)"
               />
 
               <XAxis
                 dataKey="month"
                 tickLine={false}
                 axisLine={false}
+                tick={{
+                  fill: "var(--muted)",
+                  fontSize: 12,
+                }}
               />
 
               <YAxis
                 allowDecimals={false}
                 tickLine={false}
                 axisLine={false}
+                tick={{
+                  fill: "var(--muted)",
+                  fontSize: 12,
+                }}
               />
 
               <Tooltip
-                cursor={{ fill: "rgba(59, 130, 246, 0.05)" }}
+                cursor={{
+                  fill: "rgba(59, 130, 246, 0.08)",
+                }}
                 formatter={(value) => [
                   `${value}`,
                   "Appointments",
                 ]}
+                contentStyle={{
+                  backgroundColor: "var(--card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "8px",
+                  color: "var(--foreground)",
+                }}
+                labelStyle={{
+                  color: "var(--foreground)",
+                }}
+                itemStyle={{
+                  color: "var(--foreground)",
+                }}
               />
 
               <Bar

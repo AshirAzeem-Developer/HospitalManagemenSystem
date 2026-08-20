@@ -29,7 +29,6 @@ function formatTime(time: string | null) {
     return "Not available";
   }
 
-  // Handles values such as "02:57"
   if (!time.includes("AM") && !time.includes("PM")) {
     const [hours, minutes] = time.split(":").map(Number);
 
@@ -47,7 +46,6 @@ function formatTime(time: string | null) {
     });
   }
 
-  // Handles values such as "11:30 PM"
   return time;
 }
 
@@ -64,19 +62,19 @@ function formatStatus(status: string | null) {
 function getStatusClass(status: string | null) {
   switch (status) {
     case "confirmed":
-      return "bg-green-50 text-green-700";
+      return "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400";
 
     case "completed":
-      return "bg-blue-50 text-blue-700";
+      return "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400";
 
     case "cancelled":
-      return "bg-red-50 text-red-700";
+      return "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400";
 
     case "pending":
-      return "bg-yellow-50 text-yellow-700";
+      return "bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400";
 
     default:
-      return "bg-gray-50 text-gray-600";
+      return "bg-gray-50 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400";
   }
 }
 
@@ -104,22 +102,58 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
   };
 
   return (
-    <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
+    <section
+      className="
+        rounded-xl
+        border border-gray-200
+        bg-white
+        shadow-sm
+
+        dark:border-[#2A3850]
+        dark:bg-[#0A162A]
+        dark:shadow-none
+      "
+    >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+      <div
+        className="
+          flex items-center justify-between
+          border-b border-gray-200
+          px-5 py-4
+
+          dark:border-[#2A3850]
+        "
+      >
         <div>
-          <h2 className="text-lg font-semibold text-[#0A1B39]">
+          <h2
+            className="
+              text-lg font-semibold
+              text-[#0A1B39]
+              dark:text-[#F1F5F9]
+            "
+          >
             Recent Appointments
           </h2>
 
-          <p className="mt-1 text-xs text-[#667085]">
+          <p
+            className="
+              mt-1 text-xs
+              text-[#667085]
+              dark:text-[#94A3B8]
+            "
+          >
             Latest appointments for you
           </p>
         </div>
 
         <Link
           href="/doctor/appointments"
-          className="text-sm font-medium text-[#2E37A4] hover:underline"
+          className="
+            text-sm font-medium
+            text-[#2E37A4]
+            hover:underline
+            dark:text-[#818CF8]
+          "
         >
           View All
         </Link>
@@ -128,7 +162,9 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
       {/* Empty state */}
       {appointments.length === 0 ? (
         <div className="flex min-h-[180px] items-center justify-center px-5 py-8 text-center">
-          <p className="text-sm text-gray-500">No recent appointments found.</p>
+          <p className="text-sm text-gray-500 dark:text-[#94A3B8]">
+            No recent appointments found.
+          </p>
         </div>
       ) : (
         <>
@@ -136,24 +172,32 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[750px]">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/60">
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[#667085]">
+                <tr
+                  className="
+                    border-b border-gray-100
+                    bg-gray-50/60
+
+                    dark:border-[#2A3850]
+                    dark:bg-[#0D1B31]
+                  "
+                >
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
                     Patient
                   </th>
 
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[#667085]">
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
                     Date & Time
                   </th>
 
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[#667085]">
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
                     Reason
                   </th>
 
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[#667085]">
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
                     Status
                   </th>
 
-                  <th className="px-5 py-3 text-right text-xs font-medium text-[#667085]">
+                  <th className="px-5 py-3 text-right text-xs font-medium text-[#667085] dark:text-[#94A3B8]">
                     Action
                   </th>
                 </tr>
@@ -163,12 +207,25 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                 {appointments.map((appointment) => (
                   <tr
                     key={appointment.id}
-                    className="border-b border-gray-100 last:border-b-0"
+                    className="
+                      border-b border-gray-100
+                      last:border-b-0
+
+                      dark:border-[#24344D]
+                    "
                   >
                     {/* Patient */}
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-100">
+                        <div
+                          className="
+                            relative h-9 w-9 shrink-0
+                            overflow-hidden rounded-full
+                            bg-gray-100
+
+                            dark:bg-[#1E293B]
+                          "
+                        >
                           {appointment.patient.avatar_url ? (
                             <Image
                               src={appointment.patient.avatar_url}
@@ -178,7 +235,7 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                               className="object-cover"
                             />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
+                            <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500 dark:text-[#94A3B8]">
                               {appointment.patient.full_name
                                 ?.charAt(0)
                                 .toUpperCase() ?? "P"}
@@ -187,11 +244,20 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                         </div>
 
                         <div className="min-w-0">
-                          <p className="max-w-[180px] truncate text-sm font-medium text-[#0A1B39]">
-                            {appointment.patient.full_name || "Unknown Patient"}
+                          <p
+                            className="
+                              max-w-[180px]
+                              truncate
+                              text-sm font-medium
+                              text-[#0A1B39]
+                              dark:text-[#F1F5F9]
+                            "
+                          >
+                            {appointment.patient.full_name ||
+                              "Unknown Patient"}
                           </p>
 
-                          <p className="text-xs text-[#667085]">
+                          <p className="text-xs text-[#667085] dark:text-[#94A3B8]">
                             ID: {appointment.patient.id.slice(0, 8)}
                           </p>
                         </div>
@@ -200,18 +266,18 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
 
                     {/* Date & Time */}
                     <td className="px-5 py-4">
-                      <p className="text-sm font-medium text-[#0A1B39]">
+                      <p className="text-sm font-medium text-[#0A1B39] dark:text-[#F1F5F9]">
                         {formatDate(appointment.appointment_date)}
                       </p>
 
-                      <p className="mt-1 text-xs text-[#667085]">
+                      <p className="mt-1 text-xs text-[#667085] dark:text-[#94A3B8]">
                         {formatTime(appointment.time_slot)}
                       </p>
                     </td>
 
                     {/* Reason */}
                     <td className="px-5 py-4">
-                      <span className="block max-w-[200px] truncate text-sm text-[#667085]">
+                      <span className="block max-w-[200px] truncate text-sm text-[#667085] dark:text-[#CBD5E1]">
                         {appointment.reason_of_visit || "Not provided"}
                       </span>
                     </td>
@@ -233,7 +299,20 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                         <button
                           type="button"
                           onClick={() => openSidebar(appointment)}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-[#0A1B39] transition hover:bg-gray-50"
+                          className="
+                            inline-flex items-center gap-1.5
+                            rounded-lg
+                            border border-gray-200
+                            px-3 py-2
+                            text-xs font-medium
+                            text-[#0A1B39]
+                            transition
+                            hover:bg-gray-50
+
+                            dark:border-[#3A4A63]
+                            dark:text-[#CBD5E1]
+                            dark:hover:bg-[#18243A]
+                          "
                         >
                           <Eye size={14} />
                           View
@@ -246,7 +325,17 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                                 <div className="flex items-center gap-2">
                                   <Link
                                     href={`/doctor/prescriptions/${appointment.prescriptionId}`}
-                                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
+                                    className="
+                                      inline-flex items-center gap-1.5
+                                      rounded-lg
+                                      bg-[#2E37A4]
+                                      px-3 py-2
+                                      text-xs font-medium text-white
+                                      transition
+                                      hover:bg-[#252d89]
+                                      dark:bg-[#4F46E5]
+                                      dark:hover:bg-[#4338CA]
+                                    "
                                   >
                                     <Eye size={14} />
                                     View
@@ -254,7 +343,17 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
 
                                   <Link
                                     href={`/doctor/prescriptions/${appointment.prescriptionId}/edit`}
-                                    className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-amber-500"
+                                    className="
+                                      inline-flex items-center gap-1.5
+                                      rounded-lg
+                                      bg-amber-600
+                                      px-3 py-2
+                                      text-xs font-medium text-white
+                                      transition
+                                      hover:bg-amber-500
+                                      dark:bg-amber-600
+                                      dark:hover:bg-amber-500
+                                    "
                                   >
                                     <Pencil size={14} />
                                     Edit
@@ -263,7 +362,17 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                               ) : (
                                 <Link
                                   href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
-                                  className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
+                                  className="
+                                    inline-flex items-center gap-2
+                                    rounded-lg
+                                    bg-[#2E37A4]
+                                    px-3 py-2
+                                    text-xs font-medium text-white
+                                    transition
+                                    hover:bg-[#252d89]
+                                    dark:bg-[#4F46E5]
+                                    dark:hover:bg-[#4338CA]
+                                  "
                                 >
                                   <Stethoscope size={16} />
                                   Consultation
@@ -280,11 +389,25 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
           </div>
 
           {/* Mobile */}
-          <div className="divide-y divide-gray-100 md:hidden">
+          <div
+            className="
+              divide-y divide-gray-100
+              md:hidden
+              dark:divide-[#24344D]
+            "
+          >
             {appointments.map((appointment) => (
               <div key={appointment.id} className="space-y-3 p-4">
                 <div className="flex items-center gap-3">
-                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className="
+                      relative h-10 w-10 shrink-0
+                      overflow-hidden rounded-full
+                      bg-gray-100
+
+                      dark:bg-[#1E293B]
+                    "
+                  >
                     {appointment.patient.avatar_url ? (
                       <Image
                         src={appointment.patient.avatar_url}
@@ -294,7 +417,7 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                         className="object-cover"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
+                      <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500 dark:text-[#94A3B8]">
                         {appointment.patient.full_name
                           ?.charAt(0)
                           .toUpperCase() ?? "P"}
@@ -303,11 +426,11 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                   </div>
 
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-[#0A1B39]">
+                    <p className="truncate text-sm font-semibold text-[#0A1B39] dark:text-[#F1F5F9]">
                       {appointment.patient.full_name || "Unknown Patient"}
                     </p>
 
-                    <p className="text-xs text-[#667085]">
+                    <p className="text-xs text-[#667085] dark:text-[#94A3B8]">
                       {formatDate(appointment.appointment_date)} •{" "}
                       {formatTime(appointment.time_slot)}
                     </p>
@@ -326,7 +449,18 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                   <button
                     type="button"
                     onClick={() => openSidebar(appointment)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-[#0A1B39]"
+                    className="
+                      inline-flex items-center gap-1.5
+                      rounded-lg
+                      border border-gray-200
+                      px-3 py-2
+                      text-xs font-medium
+                      text-[#0A1B39]
+
+                      dark:border-[#3A4A63]
+                      dark:text-[#CBD5E1]
+                      dark:hover:bg-[#18243A]
+                    "
                   >
                     <Eye size={14} />
                     View
@@ -343,22 +477,52 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
         <div className="fixed inset-0 z-50 flex justify-end">
           {/* Overlay */}
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm dark:bg-black/60"
             onClick={closeSidebar}
           />
 
           {/* Sidebar */}
-          <div className="relative z-10 flex h-full w-full max-w-xs flex-col bg-white shadow-2xl">
+          <div
+            className="
+              relative z-10
+              flex h-full w-full max-w-xs
+              flex-col
+              bg-white
+              shadow-2xl
+
+              dark:bg-[#0A162A]
+            "
+          >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
-              <h2 className="text-base font-semibold text-[#0A1B39]">
+            <div
+              className="
+                flex items-center justify-between
+                border-b border-gray-200
+                px-5 py-4
+
+                dark:border-[#2A3850]
+              "
+            >
+              <h2 className="text-base font-semibold text-[#0A1B39] dark:text-[#F1F5F9]">
                 Appointment Details
               </h2>
 
               <button
                 type="button"
                 onClick={closeSidebar}
-                className="cursor-pointer rounded-full p-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
+                className="
+                  cursor-pointer
+                  rounded-full
+                  p-1.5
+                  text-gray-500
+                  transition
+                  hover:bg-gray-100
+                  hover:text-gray-900
+
+                  dark:text-[#94A3B8]
+                  dark:hover:bg-[#18243A]
+                  dark:hover:text-[#F1F5F9]
+                "
               >
                 <X className="h-4 w-4" />
               </button>
@@ -369,11 +533,11 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
               <div className="space-y-5">
                 {/* Patient */}
                 <div>
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-[#64748B]">
                     Patient Name
                   </label>
 
-                  <p className="mt-1 text-sm font-medium text-[#0A1B39]">
+                  <p className="mt-1 text-sm font-medium text-[#0A1B39] dark:text-[#F1F5F9]">
                     {sidebar.data.patient?.full_name || "N/A"}
                   </p>
                 </div>
@@ -381,21 +545,21 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
                 {/* Date & Time */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                    <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-[#64748B]">
                       Date
                     </label>
 
-                    <p className="mt-1 text-sm font-medium text-[#0A1B39]">
+                    <p className="mt-1 text-sm font-medium text-[#0A1B39] dark:text-[#F1F5F9]">
                       {formatDate(sidebar.data.appointment_date)}
                     </p>
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                    <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-[#64748B]">
                       Time
                     </label>
 
-                    <p className="mt-1 text-sm font-medium text-[#0A1B39]">
+                    <p className="mt-1 text-sm font-medium text-[#0A1B39] dark:text-[#F1F5F9]">
                       {formatTime(sidebar.data.time_slot)}
                     </p>
                   </div>
@@ -403,18 +567,18 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
 
                 {/* Reason */}
                 <div>
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-[#64748B]">
                     Reason of Visit
                   </label>
 
-                  <p className="mt-1 break-words whitespace-pre-wrap text-sm font-medium text-[#0A1B39]">
+                  <p className="mt-1 break-words whitespace-pre-wrap text-sm font-medium text-[#0A1B39] dark:text-[#F1F5F9]">
                     {sidebar.data.reason_of_visit || "Not provided"}
                   </p>
                 </div>
 
                 {/* Status */}
                 <div>
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-[#64748B]">
                     Status
                   </label>
 
@@ -432,11 +596,36 @@ export default function DoctorRecentAppointments({ appointments }: Props) {
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end border-t border-gray-200 bg-gray-50 p-4">
+            <div
+              className="
+                flex justify-end
+                border-t border-gray-200
+                bg-gray-50
+                p-4
+
+                dark:border-[#2A3850]
+                dark:bg-[#0D1B31]
+              "
+            >
               <button
                 type="button"
                 onClick={closeSidebar}
-                className="cursor-pointer rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-gray-100"
+                className="
+                  cursor-pointer
+                  rounded-md
+                  border border-gray-200
+                  bg-white
+                  px-3 py-1.5
+                  text-xs font-medium
+                  text-gray-600
+                  transition
+                  hover:bg-gray-100
+
+                  dark:border-[#3A4A63]
+                  dark:bg-[#18243A]
+                  dark:text-[#CBD5E1]
+                  dark:hover:bg-[#22324B]
+                "
               >
                 Close
               </button>

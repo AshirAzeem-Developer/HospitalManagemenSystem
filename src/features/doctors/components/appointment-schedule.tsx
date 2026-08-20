@@ -15,17 +15,14 @@ const labelStyle: React.CSSProperties = {
   fontSize: "14px",
   lineHeight: "21px",
   letterSpacing: "0%",
-  color: "#0A1B39",
 };
 
 const inputClass =
-  "w-full rounded-lg px-3 py-2 text-[14px] font-normal text-[#667085] outline-none focus:border-[#4F46E5]";
+  "w-full rounded-lg border border-[#E7E8EB] bg-white px-3 py-2 text-[14px] font-normal text-[#667085] outline-none placeholder:text-[#98A2B3] focus:border-[#4F46E5] dark:border-gray-700 dark:bg-[#111F33] dark:text-gray-200 dark:placeholder:text-gray-500";
 
 const inputStyle: React.CSSProperties = {
-  border: "1px solid #E7E8EB",
   fontWeight: 400,
   fontSize: "14px",
-  color: "#667085",
 };
 
 const columnClass = "flex flex-col gap-2";
@@ -59,8 +56,11 @@ export default function AppointmentSchedule({
 
   const getInputStyle = (field: string): React.CSSProperties => ({
     ...inputStyle,
-    borderColor: errors[field] ? "#F87171" : "#E7E8EB",
+    ...(errors[field] && {
+      borderColor: "#F87171",
+    }),
   });
+
   const clearScheduleError = (field: string) => {
     setErrors((prev) => {
       if (!prev[field]) return prev;
@@ -71,6 +71,7 @@ export default function AppointmentSchedule({
       return next;
     });
   };
+
   const updateSchedule = (
     field: keyof DoctorSchedule,
     value: string | number | boolean,
@@ -103,6 +104,7 @@ export default function AppointmentSchedule({
         },
       ];
     });
+
     clearScheduleError(`schedule.${selectedDay}.${field}`);
   };
 
@@ -110,7 +112,14 @@ export default function AppointmentSchedule({
     <div>
       <div className="flex justify-center">
         <div className="w-full max-w-4xl">
-          <h2 className="text-base font-semibold text-[#0A1B39] mb-6 p-2">
+          {/* Heading */}
+          <h2
+            className="
+              mb-6 p-2 text-base font-semibold
+              text-[#0A1B39]
+              dark:text-gray-100
+            "
+          >
             Appointment Schedule
           </h2>
 
@@ -126,11 +135,23 @@ export default function AppointmentSchedule({
                   key={day.value}
                   type="button"
                   onClick={() => setSelectedDay(day.value)}
-                  className={`rounded-lg px-5 py-2 text-sm font-medium transition-all ${
-                    selectedDay === day.value
-                      ? "bg-[#2E37A4] text-white shadow-sm"
-                      : "bg-[#F3F4F6] text-[#344054] hover:bg-gray-200"
-                  }`}
+                  className={`
+                    rounded-lg px-5 py-2 text-sm font-medium
+                    transition-all
+
+                    ${
+                      selectedDay === day.value
+                        ? "bg-[#2E37A4] text-white shadow-sm"
+                        : `
+                          bg-[#F3F4F6] text-[#344054]
+                          hover:bg-gray-200
+
+                          dark:bg-[#16243A]
+                          dark:text-gray-300
+                          dark:hover:bg-[#1D2D45]
+                        `
+                    }
+                  `}
                 >
                   {day.label}
 
@@ -141,9 +162,18 @@ export default function AppointmentSchedule({
           </div>
 
           {/* Schedule Fields */}
-          <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2">
+          <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {/* Selected Day */}
             <div className={columnClass}>
-              <label style={labelStyle}>Selected Day</label>
+              <label
+                className="
+                  text-sm font-medium
+                  text-[#0A1B39]
+                  dark:text-gray-200
+                "
+              >
+                Selected Day
+              </label>
 
               <input
                 type="text"
@@ -151,9 +181,16 @@ export default function AppointmentSchedule({
                 value={
                   weekDays.find((day) => day.value === selectedDay)?.label ?? ""
                 }
-                className={`${inputClass} bg-gray-50 cursor-not-allowed`}
+                className={`
+  ${inputClass}
+  cursor-not-allowed
+  bg-gray-50
+  dark:bg-[#16243A]
+  dark:text-gray-400
+`}
                 style={inputStyle}
               />
+
               {errors.schedule && (
                 <p className="mb-4 text-sm text-red-500">
                   {errors.schedule[0]}
@@ -161,8 +198,15 @@ export default function AppointmentSchedule({
               )}
             </div>
 
+            {/* Slot Duration */}
             <div className={columnClass}>
-              <label style={labelStyle}>
+              <label
+                className="
+                  text-sm font-medium
+                  text-[#0A1B39]
+                  dark:text-gray-200
+                "
+              >
                 Slot Duration (Minutes)
                 <span className="text-red-500">*</span>
               </label>
@@ -178,7 +222,14 @@ export default function AppointmentSchedule({
                   )
                 }
                 placeholder="30"
-                className={`${inputClass} [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
+                className={`
+                  ${inputClass}
+                  [&::-webkit-inner-spin-button]:appearance-none
+                  [&::-webkit-outer-spin-button]:appearance-none
+
+                  placeholder:text-[#98A2B3]
+                  dark:placeholder:text-gray-500
+                `}
                 style={getInputStyle(
                   `schedule.${selectedDay}.slotDurationMinutes`,
                 )}
@@ -192,9 +243,17 @@ export default function AppointmentSchedule({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2">
+          {/* Start / End Time */}
+          <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {/* Start Time */}
             <div className={columnClass}>
-              <label style={labelStyle}>
+              <label
+                className="
+                  text-sm font-medium
+                  text-[#0A1B39]
+                  dark:text-gray-200
+                "
+              >
                 Start Time
                 <span className="text-red-500">*</span>
               </label>
@@ -203,7 +262,7 @@ export default function AppointmentSchedule({
                 type="time"
                 value={startTime}
                 onChange={(e) => updateSchedule("startTime", e.target.value)}
-                className={inputClass}
+                className={`${inputClass} dark:[color-scheme:dark]`}
                 style={getInputStyle(`schedule.${selectedDay}.startTime`)}
               />
 
@@ -214,8 +273,15 @@ export default function AppointmentSchedule({
               )}
             </div>
 
+            {/* End Time */}
             <div className={columnClass}>
-              <label style={labelStyle}>
+              <label
+                className="
+                  text-sm font-medium
+                  text-[#0A1B39]
+                  dark:text-gray-200
+                "
+              >
                 End Time
                 <span className="text-red-500">*</span>
               </label>
@@ -224,7 +290,7 @@ export default function AppointmentSchedule({
                 type="time"
                 value={endTime}
                 onChange={(e) => updateSchedule("endTime", e.target.value)}
-                className={inputClass}
+                className={`${inputClass} dark:[color-scheme:dark]`}
                 style={getInputStyle(`schedule.${selectedDay}.endTime`)}
               />
 
@@ -236,9 +302,16 @@ export default function AppointmentSchedule({
             </div>
           </div>
 
+          {/* Schedule Status */}
           <div className="grid grid-cols-2 gap-6">
             <div className={columnClass}>
-              <label style={labelStyle}>
+              <label
+                className="
+                  text-sm font-medium
+                  text-[#0A1B39]
+                  dark:text-gray-200
+                "
+              >
                 Schedule Status
                 <span className="text-red-500">*</span>
               </label>
@@ -248,7 +321,10 @@ export default function AppointmentSchedule({
                 onChange={(e) =>
                   updateSchedule("isActive", e.target.value === "true")
                 }
-                className={inputClass}
+                className={`
+                  ${inputClass}
+                  dark:border-gray-700
+                `}
                 style={inputStyle}
               >
                 <option value="true">Active</option>

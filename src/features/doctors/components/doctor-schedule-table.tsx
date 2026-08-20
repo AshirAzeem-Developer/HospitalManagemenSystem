@@ -60,9 +60,13 @@ export default function DoctorScheduleTable({ doctors }: Props) {
       // Basic doctor information
       // -------------------------
 
-      const doctorName = (doctor.profile?.full_name ?? "").toLowerCase();
+      const doctorName = (
+        doctor.profile?.full_name ?? ""
+      ).toLowerCase();
 
-      const specialization = (doctor.specialization ?? "").toLowerCase();
+      const specialization = (
+        doctor.specialization ?? ""
+      ).toLowerCase();
 
       const phone = (doctor.phone ?? "").toLowerCase();
 
@@ -75,13 +79,18 @@ export default function DoctorScheduleTable({ doctors }: Props) {
       // -------------------------
 
       const hasMatchingDay = doctor.doctor_schedules.some((schedule) => {
-        const day = weekDays.find((day) => day.value === schedule.day_of_week);
+        const day = weekDays.find(
+          (day) => day.value === schedule.day_of_week,
+        );
 
         return day?.name.toLowerCase().includes(query);
       });
+
       const hasActiveSchedule =
         query === "active" &&
-        doctor.doctor_schedules.some((schedule) => schedule.is_active === true);
+        doctor.doctor_schedules.some(
+          (schedule) => schedule.is_active === true,
+        );
 
       const hasInactiveSchedule =
         query === "inactive" &&
@@ -90,7 +99,8 @@ export default function DoctorScheduleTable({ doctors }: Props) {
         );
 
       const hasNoSchedule =
-        query === "no schedule" && doctor.doctor_schedules.length === 0;
+        query === "no schedule" &&
+        doctor.doctor_schedules.length === 0;
 
       // -------------------------
       // Normal text search
@@ -115,6 +125,7 @@ export default function DoctorScheduleTable({ doctors }: Props) {
       );
     });
   }, [doctors, search]);
+
   const columns = [
     {
       key: "doctor",
@@ -122,7 +133,8 @@ export default function DoctorScheduleTable({ doctors }: Props) {
 
       render: (doctor: DoctorScheduleListItem) => (
         <div className="flex min-w-[180px] items-center gap-2 sm:gap-3">
-          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-100 sm:h-11 sm:w-11">
+          {/* Doctor Image */}
+          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-gray-100 dark:bg-[#16243A] sm:h-11 sm:w-11">
             {doctor.profile?.avatar_url ? (
               <Image
                 src={doctor.profile.avatar_url}
@@ -132,18 +144,19 @@ export default function DoctorScheduleTable({ doctors }: Props) {
                 className="object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-gray-500 sm:text-sm">
+              <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-gray-500 dark:text-gray-400 sm:text-sm">
                 {doctor.profile?.full_name?.charAt(0) ?? "D"}
               </div>
             )}
           </div>
 
+          {/* Doctor Information */}
           <div className="min-w-0">
-            <p className="max-w-[150px] truncate text-xs font-semibold text-[#0A1B39] sm:text-sm">
+            <p className="max-w-[150px] truncate text-xs font-semibold text-[#0A1B39] dark:text-white sm:text-sm">
               {doctor.profile?.full_name ?? "Unknown Doctor"}
             </p>
 
-            <p className="max-w-[150px] truncate text-xs text-[#667085] sm:text-sm">
+            <p className="max-w-[150px] truncate text-xs text-[#667085] dark:text-slate-400 sm:text-sm">
               {doctor.specialization}
             </p>
           </div>
@@ -156,7 +169,7 @@ export default function DoctorScheduleTable({ doctors }: Props) {
       label: "Department",
 
       render: (doctor: DoctorScheduleListItem) => (
-        <span className="text-sm text-[#667085]">
+        <span className="text-sm text-[#667085] dark:text-slate-400">
           {doctor.specialization || "Not available"}
         </span>
       ),
@@ -167,7 +180,7 @@ export default function DoctorScheduleTable({ doctors }: Props) {
       label: "Phone",
 
       render: (doctor: DoctorScheduleListItem) => (
-        <span className="text-sm text-[#667085]">
+        <span className="text-sm text-[#667085] dark:text-slate-400">
           {formatPhone(doctor.phone)}
         </span>
       ),
@@ -216,7 +229,7 @@ export default function DoctorScheduleTable({ doctors }: Props) {
                 className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium sm:h-10 sm:w-10 sm:text-sm ${
                   isActive
                     ? "bg-[#2E37A4] text-white"
-                    : "bg-[#F1F3F5] text-[#0A1B39]"
+                    : "bg-[#F1F3F5] text-[#0A1B39] dark:bg-[#16243A] dark:text-slate-300"
                 }`}
               >
                 {day.label}
@@ -235,7 +248,7 @@ export default function DoctorScheduleTable({ doctors }: Props) {
         <div className="flex items-center justify-end gap-2">
           <Link
             href={`/admin/doctors/${doctor.id}`}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-[#2E37A4] hover:bg-gray-50"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-[#2E37A4] transition hover:bg-gray-50 dark:border-[#26364D] dark:text-[#8B93FF] dark:hover:bg-[#16243A]"
             title="View Doctor"
           >
             <Eye size={16} />
@@ -248,23 +261,26 @@ export default function DoctorScheduleTable({ doctors }: Props) {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Header */}
-      <div className="mb-6 flex flex-col gap-3 border-b border-gray-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-3 border-b border-gray-200 pb-5 dark:border-[#26364D] sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <h1 className="text-xl font-semibold text-[#0A1B39] md:text-2xl">
+          <h1 className="text-xl font-semibold text-[#0A1B39] dark:text-white md:text-2xl">
             Doctor Schedule
           </h1>
 
-          <span className="rounded-md bg-[#EEF0FF] px-2.5 py-1 text-xs font-medium text-[#2E37A4] md:text-sm">
+          <span className="rounded-md bg-[#EEF0FF] px-2.5 py-1 text-xs font-medium text-[#2E37A4] dark:bg-[#1D2B45] dark:text-[#A5ABFF] md:text-sm">
             Total Doctors : {doctors.length}
           </span>
         </div>
 
-        {/* <button
+        {/* Export button if needed */}
+        {/*
+        <button
           type="button"
-          className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-[#0A1B39] shadow-sm"
+          className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-[#0A1B39] shadow-sm dark:border-[#26364D] dark:bg-[#0A162A] dark:text-white"
         >
           Export
-        </button> */}
+        </button>
+        */}
       </div>
 
       {/* Search / Filters */}
@@ -274,13 +290,13 @@ export default function DoctorScheduleTable({ doctors }: Props) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search"
-          className="h-10 w-full rounded-lg border border-gray-200 bg-white px-4 text-sm outline-none transition focus:border-[#2E37A4] sm:max-w-xs"
+          className="h-10 w-full rounded-lg border border-gray-200 bg-white px-4 text-sm text-[#0A1B39] outline-none transition placeholder:text-gray-400 focus:border-[#2E37A4] dark:border-[#26364D] dark:bg-[#0A162A] dark:text-white dark:placeholder:text-slate-500 dark:focus:border-[#5962D8] sm:max-w-xs"
         />
       </div>
 
       {/* Search result count */}
       {search.trim() && (
-        <div className="mb-3 text-sm text-gray-500">
+        <div className="mb-3 text-sm text-gray-500 dark:text-slate-400">
           Showing {filteredDoctors.length} of {doctors.length} doctors
         </div>
       )}
@@ -290,15 +306,15 @@ export default function DoctorScheduleTable({ doctors }: Props) {
         {filteredDoctors.length > 0 ? (
           <Table columns={columns} data={filteredDoctors} />
         ) : (
-          <div className="flex h-full items-center justify-center rounded-lg border border-gray-200 bg-white px-6 py-10 text-center">
+          <div className="flex h-full items-center justify-center rounded-lg border border-gray-200 bg-white px-6 py-10 text-center dark:border-[#26364D] dark:bg-[#0A162A]">
             <div>
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-white">
                 No doctors found
               </p>
 
-              <p className="mt-1 text-sm text-gray-500">
-                Try searching with a different name, department, phone number,
-                or availability day.
+              <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
+                Try searching with a different name, department, phone
+                number, or availability day.
               </p>
             </div>
           </div>

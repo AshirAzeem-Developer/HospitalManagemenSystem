@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -9,7 +10,6 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { useState } from "react";
 
 export type DepartmentDatum = {
   department: string;
@@ -19,50 +19,46 @@ export type DepartmentDatum = {
 
 type ConsultationByDepartmentProps = {
   departmentData: DepartmentDatum[];
-  period?: string;
-  periods?: string[];
-  onPeriodChange?: (period: string) => void;
 };
 
 export default function ConsultationByDepartment({
   departmentData,
-  period = "Monthly",
-  periods = ["Weekly", "Monthly", "Yearly"],
-  onPeriodChange,
 }: ConsultationByDepartmentProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState(period);
+  // Dynamic height: base height per department row + clamp between min/max
+  const ROW_HEIGHT = 56;
+  const MIN_HEIGHT = 180;
+  const MAX_HEIGHT = 320;
 
-  const handlePeriodChange = (value: string) => {
-    setSelectedPeriod(value);
-    onPeriodChange?.(value);
-  };
+  const chartHeight = Math.min(
+    MAX_HEIGHT,
+    Math.max(
+      MIN_HEIGHT,
+      departmentData.length * ROW_HEIGHT
+    )
+  );
 
   return (
-    <div className="w-full rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
+    <div className="w-full rounded-xl border border-slate-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900 sm:p-5">
       {/* Header */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-base font-bold text-slate-900">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white">
           Consultation By Department
         </h2>
 
-        <select
-          value={selectedPeriod}
-          onChange={(e) => handlePeriodChange(e.target.value)}
-          className="rounded-md border border-slate-200 px-3 py-1.5 text-sm text-slate-600 focus:outline-none"
-        >
-          {periods.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
+        {/* Fixed Monthly */}
+        <span className="text-sm font-medium text-slate-500 dark:text-gray-400">
+          Monthly
+        </span>
       </div>
 
       {/* Chart */}
-      <div className="h-[260px] w-full sm:h-[320px]">
+      <div
+        className="w-full transition-[height] duration-300"
+        style={{ height: `${chartHeight}px` }}
+      >
         {departmentData.length === 0 ? (
           <div className="flex h-full items-center justify-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-gray-400">
               No consultation data found.
             </p>
           </div>
@@ -79,7 +75,11 @@ export default function ConsultationByDepartment({
               }}
               barGap={4}
             >
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                horizontal={false}
+                className="stroke-slate-200 dark:stroke-gray-700"
+              />
 
               <XAxis
                 type="number"
@@ -87,30 +87,53 @@ export default function ConsultationByDepartment({
                 tickLine={false}
                 axisLine={false}
                 allowDecimals={false}
-                tick={{ fontSize: 11 }}
+                tick={{
+                  fontSize: 11,
+                  fill: "#612fbf",
+                }}
               />
 
-              {/* Y-axis shows doctor specialization (department) */}
+              {/* Doctor specialization / Department */}
               <YAxis
                 type="category"
                 dataKey="department"
                 tickLine={false}
                 axisLine={false}
                 width={110}
-                tick={{ fontSize: 12 }}
+                tick={{
+                  fontSize: 12,
+                  fill: "#612fbf",
+                }}
               />
 
-              <Tooltip cursor={{ fill: "rgba(0,0,0,0.03)" }} />
+              <Tooltip
+                cursor={{
+                  fill: "rgba(0,0,0,0.03)",
+                }}
+                contentStyle={{
+                  backgroundColor: "white",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                }}
+                labelStyle={{
+                  color: "#2FBFA0",
+                  fontWeight: 600,
+                }}
+              />
 
+              {/* Current Month */}
               <Bar
                 dataKey="current"
+                name="Current Month"
                 fill="#2E37A4"
                 radius={[4, 4, 4, 4]}
                 barSize={12}
               />
 
+              {/* Previous Month */}
               <Bar
                 dataKey="previous"
+                name="Previous Month"
                 fill="#2FBFA0"
                 radius={[4, 4, 4, 4]}
                 barSize={12}
@@ -122,3 +145,4 @@ export default function ConsultationByDepartment({
     </div>
   );
 }
+

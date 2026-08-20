@@ -20,13 +20,20 @@ export default function Search({
         w-full
         sm:w-64
         rounded-md
-        bg-white
         border
         border-slate-200
+        bg-white
         px-3
         text-sm
+        text-slate-900
+        placeholder:text-slate-400
         outline-none
         focus:border-slate-500
+        dark:border-gray-700
+        dark:bg-gray-900
+        dark:text-white
+        dark:placeholder:text-gray-500
+        dark:focus:border-gray-500
       "
     />
   );

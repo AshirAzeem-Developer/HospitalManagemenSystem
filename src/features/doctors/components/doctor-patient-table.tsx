@@ -87,7 +87,14 @@ export default function DoctorPatientTable({ patients }: Props) {
 
       render: (patient: DoctorPatient) => (
         <div className="flex min-w-[210px] items-center gap-3">
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-100">
+          <div
+            className="
+              relative h-10 w-10 shrink-0
+              overflow-hidden rounded-full
+              bg-gray-100
+              dark:bg-[#1E293B]
+            "
+          >
             {patient.avatar_url ? (
               <Image
                 src={patient.avatar_url}
@@ -97,18 +104,40 @@ export default function DoctorPatientTable({ patients }: Props) {
                 className="object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-gray-500">
+              <div
+                className="
+                  flex h-full w-full
+                  items-center justify-center
+                  text-sm font-semibold
+                  text-gray-500
+                  dark:text-[#94A3B8]
+                "
+              >
                 {patient.full_name?.charAt(0).toUpperCase() ?? "P"}
               </div>
             )}
           </div>
 
           <div className="min-w-0">
-            <p className="max-w-[170px] truncate text-sm font-semibold text-[#0A1B39]">
+            <p
+              className="
+                max-w-[170px] truncate
+                text-sm font-semibold
+                text-[#0A1B39]
+                dark:text-[#F1F5F9]
+              "
+            >
               {patient.full_name || "Unknown Patient"}
             </p>
 
-            <p className="max-w-[170px] truncate text-xs text-[#667085]">
+            <p
+              className="
+                max-w-[170px] truncate
+                text-xs
+                text-[#667085]
+                dark:text-[#94A3B8]
+              "
+            >
               ID: {patient.id.slice(0, 8)}
             </p>
           </div>
@@ -125,11 +154,23 @@ export default function DoctorPatientTable({ patients }: Props) {
 
         return (
           <div>
-            <p className="text-sm font-medium text-[#0A1B39]">
+            <p
+              className="
+                text-sm font-medium
+                text-[#0A1B39]
+                dark:text-[#E2E8F0]
+              "
+            >
               {age !== null ? `${age} years` : "N/A"}
             </p>
 
-            <p className="text-xs capitalize text-[#667085]">
+            <p
+              className="
+                text-xs capitalize
+                text-[#667085]
+                dark:text-[#94A3B8]
+              "
+            >
               {patient.gender || "Not available"}
             </p>
           </div>
@@ -142,7 +183,13 @@ export default function DoctorPatientTable({ patients }: Props) {
       label: "Blood Group",
 
       render: (patient: DoctorPatient) => (
-        <span className="font-medium text-[#0A1B39]">
+        <span
+          className="
+            font-medium
+            text-[#0A1B39]
+            dark:text-[#E2E8F0]
+          "
+        >
           {patient.blood_group || "Not available"}
         </span>
       ),
@@ -154,11 +201,23 @@ export default function DoctorPatientTable({ patients }: Props) {
 
       render: (patient: DoctorPatient) => (
         <div>
-          <p className="text-sm font-medium text-[#0A1B39]">
+          <p
+            className="
+              text-sm font-medium
+              text-[#0A1B39]
+              dark:text-[#E2E8F0]
+            "
+          >
             {formatDate(patient.last_appointment_date)}
           </p>
 
-          <p className="text-xs text-[#667085]">
+          <p
+            className="
+              text-xs
+              text-[#667085]
+              dark:text-[#94A3B8]
+            "
+          >
             {formatTime(patient.last_appointment_time)}
           </p>
         </div>
@@ -174,12 +233,12 @@ export default function DoctorPatientTable({ patients }: Props) {
 
         const statusClass =
           status === "confirmed"
-            ? "bg-green-50 text-green-700"
+            ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400"
             : status === "completed"
-              ? "bg-blue-50 text-blue-700"
+              ? "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
               : status === "cancelled"
-                ? "bg-red-50 text-red-700"
-                : "bg-yellow-50 text-yellow-700";
+                ? "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400"
+                : "bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400";
 
         return (
           <span
@@ -191,22 +250,33 @@ export default function DoctorPatientTable({ patients }: Props) {
       },
     },
 
+    // Consultation action can be enabled later.
     // {
     //   key: "actions",
     //   label: "Action",
-
+    //
     //   render: (patient: DoctorPatient) => (
-    //       patient.last_appointment_id ? (
-    //         <Link
-    //           href={`/doctor/consultation/${patient.last_appointment_id}`}
-    //           className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
-    //         >
-    //           <Stethoscope size={15} />
-    //           Consultation
-    //         </Link>
-    //       ) : (
-    //         <span className="text-xs text-gray-400">No appointment</span>
-    //       )
+    //     patient.last_appointment_id ? (
+    //       <Link
+    //         href={`/doctor/consultation/${patient.last_appointment_id}`}
+    //         className="
+    //           inline-flex items-center gap-2
+    //           rounded-lg
+    //           bg-[#2E37A4]
+    //           px-3 py-2
+    //           text-xs font-medium text-white
+    //           transition
+    //           hover:bg-[#252d89]
+    //         "
+    //       >
+    //         <Stethoscope size={15} />
+    //         Consultation
+    //       </Link>
+    //     ) : (
+    //       <span className="text-xs text-gray-400 dark:text-[#64748B]">
+    //         No appointment
+    //       </span>
+    //     )
     //   ),
     // },
   ];

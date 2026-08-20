@@ -186,9 +186,9 @@ export default function ProfileForm({ doctor }: Props) {
     router.push("/admin/doctors");
   };
   return (
-    <div className="flex justify-center bg-white max-w-4xl">
-      <div className="w-full border border-gray-300 rounded p-4">
-        <h2 className="mb-3 border-b border-gray-300 p-2 py-4 text-lg font-semibold text-[#0A1B39]">
+    <div className="flex max-w-4xl justify-center bg-white dark:bg-[#0A162A]">
+      <div className="w-full rounded border border-gray-300 bg-white p-4 dark:border-gray-700 dark:bg-[#0A162A]">
+        <h2 className="mb-3 border-b border-gray-300 p-2 py-4 text-lg font-semibold text-[#0A1B39] dark:border-gray-700 dark:text-white">
           {isEdit ? "Edit Doctor" : "New Doctor"}
         </h2>
         <ContactInformation
@@ -212,7 +212,7 @@ export default function ProfileForm({ doctor }: Props) {
           setErrors={setErrors}
         />
 
-        <div className="flex justify-end gap-3 pt-5 border-t border-[#E5E7EB]">
+        <div className="flex justify-end gap-3 border-[#E5E7EB] pt-5 dark:border-gray-700">
           <Link href="/admin/doctors">
             <Button variant="ghost" text="Cancel" />
           </Link>

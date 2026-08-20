@@ -11,8 +11,7 @@ type ButtonVariant =
   | "status-success"
   | "status-danger";
 
-interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   text: string;
   icon?: React.ReactNode;
@@ -32,17 +31,14 @@ const Button = ({
       className={clsx(
         "inline-flex items-center justify-center gap-1 rounded-md px-[10px] py-[6px] text-sm font-medium transition-colors duration-200",
         {
-          "bg-[#2E37A4] text-white hover:bg-[#27308f]":
-            variant === "primary",
+          "bg-[#2E37A4] text-white hover:bg-[#27308f]": variant === "primary",
 
-          "bg-white text-black border border-gray-300 hover:bg-gray-100":
+          "bg-white text-black border border-gray-300 hover:bg-gray-100 dark:bg-[#0A162A] dark:text-[#CBD5E1] dark:border-[#3A4A63] dark:hover:bg-[#18243A]":
             variant === "ghost",
 
-          "bg-[#030303] text-white hover:bg-black":
-            variant === "apply",
+          "bg-[#030303] text-white hover:bg-black": variant === "apply",
 
-          "bg-[#EF1E1E] text-white hover:bg-red-700":
-            variant === "danger",
+          "bg-[#EF1E1E] text-white hover:bg-red-700": variant === "danger",
 
           "bg-[#FEFBF5] text-[#E2B93B] border border-[#E2B93B]":
             variant === "status-warning",
@@ -58,7 +54,7 @@ const Button = ({
 
           "opacity-50 cursor-not-allowed": disabled,
         },
-        className
+        className,
       )}
       {...props}
     >

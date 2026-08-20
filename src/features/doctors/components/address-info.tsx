@@ -14,17 +14,14 @@ const labelStyle: React.CSSProperties = {
   fontSize: "14px",
   lineHeight: "21px",
   letterSpacing: "0%",
-  color: "#0A1B39",
 };
 
 const inputClass =
-  "w-full rounded-lg px-3 py-2 text-[14px] font-normal text-[#667085] outline-none focus:border-[#4F46E5]";
+  "w-full rounded-lg border border-[#E7E8EB] bg-white px-3 py-2 text-[14px] font-normal text-[#667085] outline-none placeholder:text-[#98A2B3] focus:border-[#4F46E5] dark:border-gray-700 dark:bg-[#111F33] dark:text-gray-200 dark:placeholder:text-gray-500";
 
 const inputStyle: React.CSSProperties = {
-  border: "1px solid #E7E8EB",
   fontWeight: 400,
   fontSize: "14px",
-  color: "#667085",
 };
 
 const columnClass = "flex flex-col gap-2";
@@ -37,18 +34,27 @@ export default function AddressInformation({
 }: Props) {
   const getInputStyle = (field: string): React.CSSProperties => ({
     ...inputStyle,
-    borderColor: errors[field] ? "#F87171" : "#E7E8EB",
+    ...(errors[field] && {
+      borderColor: "#F87171",
+    }),
   });
-  return (
-    <div className="flex justify-center">
-      <div className="w-full max-w-4xl">
-        <h2 className="mb-3 p-2 text-base font-semibold text-[#0A1B39]">
-          Address Information
-        </h2>
 
-        <div className="grid grid-cols-2 gap-6 mb-8">
+  return (
+    <div className="flex justify-center bg-white dark:bg-[#0A162A]">
+      <div className="w-full max-w-4xl">
+        {/* Heading */}
+          <h2 className="mb-3 p-2 text-base font-semibold text-[#0A1B39] dark:text-white">
+            Address Information
+          </h2>
+
+        {/* Country + State */}
+        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          {/* Country */}
           <div className={columnClass}>
-            <label style={labelStyle}>
+            <label
+              style={labelStyle}
+              className="text-[#0A1B39] dark:text-white"
+            >
               Country <span className="text-red-500">*</span>
             </label>
 
@@ -62,8 +68,10 @@ export default function AddressInformation({
                   ...prev,
                   country: value,
                 }));
+
                 setErrors((prev) => {
                   if (!prev.country) return prev;
+
                   const next = { ...prev };
                   delete next.country;
                   return next;
@@ -73,13 +81,18 @@ export default function AddressInformation({
               className={inputClass}
               style={getInputStyle("country")}
             />
+
             {errors.country && (
               <p className="text-xs text-red-500">{errors.country[0]}</p>
             )}
           </div>
 
+          {/* State */}
           <div className={columnClass}>
-            <label style={labelStyle}>
+            <label
+              style={labelStyle}
+              className="text-[#0A1B39] dark:text-white"
+            >
               State <span className="text-red-500">*</span>
             </label>
 
@@ -88,10 +101,12 @@ export default function AddressInformation({
               value={addressInfo.state}
               onChange={(e) => {
                 const value = e.target.value;
+
                 setAddressInfo((prev) => ({
                   ...prev,
-                  state: e.target.value,
+                  state: value,
                 }));
+
                 setErrors((prev) => {
                   if (!prev.state) return prev;
 
@@ -104,15 +119,20 @@ export default function AddressInformation({
               className={inputClass}
               style={getInputStyle("state")}
             />
+
             {errors.state && (
               <p className="text-xs text-red-500">{errors.state[0]}</p>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        {/* City */}
+        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className={columnClass}>
-            <label style={labelStyle}>
+            <label
+              style={labelStyle}
+              className="text-[#0A1B39] dark:text-white"
+            >
               City <span className="text-red-500">*</span>
             </label>
 

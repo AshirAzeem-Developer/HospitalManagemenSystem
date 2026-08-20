@@ -40,30 +40,36 @@ export default async function AdminDoctorsPage({ searchParams }: Props) {
         />
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          {/* Search */}
-          <div className="w-full lg:max-w-xs">
-            <PaginationSearchBar placeholder="Search doctors" />
-          </div>
+  {/* Search */}
+  <div className="w-full lg:max-w-xs">
+    <PaginationSearchBar placeholder="Search doctors" />
+  </div>
 
-          {/* Buttons */}
-          <div className="flex w-full items-center gap-2 lg:w-auto">
-            <Link href="/admin/doctors/schedule" className="shrink-0">
-              <Button
-                text="Doctor Schedule"
-                variant="ghost"
-                icon={<Calendar size={18} />}
-              />
-            </Link>
+  {/* Buttons */}
+  <div className="flex w-full items-center gap-2 lg:w-auto">
+    <Link
+      href="/admin/doctors/schedule"
+      className="shrink-0"
+    >
+      <Button
+        text="Doctor Schedule"
+        variant="ghost"
+        icon={<Calendar size={18} />}
+      />
+    </Link>
 
-            <Link href="/admin/doctors/add" className="shrink-0">
-              <Button
-                text="New Doctor"
-                variant="primary"
-                icon={<Plus size={18} />}
-              />
-            </Link>
-          </div>
-        </div>
+    <Link
+      href="/admin/doctors/add"
+      className="shrink-0"
+    >
+      <Button
+        text="New Doctor"
+        variant="primary"
+        icon={<Plus size={18} />}
+      />
+    </Link>
+  </div>
+</div>
         <DoctorGrid doctors={doctors} />
 
         <div className="mt-4">

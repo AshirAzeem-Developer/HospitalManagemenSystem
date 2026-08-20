@@ -14,17 +14,48 @@ export default function Table<T extends { id: string }>({
   data,
 }: TableProps<T>) {
   return (
-    <div className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <div
+      className="
+        flex h-full min-h-0 w-full min-w-0 flex-col
+        overflow-hidden rounded-lg
+        border border-gray-200
+        bg-white
+
+        dark:border-[#2A3850]
+        dark:bg-[#0A162A]
+      "
+    >
       {/* Table scroll area */}
       <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
-        <table className="min-w-[1100px] w-full border-collapse">
+        <table className="w-full min-w-[1100px] border-collapse">
           {/* Header */}
-          <thead className="sticky top-0 z-10 bg-white">
-            <tr className="border-b border-gray-200">
+          <thead
+            className="
+              sticky top-0 z-10
+              bg-white
+
+              dark:bg-[#0D1B31]
+            "
+          >
+            <tr
+              className="
+                border-b border-gray-200
+                dark:border-[#2A3850]
+              "
+            >
               {columns.map((column) => (
                 <th
                   key={column.key.toString()}
-                  className="whitespace-nowrap px-6 py-4 text-left text-[13px] font-semibold text-gray-800"
+                  className="
+                    whitespace-nowrap
+                    px-6 py-4
+                    text-left
+                    text-[13px]
+                    font-semibold
+                    text-gray-800
+
+                    dark:text-[#CBD5E1]
+                  "
                 >
                   {column.label}
                 </th>
@@ -36,12 +67,30 @@ export default function Table<T extends { id: string }>({
             {data.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50"
+                className="
+                  border-b border-gray-100
+                  transition-colors
+                  last:border-b-0
+                  hover:bg-gray-50
+
+                  dark:border-[#24344D]
+                  dark:hover:bg-[#111F35]
+                "
               >
                 {columns.map((column) => (
                   <td
                     key={column.key.toString()}
-                    className="whitespace-nowrap px-4 py-3 align-middle text-sm text-gray-700 sm:px-5 sm:py-4"
+                    className="
+                      whitespace-nowrap
+                      px-4 py-3
+                      align-middle
+                      text-sm
+                      text-gray-700
+
+                      dark:text-[#CBD5E1]
+
+                      sm:px-5 sm:py-4
+                    "
                   >
                     {column.render
                       ? column.render(row)

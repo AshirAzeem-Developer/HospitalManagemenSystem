@@ -14,6 +14,9 @@ export default function SearchBar({
         border border-[#E7E8EB]
         bg-white
         px-3 py-[6px]
+
+        dark:border-[#334155]
+        dark:bg-[#0A162A]
       "
     >
       <input
@@ -29,6 +32,9 @@ export default function SearchBar({
           text-[#0A1B39]
           outline-none
           placeholder:text-[#98A2B3]
+
+          dark:text-[#E2E8F0]
+          dark:placeholder:text-[#64748B]
         "
       />
     </div>

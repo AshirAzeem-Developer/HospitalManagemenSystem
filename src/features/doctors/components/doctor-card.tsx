@@ -54,7 +54,7 @@ export default function DoctorCard({ doctor }: DoctorCardProps) {
 
       setDeleteModalOpen(false);
 
-      window.location.reload();
+      router.refresh();
     } catch (error) {
       console.error("DELETE DOCTOR ERROR:", error);
 

@@ -99,7 +99,7 @@ export default function DoctorDetailHeader({
           </p>
 
           <Link
-            href="/admin/appointments"
+            href="/admin/appointments/new"
             className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#2E37A4] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#252d89]"
           >
             <CalendarDays className="h-4 w-4" />

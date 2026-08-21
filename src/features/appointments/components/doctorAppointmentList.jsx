@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Eye, Pencil, Stethoscope, X, Plus } from "lucide-react";
+import { MoreVertical, Eye, Pencil, Plus, X } from "lucide-react";
 
 export default function DoctorAppointmentList({ appointments = [] }) {
   const [sidebar, setSidebar] = useState({
@@ -57,9 +57,6 @@ export default function DoctorAppointmentList({ appointments = [] }) {
               </th>
               <th className="px-6 py-4 font-semibold whitespace-nowrap">
                 Patient
-              </th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">
-                Reason of Visit
               </th>
               <th className="px-6 py-4 font-semibold whitespace-nowrap">
                 Status
@@ -120,15 +117,6 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
-                    <div
-                      className="max-w-[220px] truncate text-sm text-foreground"
-                      title={appointment.reasonOfVisit || "Not provided"}
-                    >
-                      {appointment.reasonOfVisit || "Not provided"}
-                    </div>
-                  </td>
-
                   <td className="px-6 py-4 capitalize">
                     <span
                       className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(appointment.status)}`}
@@ -151,28 +139,21 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/doctor/prescriptions/${appointment.prescriptionId}`}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
+                          className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border hover:bg-hover rounded-md transition-colors"
                         >
-                          <Eye className="h-3.5 w-3.5" />
+                          <Eye className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                           View
                         </Link>
-
                         <Link
                           href={`/doctor/prescriptions/${appointment.prescriptionId}/edit`}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-amber-500"
+                          className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border hover:bg-hover rounded-md transition-colors"
                         >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <Pencil className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                           Edit
                         </Link>
                       </div>
                     ) : (
-                      <Link
-                        href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
-                        className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
-                      >
-                        <Stethoscope size={16} />
-                        Consultation
-                      </Link>
+                      <span className="text-muted text-xs italic ml-6">-</span>
                     )}
                   </td>
 
@@ -189,15 +170,13 @@ export default function DoctorAppointmentList({ appointments = [] }) {
 
                       {isMenuOpen && (
                         <div
-                          className={`absolute right-0 w-36 bg-card border border-border rounded-lg shadow-lg z-50 p-1 text-left ${
-                            openUpwards ? "bottom-full mb-1" : "top-full mt-1"
-                          }`}
+                          className={`absolute right-0 w-32 bg-card border border-border rounded-md shadow-lg z-50 py-1 text-left ${openUpwards ? "bottom-full mb-1" : "top-full mt-1"}`}
                         >
                           <button
                             onClick={() => openSidebar(appointment)}
-                            className="w-full cursor-pointer flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-foreground transition hover:bg-[#2E37A4] hover:text-white"
+                            className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-hover transition"
                           >
-                            <Eye className="h-3.5 w-3.5" />
+                            <Eye className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                             <span>View Details</span>
                           </button>
                         </div>

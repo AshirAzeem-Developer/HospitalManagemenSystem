@@ -19,7 +19,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import BillingTable from "@/features/billing/component/billing-table";
-import AppointmentsContainer from "@/features/appointments/components/AppointmentsContainer";
+import AppointmentsContainer from "@/features/appointments/appointmentContainers/adminAppointmentsContainer";
 
 type PatientVitals = {
   blood_pressure: string;

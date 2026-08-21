@@ -1,27 +1,27 @@
 "use client";
-
+ 
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Eye, Pencil, Plus, X } from "lucide-react";
-
+import { MoreVertical, Eye, Pencil, Stethoscope, X, Plus } from "lucide-react";
+ 
 export default function DoctorAppointmentList({ appointments = [] }) {
   const [sidebar, setSidebar] = useState({
     isOpen: false,
     data: null,
   });
-
+ 
   const [activeDropdown, setActiveDropdown] = useState(null);
-
+ 
   const openSidebar = (appointmentData) => {
     setSidebar({ isOpen: true, data: appointmentData });
     setActiveDropdown(null);
   };
-
+ 
   const closeSidebar = () => {
     setSidebar({ isOpen: false, data: null });
   };
-
+ 
   const getBadgeStyle = (status) => {
     const s = status?.toLowerCase();
     switch (s) {
@@ -37,7 +37,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
         return "bg-muted/10 text-muted border-border";
     }
   };
-
+ 
   if (!appointments || appointments.length === 0) {
     return (
       <div className="p-8 text-center text-muted bg-card rounded-md border border-border shadow-sm">
@@ -45,7 +45,8 @@ export default function DoctorAppointmentList({ appointments = [] }) {
       </div>
     );
   }
-
+ 
+ 
   return (
     <div className="w-full relative">
       <div className="w-full min-h-[220px] overflow-x-auto bg-card rounded-lg border border-border shadow-sm">
@@ -57,6 +58,9 @@ export default function DoctorAppointmentList({ appointments = [] }) {
               </th>
               <th className="px-6 py-4 font-semibold whitespace-nowrap">
                 Patient
+              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">
+                Reason of Visit
               </th>
               <th className="px-6 py-4 font-semibold whitespace-nowrap">
                 Status
@@ -75,12 +79,12 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                 ? `app-${appointment.id}`
                 : `app-idx-${index}`;
               const isMenuOpen = activeDropdown === appointment.id;
-
+ 
               const openUpwards =
                 (appointments.length >= 3 &&
                   index >= appointments.length - 2) ||
                 (appointments.length === 2 && index === 1);
-
+ 
               return (
                 <tr
                   key={uniqueKey}
@@ -94,7 +98,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                       {appointment.time || ""}
                     </div>
                   </td>
-
+ 
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="relative w-10 h-10 flex-shrink-0">
@@ -116,7 +120,16 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                       </div>
                     </div>
                   </td>
-
+ 
+                  <td className="px-6 py-4">
+                    <div
+                      className="max-w-[220px] truncate text-sm text-foreground"
+                      title={appointment.reasonOfVisit || "Not provided"}
+                    >
+                      {appointment.reasonOfVisit || "Not provided"}
+                    </div>
+                  </td>
+ 
                   <td className="px-6 py-4 capitalize">
                     <span
                       className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(appointment.status)}`}
@@ -124,39 +137,42 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                       {appointment.status || "Unknown"}
                     </span>
                   </td>
-
+ 
                   <td className="px-6 py-4">
-                    {appointment.status?.toLowerCase() === "confirmed" ? (
+                    {appointment.status?.toLowerCase() ===
+                    "pending" ? (
+                      <span className="inline-flex items-center rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
+                        Prescription Pending
+                      </span>
+                    ) : appointment.status?.toLowerCase() === "confirmed" ? (
                       <Link
                         href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
-                        className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border hover:bg-hover rounded-md transition-colors"
+                        className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
                       >
-                        <Plus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                        Create Prescription
+                        <Stethoscope size={16} />
+                        Consultation
                       </Link>
                     ) : appointment.status?.toLowerCase() === "completed" &&
                       appointment.prescriptionId ? (
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/doctor/prescriptions/${appointment.prescriptionId}`}
-                          className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border hover:bg-hover rounded-md transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
                         >
-                          <Eye className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                          <Eye className="h-3.5 w-3.5" />
                           View
                         </Link>
+ 
                         <Link
                           href={`/doctor/prescriptions/${appointment.prescriptionId}/edit`}
-                          className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border hover:bg-hover rounded-md transition-colors"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-amber-500"
                         >
-                          <Pencil className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                          <Pencil className="h-3.5 w-3.5" />
                           Edit
                         </Link>
                       </div>
-                    ) : (
-                      <span className="text-muted text-xs italic ml-6">-</span>
-                    )}
+                    ) : null}
                   </td>
-
                   <td className="px-6 py-4 text-right">
                     <div className="relative inline-block text-left">
                       <button
@@ -167,16 +183,18 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                       >
                         <MoreVertical className="h-4 w-4" />
                       </button>
-
+ 
                       {isMenuOpen && (
                         <div
-                          className={`absolute right-0 w-32 bg-card border border-border rounded-md shadow-lg z-50 py-1 text-left ${openUpwards ? "bottom-full mb-1" : "top-full mt-1"}`}
+                          className={`absolute right-0 w-36 bg-card border border-border rounded-lg shadow-lg z-50 p-1 text-left ${
+                            openUpwards ? "bottom-full mb-1" : "top-full mt-1"
+                          }`}
                         >
                           <button
                             onClick={() => openSidebar(appointment)}
-                            className="w-full cursor-pointer flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-hover transition"
+                            className="w-full cursor-pointer flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-foreground transition hover:bg-[#2E37A4] hover:text-white"
                           >
-                            <Eye className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                            <Eye className="h-3.5 w-3.5" />
                             <span>View Details</span>
                           </button>
                         </div>
@@ -189,14 +207,14 @@ export default function DoctorAppointmentList({ appointments = [] }) {
           </tbody>
         </table>
       </div>
-
+ 
       {sidebar.isOpen && sidebar.data && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
             onClick={closeSidebar}
           ></div>
-
+ 
           <div className="relative w-full max-w-xs bg-card h-full shadow-2xl flex flex-col z-10">
             <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card">
               <h2 className="text-base font-semibold text-foreground">
@@ -209,7 +227,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                 <X className="w-4 h-4" />
               </button>
             </div>
-
+ 
             <div className="p-5 overflow-y-auto flex-1 bg-card">
               <div className="space-y-5">
                 <div>
@@ -220,7 +238,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                     {sidebar.data.patientName || "N/A"}
                   </p>
                 </div>
-
+ 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
@@ -239,7 +257,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                     </p>
                   </div>
                 </div>
-
+ 
                 <div>
                   <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
                     Status
@@ -252,7 +270,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                     </span>
                   </div>
                 </div>
-
+ 
                 <div>
                   <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
                     Reason of Visit
@@ -269,7 +287,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                 </div>
               </div>
             </div>
-
+ 
             <div className="p-4 border-t border-border flex justify-end bg-hover/30">
               <button
                 onClick={closeSidebar}

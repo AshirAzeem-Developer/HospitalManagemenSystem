@@ -110,9 +110,9 @@ function RowActionsMenu({
 
     setPosition({
       top: rect.bottom + MENU_GAP,
-      left: Math.min(
-        rect.right - MENU_WIDTH,
-        window.innerWidth - MENU_WIDTH - MENU_GAP,
+      left: Math.max(
+        MENU_GAP,
+        Math.min(rect.right - MENU_WIDTH, window.innerWidth - MENU_WIDTH - MENU_GAP),
       ),
     });
   }, [isOpen]);
@@ -400,9 +400,9 @@ export default function PrescriptionTable({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background shadow-sm">
-      <div className="flex items-center justify-between border-b border-border p-6">
-        <h2 className="text-xl font-semibold text-foreground">Prescriptions</h2>
+    <div className="min-w-0 rounded-xl border border-border bg-background shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-foreground sm:text-xl">Prescriptions</h2>
 
         <div className="relative" ref={exportRef}>
           <button
@@ -442,10 +442,12 @@ export default function PrescriptionTable({
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
-        <PaginationSearchBar placeholder="Search prescriptions" />
+      <div className="flex flex-col gap-4 p-4 sm:p-6 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0 flex-1">
+          <PaginationSearchBar placeholder="Search prescriptions" />
+        </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3 md:justify-end">
           {/* Filters */}
           <div className="relative" ref={filterRef}>
             <button
@@ -547,7 +549,7 @@ export default function PrescriptionTable({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[640px]">
           <thead className="border-y border-border bg-hover">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-muted">Prescription ID</th>
@@ -560,7 +562,7 @@ export default function PrescriptionTable({
           <tbody>
             {visiblePrescriptions.map((prescription) => (
               <tr key={prescription.id} className="border-b border-border transition hover:bg-hover/60">
-                <td className="px-6 py-5 text-sm font-medium text-foreground">#{prescription.id}</td>
+                <td className="whitespace-nowrap px-6 py-5 text-sm font-medium text-foreground">#{prescription.id}</td>
 
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-3">
@@ -590,7 +592,7 @@ export default function PrescriptionTable({
                   </div>
                 </td>
 
-                <td className="px-6 py-5 text-sm text-muted">{prescription.prescribedOn}</td>
+                <td className="whitespace-nowrap px-6 py-5 text-sm text-muted">{prescription.prescribedOn}</td>
 
                 <td className="px-6 py-5 text-center">
                   <RowActionsMenu
@@ -624,7 +626,7 @@ export default function PrescriptionTable({
       {/* Delete confirmation modal */}
       {deleteTarget && (
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-background p-6 shadow-xl">
+          <div className="w-full max-w-sm rounded-xl bg-background p-4 shadow-xl sm:p-6">
             <h3 className="text-lg font-semibold text-foreground">Delete prescription?</h3>
             <p className="mt-2 text-sm text-muted">
               This will permanently delete prescription{" "}

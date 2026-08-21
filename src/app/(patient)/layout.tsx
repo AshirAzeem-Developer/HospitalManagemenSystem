@@ -28,13 +28,17 @@ export default async function PatientLayout({
   if (role !== "patient") redirect("/unauthorized");
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F7F8FC] dark:bg-[#091326] md:flex-row">
-      <Sidebar links={patientLinks} roleLabel="Patient" />
+    <div className="flex">
+      <div className="print:hidden">
+        <Sidebar links={patientLinks} roleLabel="Patient" />
+      </div>
 
-      <div className="flex flex-1 flex-col pt-[64px] md:pt-0">
-        <Navbar profileSettingsHref="/settings/profile" />
+      <div className="flex-1">
+        <div className="print:hidden">
+          <Navbar />
+        </div>
 
-        <main className="flex-1 bg-[#F7F8FC] p-6 dark:bg-gray-950 md:p-8">
+        <main className="p-4 sm:p-6 print:min-h-0 print:bg-white print:p-0">
           {children}
         </main>
 

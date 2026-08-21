@@ -6,7 +6,7 @@ export default function PaginationControlsWrapper({ page, totalPages, limit }) {
   const { goToPage, setLimit } = usePagination({ includeQuery: true })
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 min-w-0">
       <PaginationControls
         page={page}
         totalPages={totalPages}

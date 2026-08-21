@@ -36,24 +36,23 @@ export default function PaginationControls({
   const pageNumbers = getPageNumbers();
 
   const buttonBase =
-    "flex items-center justify-center w-8 h-8 rounded-md border shadow-[0px_1px_1px_rgba(0,0,0,0.05)] text-sm";
+    "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-background text-sm text-foreground shadow-sm";
 
   // Normal pagination button
   const inactiveStyle =
     `${buttonBase} ` +
-    "bg-white text-[#344054] border-[#E7E8EB] cursor-pointer " +
-    "hover:bg-[#F8F9FC] hover:border-[#D0D5DD]";
+    "cursor-pointer hover:bg-hover";
 
   // Active pagination button
   const activeStyle =
     `${buttonBase} ` +
-    "bg-[#2E37A4] border-[#2E37A4] text-white cursor-pointer";
+    "cursor-pointer border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700";
 
   return (
-    <div className="flex items-center justify-between w-full h-8 gap-5">
+    <div className="flex w-full flex-col gap-3 sm:h-8 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
       {/* Left side */}
-      <div className="flex items-center gap-2 h-8">
-        <span className="text-sm text-[#667085]">Show</span>
+      <div className="flex h-8 items-center gap-2">
+        <span className="text-sm text-muted">Show</span>
 
         <select
           value={limit}
@@ -62,12 +61,12 @@ export default function PaginationControls({
             h-8
             px-2
             border
-            border-[#E7E8EB]
+            border-border
             rounded-md
             text-sm
-            bg-white
-            text-[#344054]
-            shadow-[0px_1px_1px_rgba(0,0,0,0.05)]
+            bg-background
+            text-foreground
+            shadow-sm
             outline-none
             cursor-pointer
             focus:border-[#2E37A4]
@@ -78,11 +77,11 @@ export default function PaginationControls({
           <option value={50}>50</option>
         </select>
 
-        <span className="text-sm text-[#667085]">Results</span>
+        <span className="text-sm text-muted">Results</span>
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-end gap-1.5 sm:gap-3">
         {/* Previous */}
         <button
           onClick={() => onPageChange(page - 1)}
@@ -104,7 +103,7 @@ export default function PaginationControls({
                 w-8
                 h-8
                 text-sm
-                text-[#667085]
+                text-muted
               "
             >
               ...

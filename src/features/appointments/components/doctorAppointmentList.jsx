@@ -45,6 +45,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
       </div>
     );
   }
+  
 
   return (
     <div className="w-full relative">
@@ -138,7 +139,12 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                   </td>
 
                   <td className="px-6 py-4">
-                    {appointment.status?.toLowerCase() === "confirmed" ? (
+                    {appointment.status?.toLowerCase() ===
+                    "pending" ? (
+                      <span className="inline-flex items-center rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
+                        Prescription Pending
+                      </span>
+                    ) : appointment.status?.toLowerCase() === "confirmed" ? (
                       <Link
                         href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
                         className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
@@ -165,17 +171,8 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                           Edit
                         </Link>
                       </div>
-                    ) : (
-                      <Link
-                        href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
-                        className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
-                      >
-                        <Stethoscope size={16} />
-                        Consultation
-                      </Link>
-                    )}
+                    ) : null}
                   </td>
-
                   <td className="px-6 py-4 text-right">
                     <div className="relative inline-block text-left">
                       <button

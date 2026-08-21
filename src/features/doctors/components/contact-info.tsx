@@ -526,47 +526,50 @@ export default function ContactInformation({
               )}
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2">
-            <div className={columnClass}>
-              <label
-                style={labelStyle}
-                className="text-[#0A1B39] dark:text-white"
-              >
-                Status <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={contactInfo.status}
-                onChange={(e) => {
-                  const value = e.target.value;
+          {isEdit && (
+            <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2">
+              <div className={columnClass}>
+                <label
+                  style={labelStyle}
+                  className="text-[#0A1B39] dark:text-white"
+                >
+                  Status
+                </label>
 
-                  setContactInfo((prev) => ({
-                    ...prev,
-                    status: value,
-                  }));
+                <select
+                  value={contactInfo.status}
+                  onChange={(e) => {
+                    const value = e.target.value;
 
-                  setErrors((prev) => {
-                    if (!prev.status) return prev;
+                    setContactInfo((prev) => ({
+                      ...prev,
+                      status: value,
+                    }));
 
-                    const next = { ...prev };
-                    delete next.status;
-                    return next;
-                  });
-                }}
-                className={inputClass}
-                style={getInputStyle("status")}
-              >
-                <option value="">Select Status</option>
-                {statuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-              {errors.status && (
-                <p className="text-xs text-red-500">{errors.status[0]}</p>
-              )}
+                    setErrors((prev) => {
+                      if (!prev.status) return prev;
+
+                      const next = { ...prev };
+                      delete next.status;
+                      return next;
+                    });
+                  }}
+                  className={inputClass}
+                  style={getInputStyle("status")}
+                >
+                  {statuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status === "available" ? "Available" : "On Leave"}
+                    </option>
+                  ))}
+                </select>
+
+                {errors.status && (
+                  <p className="text-xs text-red-500">{errors.status[0]}</p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
           <div className="grid grid-cols-1 gap-6 mb-8">
             <div className={columnClass}>
               <label

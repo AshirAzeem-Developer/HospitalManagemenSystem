@@ -21,13 +21,6 @@ export default async function BillingPage() {
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <Link
-            href="/admin/billing"
-            className="mb-3 inline-flex items-center gap-2 text-base font-medium text-[#0A1B39] dark:text-white hover:text-[#2E37A4]"
-          >
-            <ArrowLeft size={18} strokeWidth={2} />
-            <span>Invoices</span>
-          </Link>
 
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-semibold text-[#0A1B39] dark:text-white">

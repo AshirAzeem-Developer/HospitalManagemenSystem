@@ -8,11 +8,10 @@ export default function SearchBar({
   return (
     <div
       className="
-        m-[10px]
-        flex h-8 w-[250px] items-center
+        flex h-10 w-full max-w-[320px] items-center
         rounded-md
-        border border-[#E7E8EB]
-        bg-white
+        border border-border
+        bg-background
         px-3 py-[6px]
       "
     >
@@ -26,9 +25,9 @@ export default function SearchBar({
           border-none
           bg-transparent
           text-sm
-          text-[#0A1B39]
+          text-foreground
           outline-none
-          placeholder:text-[#98A2B3]
+          placeholder:text-muted
         "
       />
     </div>

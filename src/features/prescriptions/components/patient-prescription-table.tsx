@@ -46,13 +46,15 @@ export default function PatientPrescriptionTable({
   }, [prescriptions, sortOption]);
 
   return (
-    <div className="rounded-xl border border-border bg-background shadow-sm">
-      <div className="flex items-center justify-between border-b border-border p-6">
-        <h2 className="text-xl font-semibold text-foreground">My Prescriptions</h2>
+    <div className="min-w-0 rounded-xl border border-border bg-background shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-foreground sm:text-xl">My Prescriptions</h2>
       </div>
 
-      <div className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
-        <PaginationSearchBar placeholder="Search prescriptions" />
+      <div className="flex flex-col gap-4 p-4 sm:p-6 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0 flex-1">
+          <PaginationSearchBar placeholder="Search prescriptions" />
+        </div>
 
         <div className="relative">
           <button
@@ -90,7 +92,7 @@ export default function PatientPrescriptionTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[720px]">
           <thead className="border-y border-border bg-hover">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-muted">Prescription ID</th>
@@ -104,10 +106,10 @@ export default function PatientPrescriptionTable({
           <tbody>
             {visiblePrescriptions.map((prescription) => (
               <tr key={prescription.id} className="border-b border-border transition hover:bg-hover/60">
-                <td className="px-6 py-5 text-sm font-medium text-foreground">#{prescription.id}</td>
-                <td className="px-6 py-5 text-sm font-medium text-foreground">{prescription.doctorName}</td>
+                <td className="whitespace-nowrap px-6 py-5 text-sm font-medium text-foreground">#{prescription.id}</td>
+                <td className="whitespace-nowrap px-6 py-5 text-sm font-medium text-foreground">{prescription.doctorName}</td>
                 <td className="px-6 py-5 text-sm text-muted">{prescription.diagnosis}</td>
-                <td className="px-6 py-5 text-sm text-muted">{prescription.prescribedOn}</td>
+                <td className="whitespace-nowrap px-6 py-5 text-sm text-muted">{prescription.prescribedOn}</td>
                 <td className="px-6 py-5 text-center">
                   <button
                     type="button"

@@ -29,12 +29,16 @@ export default async function PatientLayout({
 
   return (
     <div className="flex">
-      <Sidebar links={patientLinks} roleLabel="Patient" />
+      <div className="print:hidden">
+        <Sidebar links={patientLinks} roleLabel="Patient" />
+      </div>
 
       <div className="flex-1">
-        <Navbar />
+        <div className="print:hidden">
+          <Navbar />
+        </div>
 
-        <main className="p-6">{children}</main>
+        <main className="p-4 sm:p-6 print:min-h-0 print:bg-white print:p-0">{children}</main>
       </div>
     </div>
   );

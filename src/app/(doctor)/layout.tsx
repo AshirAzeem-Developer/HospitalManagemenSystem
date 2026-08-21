@@ -27,17 +27,21 @@ export default async function DoctorLayout({
   return (
     <div className="flex">
       
-      <Sidebar links={doctorLinks} />
+      <div className="print:hidden">
+        <Sidebar links={doctorLinks} />
+      </div>
 
       <div className="flex flex-1 flex-col overflow-y-auto min-w-0 pt-[64px] md:pt-0">
         
-        <Navbar profileSettingsHref="/settings/profile" />
+        <div className="print:hidden">
+          <Navbar profileSettingsHref="/settings/profile" />
+        </div>
         
-        <main className="flex-1 bg-[#F7F8FC] dark:bg-[#091326] p-4 md:p-8">
+        <main className="flex-1 bg-[#F7F8FC] p-4 dark:bg-[#091326] md:p-8 print:min-h-0 print:bg-white print:p-0">
           {children}
         </main>
         
-        <footer className="border-t border-[#E5E7EB] dark:border-[#2A3850] bg-white dark:bg-[#0A162A] px-4 md:px-8 py-4 text-center text-sm text-gray-500 dark:text-[#94A3B8]">
+        <footer className="border-t border-[#E5E7EB] bg-white px-4 py-4 text-center text-sm text-gray-500 dark:border-[#2A3850] dark:bg-[#0A162A] dark:text-[#94A3B8] print:hidden">
           © {new Date().getFullYear()} SafeHeal. All rights reserved.
         </footer>
         

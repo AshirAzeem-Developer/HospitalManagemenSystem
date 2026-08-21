@@ -34,8 +34,8 @@ export const contactInfoSchema = z.object({
     })
     .positive("Consultation fee must be greater than 0."),
 
-  status: z.string().min(1, "Please select a status."),
-
+  status: z.enum(["available", "on_leave"]),
+  
   bio: z.string().trim().min(20, "Bio should be at least 20 characters."),
 
   profileImage: z.instanceof(File, {

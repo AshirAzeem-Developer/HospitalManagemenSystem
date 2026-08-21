@@ -186,9 +186,9 @@ export default function PatientAppointmentList({
                     {currentStatus === "completed" ? (
                       <Link
                         href={`/patient/prescriptions/${appointment.prescriptionId}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 rounded-md shadow-sm hover:bg-emerald-500/20 transition-all duration-200 outline-none"
-                      >
-                        <FileText className="h-3.5 w-3.5" />
+                         className="inline-flex items-center gap-1.5 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
                         <span>View</span>
                       </Link>
                     ) : (

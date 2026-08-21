@@ -205,7 +205,7 @@ export default function PatientDetail({
               text="Book Appointment"
               icon={<CalendarDays size={16} />}
               onClick={() => {
-                router.push("/admin/appointments/new");
+                router.push(`/admin/appointments/new?patientId=${patient.id}`);
               }}
               className="w-full sm:w-auto"
             />

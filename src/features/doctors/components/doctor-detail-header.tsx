@@ -14,9 +14,9 @@ export default function DoctorDetailHeader({
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-[#0A162A] sm:p-5">
-      <div className="flex flex-col gap-5 md:flex-row md:items-center">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center">
         {/* Doctor Image */}
-        <div className="relative h-28 w-28 shrink-0 self-center overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800 sm:h-32 sm:w-32 md:h-28 md:w-28 lg:h-32 lg:w-32">
+        <div className="relative h-28 w-28 shrink-0 self-center overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800 sm:h-32 sm:w-32 lg:h-32 lg:w-32">
           <Image
             src={doctor.profile.avatar_url ?? "/default-doctor.png"}
             alt={doctor.profile.full_name}
@@ -85,7 +85,7 @@ export default function DoctorDetailHeader({
         </div>
 
         {/* Consultation Charge */}
-        <div className="border-t border-slate-100 pt-4 dark:border-slate-700 md:min-w-[180px] md:border-l md:border-t-0 md:pl-5 md:pt-0 md:text-right">
+        <div className="border-t border-slate-100 pt-4 dark:border-slate-700 lg:min-w-[180px] lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0 lg:text-right">
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Consultation Charge
           </p>

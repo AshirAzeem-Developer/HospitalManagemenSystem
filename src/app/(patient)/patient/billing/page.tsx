@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import BillingTable from "@/features/billing/component/billing-table";
 import { getPatientInvoices } from "@/features/billing/queries";
+import { getPaymentsByInvoiceIdAction } from "@/features/billing/actions";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PatientBillingPage() {
@@ -16,10 +17,38 @@ export default async function PatientBillingPage() {
 
   const invoices = await getPatientInvoices(user.id);
 
+  const paymentsByInvoice = await Promise.all(
+    invoices.map(async (invoice) => {
+      const payments = await getPaymentsByInvoiceIdAction(invoice.id);
+
+      return {
+        invoiceId: invoice.id,
+        payments,
+      };
+    }),
+  );
+
+  const currentBalance = invoices.reduce((balance, invoice) => {
+    const invoicePayments =
+      paymentsByInvoice.find((item) => item.invoiceId === invoice.id)
+        ?.payments ?? [];
+
+    const totalPaid = invoicePayments
+      .filter(
+        (payment) => String(payment.payment_status).toLowerCase() === "success",
+      )
+      .reduce((sum, payment) => sum + Number(payment.amount_paid || 0), 0);
+
+    const invoiceTotal = Number(invoice.total || 0);
+    const remaining = Math.max(invoiceTotal - totalPaid, 0);
+
+    return balance + remaining;
+  }, 0);
+
   return (
-    <div className="w-full min-w-0 max-w-full overflow-x-hidden">
-      {/* Header */}
-      <div className="mb-6">
+    <div className="w-full min-w-0 max-w-full">
+      {/* HEADER */}
+      <div className="mb-6 w-full min-w-0">
         <h1 className="text-xl font-semibold text-[#0A1B39] dark:text-white sm:text-2xl">
           Billing & Statements
         </h1>
@@ -29,18 +58,20 @@ export default async function PatientBillingPage() {
         </p>
       </div>
 
-      {/* Balance Card */}
-      {/* <div className="w-full sm:max-w-sm">
+      {/* BALANCE CARD */}
+      <div className="w-full min-w-0 sm:max-w-sm">
         <Card
           label="Balance Due"
-          value="$0.00"
-          hint="Wired up in feature update"
+          value={`$${currentBalance.toFixed(2)}`}
+          hint={
+            currentBalance > 0 ? "Outstanding amount" : "No outstanding balance"
+          }
         />
-      </div> */}
+      </div>
 
-      {/* Billing Table */}
+      {/* BILLING TABLE */}
       <div className="mt-6 w-full min-w-0 max-w-full">
-        <BillingTable invoices={invoices} />
+        <BillingTable invoices={invoices} isPatient={true} />
       </div>
     </div>
   );

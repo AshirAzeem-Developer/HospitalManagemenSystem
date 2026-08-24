@@ -28,16 +28,10 @@ import { invoiceSchema, invoiceItemSchema, paymentSchema } from "./schema";
 // PATIENTS
 
 export async function getInvoicePatientsAction() {
-  console.log("GET INVOICE PATIENTS ACTION CALLED");
-
   try {
-    const result = await getInvoicePatients();
-
-    console.log("PATIENTS ACTION RESULT:", result);
-
-    return result;
+    return await getInvoicePatients();
   } catch (error) {
-    console.error(error);
+    console.error("GET INVOICE PATIENTS ERROR:", error);
 
     throw error;
   }
@@ -46,35 +40,32 @@ export async function getInvoicePatientsAction() {
 // INVOICES
 
 export async function getInvoicesAction() {
-  console.log("GET INVOICES ACTION CALLED");
+  try {
+    return await getInvoices();
+  } catch (error) {
+    console.error("GET INVOICES ERROR:", error);
 
-  return await getInvoices();
-}
-
-export async function getInvoiceItemsByInvoiceIdAction(invoiceId: string) {
-  return await getInvoiceItemsByInvoiceId(invoiceId);
+    throw error;
+  }
 }
 
 export async function getInvoiceByIdAction(id: string) {
-  return await getInvoiceById(id);
+  try {
+    return await getInvoiceById(id);
+  } catch (error) {
+    console.error("GET INVOICE ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function createInvoiceAction(invoice: NewInvoice) {
   try {
-    /*
-      invoice_number is optional here because Supabase generates it.
-     */
     const validatedData = invoiceSchema.parse(invoice);
 
-    console.log("VALIDATED INVOICE:", validatedData);
-
-    const createdInvoice = await createInvoice(validatedData);
-
-    console.log("INVOICE CREATED SUCCESSFULLY:", createdInvoice);
-
-    return createdInvoice;
+    return await createInvoice(validatedData);
   } catch (error) {
-    console.error(error);
+    console.error("CREATE INVOICE ERROR:", error);
 
     throw error;
   }
@@ -84,81 +75,161 @@ export async function updateInvoiceAction(
   id: string,
   invoice: Partial<NewInvoice>
 ) {
-  console.log("UPDATE INVOICE ACTION:", id, invoice);
-
   try {
     const validatedData = invoiceSchema.partial().parse(invoice);
 
     return await updateInvoice(validatedData, id);
   } catch (error) {
-    console.error(error);
+    console.error("UPDATE INVOICE ERROR:", error);
 
     throw error;
   }
 }
 
 export async function deleteInvoiceAction(id: string) {
-  return await deleteInvoice(id);
+  try {
+    return await deleteInvoice(id);
+  } catch (error) {
+    console.error("DELETE INVOICE ERROR:", error);
+
+    throw error;
+  }
 }
 
 // INVOICE ITEMS
 
 export async function getInvoiceItemsAction() {
-  return await getInvoiceItems();
+  try {
+    return await getInvoiceItems();
+  } catch (error) {
+    console.error("GET INVOICE ITEMS ERROR:", error);
+
+    throw error;
+  }
+}
+
+export async function getInvoiceItemsByInvoiceIdAction(invoiceId: string) {
+  try {
+    return await getInvoiceItemsByInvoiceId(invoiceId);
+  } catch (error) {
+    console.error("GET INVOICE ITEMS ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function getInvoiceItemByIdAction(id: string) {
-  return await getInvoiceItemById(id);
+  try {
+    return await getInvoiceItemById(id);
+  } catch (error) {
+    console.error("GET INVOICE ITEM ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function createInvoiceItemAction(invoiceItem: NewInvoiceItems) {
-  const validatedData = invoiceItemSchema.parse(invoiceItem);
+  try {
+    const validatedData = invoiceItemSchema.parse(invoiceItem);
 
-  return await createInvoiceItem(validatedData);
+    return await createInvoiceItem(validatedData);
+  } catch (error) {
+    console.error("CREATE INVOICE ITEM ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function updateInvoiceItemAction(
   id: string,
   invoiceItem: Partial<NewInvoiceItems>
 ) {
-  const validatedData = invoiceItemSchema.partial().parse(invoiceItem);
+  try {
+    const validatedData = invoiceItemSchema.partial().parse(invoiceItem);
 
-  return await updateInvoiceItem(validatedData, id);
+    return await updateInvoiceItem(validatedData, id);
+  } catch (error) {
+    console.error("UPDATE INVOICE ITEM ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function deleteInvoiceItemAction(id: string) {
-  return await deleteInvoiceItem(id);
+  try {
+    return await deleteInvoiceItem(id);
+  } catch (error) {
+    console.error("DELETE INVOICE ITEM ERROR:", error);
+
+    throw error;
+  }
 }
 
 // PAYMENTS
 
 export async function getPaymentsAction() {
-  return await getPayments();
+  try {
+    return await getPayments();
+  } catch (error) {
+    console.error("GET PAYMENTS ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function getPaymentByIdAction(id: string) {
-  return await getPaymentById(id);
+  try {
+    return await getPaymentById(id);
+  } catch (error) {
+    console.error("GET PAYMENT ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function getPaymentsByInvoiceIdAction(invoiceId: string) {
-  return await getPaymentsByInvoiceId(invoiceId);
+  try {
+    return await getPaymentsByInvoiceId(invoiceId);
+  } catch (error) {
+    console.error("GET PAYMENTS BY INVOICE ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function createPaymentAction(payment: NewPayment) {
-  const validatedData = paymentSchema.parse(payment);
+  try {
+    const validatedData = paymentSchema.parse(payment);
 
-  return await createPayment(validatedData);
+    return await createPayment(validatedData);
+  } catch (error) {
+    console.error("CREATE PAYMENT ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function updatePaymentAction(
   id: string,
   payment: Partial<NewPayment>
 ) {
-  const validatedData = paymentSchema.partial().parse(payment);
+  try {
+    const validatedData = paymentSchema.partial().parse(payment);
 
-  return await updatePayment(validatedData, id);
+    return await updatePayment(validatedData, id);
+  } catch (error) {
+    console.error("UPDATE PAYMENT ERROR:", error);
+
+    throw error;
+  }
 }
 
 export async function deletePaymentAction(id: string) {
-  return await deletePayment(id);
+  try {
+    return await deletePayment(id);
+  } catch (error) {
+    console.error("DELETE PAYMENT ERROR:", error);
+
+    throw error;
+  }
 }

@@ -2,7 +2,7 @@ import {
   getAppointments,
   getDoctors,
 } from "@/features/appointments/appointmentActions/appointmentAction";
-import AppointmentsContainer from "@/features/appointments/components/AppointmentsContainer";
+import AppointmentsContainer from "@/features/appointments/appointmentContainers/adminAppointmentsContainer";
 
 export default async function AdminAppointmentsPage() {
   const appointments = (await getAppointments()) || [];

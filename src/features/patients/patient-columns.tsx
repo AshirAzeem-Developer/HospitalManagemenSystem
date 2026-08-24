@@ -3,7 +3,7 @@ import PatientActions from "./components/PatientActions";
 import { Badge } from "@/components/ui/badge";
 
 function getDoctorStatusColor(
-  status?: string
+  status?: string,
 ): "green" | "yellow" | "blue" | "red" {
   switch (status?.toLowerCase()) {
     case "available":

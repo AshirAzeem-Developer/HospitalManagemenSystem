@@ -8,14 +8,17 @@ import { Dropdown } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
-
 import { deleteInvoiceAction } from "../actions";
 
 type BillingTableProps = {
   invoices: any[];
+  isPatient?: boolean;
 };
 
-export default function BillingTable({ invoices }: BillingTableProps) {
+export default function BillingTable({
+  invoices,
+  isPatient = false,
+}: BillingTableProps) {
   const router = useRouter();
 
   const [search, setSearch] = useState("");
@@ -30,37 +33,32 @@ export default function BillingTable({ invoices }: BillingTableProps) {
       label: "Invoice ID",
     },
 
-    // Patient
-
     {
       key: "patient",
       label: "Patient",
-
       render: (row: any) => (
         <div className="flex min-w-[180px] items-center gap-3">
           <img
             src={
-              row.patients?.profiles?.avatar_url || "/images/default-avatar.png"
+              row.patients?.profiles?.avatar_url ||
+              "/images/default-avatar.png"
             }
             alt={row.patients?.profiles?.full_name || "Patient"}
             className="h-8 w-8 shrink-0 rounded-full object-cover"
           />
 
-          <span className="whitespace-nowrap text-sm font-semibold text-[#0A1B39]">
+          <span className="whitespace-nowrap text-sm font-semibold text-foreground">
             {row.patients?.profiles?.full_name || "-"}
           </span>
         </div>
       ),
     },
 
-    // Issued Date
-
     {
       key: "issued_date",
       label: "Issued Date",
-
       render: (row: any) => (
-        <span className="whitespace-nowrap text-[#0A1B39]">
+        <span className="whitespace-nowrap text-foreground">
           {row.issued_date
             ? new Date(row.issued_date).toLocaleDateString("en-GB", {
                 day: "2-digit",
@@ -72,14 +70,11 @@ export default function BillingTable({ invoices }: BillingTableProps) {
       ),
     },
 
-    // Due Date
-
     {
       key: "due_date",
       label: "Due Date",
-
       render: (row: any) => (
-        <span className="whitespace-nowrap text-[#0A1B39]">
+        <span className="whitespace-nowrap text-foreground">
           {row.due_date
             ? new Date(row.due_date).toLocaleDateString("en-GB", {
                 day: "2-digit",
@@ -91,25 +86,19 @@ export default function BillingTable({ invoices }: BillingTableProps) {
       ),
     },
 
-    // Amount
-
     {
       key: "total",
       label: "Amount",
-
       render: (row: any) => (
-        <span className="whitespace-nowrap font-semibold text-[#0A1B39]">
+        <span className="whitespace-nowrap font-semibold text-foreground">
           ${Number(row.total || 0).toFixed(2)}
         </span>
       ),
     },
 
-    // Status
-
     {
       key: "status",
       label: "Status",
-
       render: (row: any) => {
         if (row.status === "paid") {
           return <Badge color="green">Paid</Badge>;
@@ -119,19 +108,9 @@ export default function BillingTable({ invoices }: BillingTableProps) {
           return <Badge color="yellow">Partially Paid</Badge>;
         }
 
-        if (row.status === "overdue") {
-          return <Badge color="red">Overdue</Badge>;
-        }
-
-        if (row.status === "draft") {
-          return <Badge color="yellow">Draft</Badge>;
-        }
-
         return <Badge color="red">Unpaid</Badge>;
       },
     },
-
-    // Actions
 
     {
       key: "action",
@@ -144,66 +123,71 @@ export default function BillingTable({ invoices }: BillingTableProps) {
               flex
               h-8
               w-8
+              shrink-0
               items-center
               justify-center
               rounded-md
               border
-              border-[#E7E8EB]
-              text-[#0A1B39]
-              hover:bg-gray-50
+              border-border
+              bg-background
+              text-foreground
+              transition-colors
+              hover:bg-hover
+              focus:outline-none
             "
           >
             ⋮
           </Dropdown.Trigger>
 
           <Dropdown.Content align="right">
-            {/* View */}
-
+            {/* VIEW */}
             <Dropdown.Item
-              onSelect={() => router.push(`/admin/billing/${row.id}`)}
+              onSelect={() => {
+                if (isPatient) {
+                  router.push(`/patient/billing/${row.id}`);
+                } else {
+                  router.push(`/admin/billing/${row.id}`);
+                }
+              }}
             >
               View
             </Dropdown.Item>
 
-            {/* Edit */}
+            {/* ADMIN ONLY - EDIT */}
+            {!isPatient && (
+              <Dropdown.Item
+                onSelect={() => {
+                  router.push(`/admin/billing/new?edit=${row.id}`);
+                }}
+              >
+                Edit
+              </Dropdown.Item>
+            )}
 
-            <Dropdown.Item
-              onSelect={() => {
-                router.push(`/admin/billing/new?edit=${row.id}`);
-              }}
-            >
-              Edit
-            </Dropdown.Item>
+            {/* ADMIN ONLY - DELETE */}
+            {!isPatient && (
+              <Dropdown.Item
+                destructive
+                onSelect={async () => {
+                  try {
+                    await deleteInvoiceAction(row.id);
 
-            {/* Delete */}
+                    toast.success("Invoice deleted successfully!");
 
-            <Dropdown.Item
-              destructive
-              onSelect={async () => {
-                try {
-                  await deleteInvoiceAction(row.id);
+                    router.refresh();
+                  } catch (error: any) {
+                    console.error("Failed to delete invoice:", error);
 
-                  // Success toast
-
-                  toast.success("Invoice deleted successfully!");
-
-                  // Refresh billing table
-
-                  router.refresh();
-                } catch (error: any) {
-                  console.error("Failed to delete invoice:", error);
-
-                  // Error toast
-
-                  toast.error(
-                    error?.message ||
-                      "Failed to delete invoice. Please try again.",
-                  );
-                }
-              }}
-            >
-              Delete
-            </Dropdown.Item>
+                    toast.error(
+                      error?.message ||
+                        "Failed to delete invoice. Please try again."
+                    );
+                  }
+                }}
+              >
+                Delete
+              </Dropdown.Item>
+            )}
           </Dropdown.Content>
         </Dropdown>
       ),
@@ -211,9 +195,9 @@ export default function BillingTable({ invoices }: BillingTableProps) {
   ];
 
   // Search + Filter
-
   const filteredInvoices = invoices.filter((invoice) => {
-    const invoiceNumber = invoice.invoice_number?.toLowerCase() || "";
+    const invoiceNumber =
+      invoice.invoice_number?.toLowerCase() || "";
 
     const patientName =
       invoice.patients?.profiles?.full_name?.toLowerCase() || "";
@@ -225,52 +209,78 @@ export default function BillingTable({ invoices }: BillingTableProps) {
       invoiceNumber.includes(searchValue) ||
       patientName.includes(searchValue);
 
-    const statusMatch = status === "all" || invoice.status === status;
+    const statusMatch =
+      status === "all" || invoice.status === status;
 
     return statusMatch && searchMatch;
   });
 
   // Sorting
-
   const sortedInvoices = [...filteredInvoices];
 
   if (sortBy === "recent") {
     sortedInvoices.sort(
       (a, b) =>
-        new Date(b.issued_date).getTime() - new Date(a.issued_date).getTime(),
+        new Date(b.issued_date).getTime() -
+        new Date(a.issued_date).getTime()
     );
   }
 
   if (sortBy === "oldest") {
     sortedInvoices.sort(
       (a, b) =>
-        new Date(a.issued_date).getTime() - new Date(b.issued_date).getTime(),
+        new Date(a.issued_date).getTime() -
+        new Date(b.issued_date).getTime()
     );
   }
 
   if (sortBy === "highest") {
-    sortedInvoices.sort((a, b) => Number(b.total) - Number(a.total));
+    sortedInvoices.sort(
+      (a, b) => Number(b.total) - Number(a.total)
+    );
   }
 
   if (sortBy === "lowest") {
-    sortedInvoices.sort((a, b) => Number(a.total) - Number(b.total));
+    sortedInvoices.sort(
+      (a, b) => Number(a.total) - Number(b.total)
+    );
   }
 
   // Pagination
-
   const start = (page - 1) * limit;
-
   const end = start + limit;
 
   const paginatedInvoices = sortedInvoices.slice(start, end);
 
   return (
     <div className="w-full">
-      <div className="rounded-lg border border-slate-200 bg-white p-3 sm:p-4 lg:p-5">
-        <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div
+        className="
+          w-full
+          overflow-hidden
+          rounded-lg
+          border
+          border-border
+          bg-background
+          p-3
+          sm:p-4
+          lg:p-5
+        "
+      >
+        {/* Search + Filters */}
+        <div
+          className="
+            mb-5
+            flex
+            flex-col
+            gap-4
+            lg:flex-row
+            lg:items-center
+            lg:justify-between
+          "
+        >
           {/* Search */}
-
-          <div className="w-full lg:w-auto">
+          <div className="w-full lg:max-w-md">
             <SearchBar
               placeholder="Search"
               onSearch={(value: string) => {
@@ -281,10 +291,19 @@ export default function BillingTable({ invoices }: BillingTableProps) {
           </div>
 
           {/* Filter + Sort */}
-
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end lg:w-auto">
+          <div
+            className="
+              flex
+              w-full
+              flex-col
+              gap-3
+              sm:flex-row
+              sm:items-center
+              sm:justify-end
+              lg:w-auto
+            "
+          >
             {/* Filter */}
-
             <Dropdown>
               <Dropdown.Trigger
                 className="
@@ -296,11 +315,13 @@ export default function BillingTable({ invoices }: BillingTableProps) {
                   gap-2
                   rounded-md
                   border
-                  border-[#E7E8EB]
-                  bg-white
+                  border-border
+                  bg-background
                   px-4
                   text-sm
-                  text-[#0A1B39]
+                  text-foreground
+                  transition-colors
+                  hover:bg-hover
                   sm:w-auto
                 "
               >
@@ -343,29 +364,10 @@ export default function BillingTable({ invoices }: BillingTableProps) {
                 >
                   Unpaid
                 </Dropdown.Item>
-
-                <Dropdown.Item
-                  onSelect={() => {
-                    setStatus("overdue");
-                    setPage(1);
-                  }}
-                >
-                  Overdue
-                </Dropdown.Item>
-
-                <Dropdown.Item
-                  onSelect={() => {
-                    setStatus("draft");
-                    setPage(1);
-                  }}
-                >
-                  Draft
-                </Dropdown.Item>
               </Dropdown.Content>
             </Dropdown>
 
             {/* Sort */}
-
             <Dropdown>
               <Dropdown.Trigger
                 className="
@@ -377,15 +379,18 @@ export default function BillingTable({ invoices }: BillingTableProps) {
                   gap-2
                   rounded-md
                   border
-                  border-[#E7E8EB]
-                  bg-white
+                  border-border
+                  bg-background
                   px-4
                   text-sm
-                  text-[#0A1B39]
+                  text-foreground
+                  transition-colors
+                  hover:bg-hover
                   sm:w-auto
                 "
               >
-                Sort By: <span className="capitalize">{sortBy}</span>
+                Sort By:
+                <span className="capitalize">{sortBy}</span>
               </Dropdown.Trigger>
 
               <Dropdown.Content align="right">
@@ -429,18 +434,23 @@ export default function BillingTable({ invoices }: BillingTableProps) {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto ">
-          
-            <Table columns={columns} data={paginatedInvoices} />
-         
+        {/* Table */}
+        <div className="w-full overflow-x-auto rounded-md">
+          <div className="min-w-[850px]">
+            <Table
+              columns={columns}
+              data={paginatedInvoices}
+            />
+          </div>
         </div>
 
         {/* Pagination */}
-
-        <div className="mt-5 overflow-x-auto text-[#0A1B39]">
+        <div className="mt-5 w-full overflow-x-auto text-foreground">
           <PaginationControls
             page={page}
-            totalPages={Math.ceil(sortedInvoices.length / limit)}
+            totalPages={Math.ceil(
+              sortedInvoices.length / limit
+            )}
             limit={limit}
             onPageChange={setPage}
             onLimitChange={(newLimit: number) => {

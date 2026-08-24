@@ -101,6 +101,33 @@ export function Sidebar({
     ? "/Images/DarkTheme.png"
     : "/Images/LogoLightTheme.png";
 
+  /*
+   * Get every parent + sub-item href.
+   * We use this to find the MOST SPECIFIC matching route.
+   *
+   * Example:
+   * /patient/appointments
+   * /patient/appointments/requests
+   *
+   * If current pathname is:
+   * /patient/appointments/requests
+   *
+   * both can technically match with startsWith(),
+   * but the longer route wins.
+   */
+  const allHrefs = links.flatMap((group) => [
+    ...group.items.map((item) => item.href),
+    ...group.items.flatMap(
+      (item) => item.subItems?.map((sub) => sub.href) ?? [],
+    ),
+  ]);
+
+  const matchingHrefs = allHrefs
+    .filter((href) => pathname === href || pathname.startsWith(href + "/"))
+    .sort((a, b) => b.length - a.length);
+
+  const activeHref = matchingHrefs[0];
+
   return (
     <>
       {/* Mobile Header */}
@@ -138,10 +165,10 @@ export function Sidebar({
       {/* Sidebar */}
       <aside
         className={`bg-white dark:bg-[#0A162A] border-r border-[#E5E7EB] dark:border-[#2A3850] flex flex-col fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out
-    md:sticky md:top-0 h-screen shrink-0 md:transform-none md:z-auto
-    ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-    ${isCollapsed ? "md:w-[88px]" : "md:w-[276px]"}
-    w-[276px]`}
+        md:sticky md:top-0 h-screen shrink-0 md:transform-none md:z-auto
+        ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        ${isCollapsed ? "md:w-[88px]" : "md:w-[276px]"}
+        w-[276px]`}
       >
         {/* Logo Header */}
         <div className="relative h-[78px] border-b border-[#E5E7EB] dark:border-[#2A3850] flex items-center px-6 overflow-hidden">
@@ -160,6 +187,7 @@ export function Sidebar({
               )}
             </div>
           )}
+
           {/* Mobile Close Button */}
           <button
             onClick={() => setIsOpen(false)}
@@ -168,6 +196,7 @@ export function Sidebar({
             <X size={16} className="text-[#667085] dark:text-[#CBD5E1]" />
           </button>
 
+          {/* Collapse Button */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={`hidden md:flex absolute top-1/2 -translate-y-1/2 h-9 w-9 rounded-full border border-[#E5E7EB] dark:border-[#3A4A63] bg-white dark:bg-[#152035] items-center justify-center hover:bg-[#F7F8FC] dark:hover:bg-[#18243A] z-10 ${
@@ -193,7 +222,7 @@ export function Sidebar({
           <div className="px-4 py-4 shrink-0">{sidebarHeader}</div>
         )}
 
-        {/* Navigation - Yeh ab khud scroll hoga agar links ziada ho gaye */}
+        {/* Navigation */}
         <div className="flex-1 overflow-y-auto px-4 mt-2 pb-4">
           {links.map((group, idx) => (
             <div key={idx} className={idx === 0 ? "" : "mt-3"}>
@@ -207,14 +236,22 @@ export function Sidebar({
                 {group.items.map((item) => {
                   const Icon = iconMap[item.icon as keyof typeof iconMap];
 
-                  const isActive =
-                    item.href === "/admin" ||
-                    item.href === "/doctor" ||
-                    item.href === "/patient" ||
-                    item.href === "/patient/appointments"
-                      ? pathname === item.href
-                      : pathname === item.href ||
-                        pathname.startsWith(item.href + "/");
+                  /*
+                   * IMPORTANT:
+                   *
+                   * Only the MOST SPECIFIC matching route
+                   * becomes active.
+                   *
+                   * Example:
+                   * /patient/appointments/requests
+                   *
+                   * Appointment:
+                   * /patient/appointments      ❌
+                   *
+                   * Appointment Requests:
+                   * /patient/appointments/requests ✅
+                   */
+                  const isActive = activeHref === item.href;
 
                   const isExpandable = !!item.subItems?.length;
 
@@ -229,7 +266,7 @@ export function Sidebar({
                             setExpandedItem(isExpanded ? null : item.label)
                           }
                           className={`group w-full flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-200 ${
-                            isExpanded
+                            isActive
                               ? "bg-[#F5F6FA] dark:bg-[#211E46]"
                               : "hover:bg-[#F5F6FA] dark:hover:bg-[#18243A]"
                           }`}
@@ -238,9 +275,9 @@ export function Sidebar({
                             <Icon
                               size={20}
                               className={
-                                isExpanded
+                                isActive
                                   ? "text-[#2E37A4] dark:text-[#A78BFA]"
-                                  : "text-[#0A1B39] dark:text-[#CBD5E1] group-hover:text-[#2E37A4] dark:group-hover:text-white"
+                                  : "text-[#0A1B39] dark:text-[#CBD5E1]"
                               }
                             />
 
@@ -248,9 +285,9 @@ export function Sidebar({
                               className={`text-[14px] font-medium ${
                                 isCollapsed ? "md:hidden" : ""
                               } ${
-                                isExpanded
+                                isActive
                                   ? "text-[#2E37A4] dark:text-white"
-                                  : "text-[#0A1B39] dark:text-[#CBD5E1] group-hover:text-[#2E37A4] dark:group-hover:text-white"
+                                  : "text-[#0A1B39] dark:text-[#CBD5E1]"
                               }`}
                             >
                               {item.label}
@@ -260,12 +297,12 @@ export function Sidebar({
                           {isExpanded ? (
                             <ChevronDown
                               size={18}
-                              className="text-[#2E37A4] dark:text-[#A78BFA]"
+                              className="text-[#0A1B39] dark:text-[#CBD5E1]"
                             />
                           ) : (
                             <ChevronRight
                               size={18}
-                              className="text-[#0A1B39] dark:text-[#CBD5E1] group-hover:text-[#2E37A4] dark:group-hover:text-white"
+                              className="text-[#0A1B39] dark:text-[#CBD5E1]"
                             />
                           )}
                         </button>
@@ -286,7 +323,7 @@ export function Sidebar({
                               className={
                                 isActive
                                   ? "text-[#2E37A4] dark:text-[#A78BFA]"
-                                  : "text-[#0A1B39] dark:text-[#CBD5E1] group-hover:text-[#2E37A4] dark:group-hover:text-white"
+                                  : "text-[#0A1B39] dark:text-[#CBD5E1]"
                               }
                             />
 
@@ -296,7 +333,7 @@ export function Sidebar({
                               } ${
                                 isActive
                                   ? "text-[#2E37A4] dark:text-white"
-                                  : "text-[#0A1B39] dark:text-[#CBD5E1] group-hover:text-[#2E37A4] dark:group-hover:text-white"
+                                  : "text-[#0A1B39] dark:text-[#CBD5E1]"
                               }`}
                             >
                               {item.label}
@@ -306,7 +343,11 @@ export function Sidebar({
                           {item.hasArrow && (
                             <ChevronRight
                               size={18}
-                              className="text-[#0A1B39] dark:text-[#CBD5E1] group-hover:text-[#2E37A4] dark:group-hover:text-white"
+                              className={
+                                isActive
+                                  ? "text-[#2E37A4] dark:text-[#A78BFA]"
+                                  : "text-[#0A1B39] dark:text-[#CBD5E1]"
+                              }
                             />
                           )}
                         </Link>
@@ -316,14 +357,18 @@ export function Sidebar({
                       {isExpandable && isExpanded && (
                         <div className="mt-1 ml-6 space-y-1 border-l border-gray-200 dark:border-[#2A3850] pl-4">
                           {item.subItems!.map((sub) => {
-                            const isSubActive = pathname === sub.href;
+                            const isSubActive = activeHref === sub.href;
 
                             return (
                               <Link
                                 key={sub.href}
                                 href={sub.href}
                                 onClick={() => setIsOpen(false)}
-                                className="flex items-center gap-3 py-2 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#18243A]"
+                                className={`flex items-center gap-3 py-2 px-2 rounded-lg transition-colors ${
+                                  isSubActive
+                                    ? "bg-[#F5F6FA] dark:bg-[#211E46]"
+                                    : "hover:bg-gray-50 dark:hover:bg-[#18243A]"
+                                }`}
                               >
                                 <span
                                   className={`h-2 w-2 rounded-full shrink-0 ${
@@ -334,10 +379,11 @@ export function Sidebar({
                                 />
 
                                 <span
-                                  className="text-[14px] font-medium"
-                                  style={{
-                                    color: isSubActive ? "#2E37A4" : "#9DA4B0",
-                                  }}
+                                  className={`text-[14px] font-medium ${
+                                    isSubActive
+                                      ? "text-[#2E37A4] dark:text-[#A78BFA]"
+                                      : "text-[#9DA4B0] dark:text-[#CBD5E1]"
+                                  }`}
                                 >
                                   {sub.label}
                                 </span>

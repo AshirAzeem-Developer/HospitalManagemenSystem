@@ -4,24 +4,29 @@ import Link from "next/link";
 import Button from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
+
 import PaymentsTable from "@/features/billing/component/payments-table";
+import PaymentForm from "./payment-form";
+
 import type { Invoice, InvoiceItems, Payment } from "../types";
 
 type InvoiceDetailProps = {
   invoice: Invoice;
   items: InvoiceItems[];
   payments: Payment[];
+  isPatient?: boolean;
 };
 
 export default function InvoiceDetail({
   invoice,
   items,
   payments,
+  isPatient = false,
 }: InvoiceDetailProps) {
   const patientName =
     invoice?.patients?.profiles?.full_name || "Unknown Patient";
 
-  const formatDate = (date: string) => {
+  const formatDate = (date: string | null) => {
     if (!date) return "-";
 
     return new Date(date).toLocaleDateString("en-GB", {
@@ -31,10 +36,11 @@ export default function InvoiceDetail({
     });
   };
 
-  const formatAmount = (amount: number | string) => {
+  const formatAmount = (amount: number | string | null) => {
     return Number(amount || 0).toFixed(2);
   };
 
+  // INVOICE STATUS
   const getStatus = () => {
     switch (invoice?.status) {
       case "paid":
@@ -49,18 +55,6 @@ export default function InvoiceDetail({
           color: "yellow" as const,
         };
 
-      case "overdue":
-        return {
-          text: "Overdue",
-          color: "red" as const,
-        };
-
-      case "draft":
-        return {
-          text: "Draft",
-          color: "blue" as const,
-        };
-
       default:
         return {
           text: "Unpaid",
@@ -71,97 +65,229 @@ export default function InvoiceDetail({
 
   const status = getStatus();
 
+  // SUCCESSFUL PAYMENTS ONLY
+  const successfulPayments = payments.filter(
+    (payment) => payment.payment_status === "success"
+  );
+
+  const totalPaid = successfulPayments.reduce(
+    (sum, payment) => sum + Number(payment.amount_paid || 0),
+    0
+  );
+
+  // INVOICE TOTAL
+  const invoiceTotal = Number(invoice?.total || 0);
+
+  const remainingAmount = Math.max(0, invoiceTotal - totalPaid);
+
+  // TAX / DISCOUNT
   const subtotal = Number(invoice?.subtotal || 0);
+
   const taxPercentage = Number(invoice?.tax_percentage || 0);
+
   const discountPercentage = Number(invoice?.discount || 0);
 
   const taxAmount = (subtotal * taxPercentage) / 100;
+
   const discountAmount = (subtotal * discountPercentage) / 100;
 
+  // PRINT
   const handlePrint = () => {
     window.print();
   };
 
+  // DOWNLOAD
   const handleDownload = () => {
     window.print();
   };
 
   return (
-    <div className="w-full px-3 sm:px-4 lg:px-0">
+    <div className="w-full px-3 text-[#0A1B39] dark:text-white sm:px-4 lg:px-0">
       {/* HEADER */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+
+      <div className="mb-6 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <Link
-            href="/admin/billing"
-            className="mb-3 inline-flex items-center gap-2 text-base font-medium text-gray-600 hover:text-[#2E37A4]"
+            href={isPatient ? "/patient/billing" : "/admin/billing"}
+            className="
+              mb-3
+              inline-flex
+              items-center
+              gap-2
+              text-sm
+              font-medium
+              text-gray-600
+              transition-colors
+              hover:text-[#2E37A4]
+              dark:text-slate-300
+              dark:hover:text-indigo-400
+              sm:text-base
+            "
           >
             <ArrowLeft size={18} strokeWidth={2} />
+
             <span>Invoices</span>
           </Link>
 
-          <h1 className="text-xl font-semibold text-[#0A1B39] sm:text-2xl">
+          <h1
+            className="
+              text-xl
+              font-semibold
+              text-[#0A1B39]
+              dark:text-white
+              sm:text-2xl
+            "
+          >
             Invoice Details
           </h1>
         </div>
       </div>
 
       {/* INVOICE CARD */}
+
       <div
         id="invoice"
-        className="mx-auto w-full max-w-6xl overflow-hidden rounded-xl border border-[#E7E8EB] bg-white shadow-sm"
+        className="
+          mx-auto
+          w-full
+          max-w-6xl
+          overflow-hidden
+          rounded-xl
+          border
+          border-[#E7E8EB]
+          bg-white
+          shadow-sm
+          dark:border-slate-700
+          dark:bg-slate-900
+        "
       >
         {/* TOP HEADER */}
-        <div className="flex flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-7 lg:px-8">
-          <div>
+
+        <div
+          className="
+            flex
+            flex-col
+            gap-3
+            px-4
+            py-3
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
+            sm:px-6
+            sm:py-3
+            lg:px-8
+            lg:py-4
+          "
+        >
+          {/* LOGO */}
+
+          <div className="flex items-center">
             <img
-              src="/Images/logo.png"
-              alt="Preclinic"
-              className="h-9 w-auto object-contain sm:h-10"
+              src="/Images/LogoLightTheme.png"
+              alt="SafeHeal"
+              className="
+                block
+                h-14
+                w-auto
+                max-w-[220px]
+                object-contain
+                dark:hidden
+                sm:h-16
+                sm:max-w-[240px]
+                lg:h-[72px]
+                lg:max-w-[260px]
+              "
+            />
+
+            <img
+              src="/Images/DarkTheme.png"
+              alt="SafeHeal"
+              className="
+                hidden
+                h-14
+                w-auto
+                max-w-[220px]
+                object-contain
+                dark:block
+                sm:h-16
+                sm:max-w-[240px]
+                lg:h-[72px]
+                lg:max-w-[260px]
+              "
             />
           </div>
 
-          <div>
+          {/* STATUS */}
+
+          <div className="w-fit">
             <Badge color={status.color}>{status.text}</Badge>
           </div>
         </div>
 
         {/* INVOICE DETAILS */}
-        <div className="grid grid-cols-1 gap-6 border-t border-[#E7E8EB] px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:gap-10 lg:px-8 lg:py-7">
-          {/* INVOICE DETAILS */}
-          <div>
-            <h2 className="mb-4 text-base font-semibold text-[#0A1B39]">
+
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-6
+            border-t
+            border-[#E7E8EB]
+            px-4
+            py-6
+            dark:border-slate-700
+            sm:grid-cols-2
+            sm:px-6
+            lg:grid-cols-3
+            lg:gap-10
+            lg:px-8
+            lg:py-7
+          "
+        >
+          {/* INVOICE INFORMATION */}
+
+          <div className="min-w-0">
+            <h2 className="mb-4 text-base font-semibold text-[#0A1B39] dark:text-white">
               Invoice Details
             </h2>
 
             <div className="space-y-2.5 text-sm">
               <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-                <span className="text-gray-500">Invoice Number :</span>
+                <span className="text-gray-500 dark:text-slate-400">
+                  Invoice Number:
+                </span>
 
-                <span className="font-medium text-[#0A1B39]">
+                <span className="break-all font-medium text-[#0A1B39] dark:text-slate-100">
                   {invoice?.invoice_number || "-"}
                 </span>
               </div>
 
               <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-                <span className="text-gray-500">Issued On :</span>
+                <span className="text-gray-500 dark:text-slate-400">
+                  Issued On:
+                </span>
 
-                <span className="font-medium text-[#0A1B39]">
+                <span className="font-medium text-[#0A1B39] dark:text-slate-100">
                   {formatDate(invoice?.issued_date)}
                 </span>
               </div>
 
               <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-                <span className="text-gray-500">Due Date :</span>
+                <span className="text-gray-500 dark:text-slate-400">
+                  Due Date:
+                </span>
 
-                <span className="font-medium text-[#0A1B39]">
+                <span className="font-medium text-[#0A1B39] dark:text-slate-100">
                   {formatDate(invoice?.due_date)}
                 </span>
               </div>
 
               <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-                <span className="text-gray-500">Status :</span>
+                <span className="text-gray-500 dark:text-slate-400">
+                  Status:
+                </span>
 
-                <span className="font-medium text-[#0A1B39]">
+                <span className="font-medium text-[#0A1B39] dark:text-slate-100">
                   {status.text}
                 </span>
               </div>
@@ -169,26 +295,32 @@ export default function InvoiceDetail({
           </div>
 
           {/* INVOICE FROM */}
-          <div>
-            <h2 className="mb-4 text-base font-semibold text-[#0A1B39]">
+
+          <div className="min-w-0">
+            <h2 className="mb-4 text-base font-semibold text-[#0A1B39] dark:text-white">
               Invoice From
             </h2>
 
-            <div className="text-sm leading-6 text-gray-500">
-              <p className="font-semibold text-[#0A1B39]">Preclinic</p>
+            <div className="text-sm leading-6 text-gray-500 dark:text-slate-400">
+              <p className="font-semibold text-[#0A1B39] dark:text-white">
+                Preclinic
+              </p>
 
               <p>Hospital Management System</p>
             </div>
           </div>
 
           {/* INVOICE TO */}
-          <div>
-            <h2 className="mb-4 text-base font-semibold text-[#0A1B39]">
+
+          <div className="min-w-0">
+            <h2 className="mb-4 text-base font-semibold text-[#0A1B39] dark:text-white">
               Invoice To
             </h2>
 
-            <div className="text-sm leading-6 text-gray-500">
-              <p className="font-semibold text-[#0A1B39]">{patientName}</p>
+            <div className="text-sm leading-6 text-gray-500 dark:text-slate-400">
+              <p className="break-words font-semibold text-[#0A1B39] dark:text-white">
+                {patientName}
+              </p>
 
               <p>Patient</p>
             </div>
@@ -196,37 +328,46 @@ export default function InvoiceDetail({
         </div>
 
         {/* PRODUCTS / SERVICES */}
+
         <div className="px-4 py-6 sm:px-6 lg:px-8">
-          <h2 className="mb-4 text-base font-semibold text-[#0A1B39]">
+          <h2 className="mb-4 text-base font-semibold text-[#0A1B39] dark:text-white">
             Products/Service Items
           </h2>
 
-          {/* Mobile horizontal scroll */}
-          <div className="w-full overflow-x-auto rounded-md border border-[#E7E8EB]">
-            <table className="min-w-[750px] w-full border-collapse">
+          <div
+            className="
+              w-full
+              overflow-x-auto
+              rounded-md
+              border
+              border-[#E7E8EB]
+              dark:border-slate-700
+            "
+          >
+            <table className="w-full min-w-[750px] border-collapse">
               <thead>
-                <tr className="bg-[#F4F5F7]">
-                  <th className="w-12 px-4 py-3.5 text-center text-sm font-semibold text-[#0A1B39]">
+                <tr className="bg-[#F4F5F7] dark:bg-slate-800">
+                  <th className="w-12 px-4 py-3.5 text-center text-sm font-semibold text-[#0A1B39] dark:text-slate-100">
                     #
                   </th>
 
-                  <th className="px-4 py-3.5 text-left text-sm font-semibold text-[#0A1B39]">
+                  <th className="px-4 py-3.5 text-left text-sm font-semibold text-[#0A1B39] dark:text-slate-100">
                     Product/Item
                   </th>
 
-                  <th className="px-4 py-3.5 text-left text-sm font-semibold text-[#0A1B39]">
+                  <th className="px-4 py-3.5 text-left text-sm font-semibold text-[#0A1B39] dark:text-slate-100">
                     Description
                   </th>
 
-                  <th className="px-4 py-3.5 text-right text-sm font-semibold text-[#0A1B39]">
+                  <th className="px-4 py-3.5 text-right text-sm font-semibold text-[#0A1B39] dark:text-slate-100">
                     Unit Cost
                   </th>
 
-                  <th className="px-4 py-3.5 text-center text-sm font-semibold text-[#0A1B39]">
+                  <th className="px-4 py-3.5 text-center text-sm font-semibold text-[#0A1B39] dark:text-slate-100">
                     Quantity
                   </th>
 
-                  <th className="px-4 py-3.5 text-right text-sm font-semibold text-[#0A1B39]">
+                  <th className="px-4 py-3.5 text-right text-sm font-semibold text-[#0A1B39] dark:text-slate-100">
                     Amount
                   </th>
                 </tr>
@@ -237,29 +378,33 @@ export default function InvoiceDetail({
                   items.map((item, index) => (
                     <tr
                       key={item.id ?? index}
-                      className="border-t border-[#E7E8EB]"
+                      className="
+                        border-t
+                        border-[#E7E8EB]
+                        dark:border-slate-700
+                      "
                     >
-                      <td className="px-4 py-4 text-center text-sm text-gray-600">
+                      <td className="px-4 py-4 text-center text-sm text-gray-600 dark:text-slate-300">
                         {index + 1}
                       </td>
 
-                      <td className="px-4 py-4 text-sm font-medium text-[#0A1B39]">
+                      <td className="px-4 py-4 text-sm font-medium text-[#0A1B39] dark:text-slate-100">
                         {item.item_name}
                       </td>
 
-                      <td className="px-4 py-4 text-sm text-gray-500">
+                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-slate-400">
                         {item.description || "-"}
                       </td>
 
-                      <td className="px-4 py-4 text-right text-sm text-gray-600">
+                      <td className="px-4 py-4 text-right text-sm text-gray-600 dark:text-slate-300">
                         ${formatAmount(item.unit_cost)}
                       </td>
 
-                      <td className="px-4 py-4 text-center text-sm text-gray-600">
+                      <td className="px-4 py-4 text-center text-sm text-gray-600 dark:text-slate-300">
                         {item.quantity}
                       </td>
 
-                      <td className="px-4 py-4 text-right text-sm font-medium text-[#0A1B39]">
+                      <td className="px-4 py-4 text-right text-sm font-medium text-[#0A1B39] dark:text-slate-100">
                         ${formatAmount(item.amount)}
                       </td>
                     </tr>
@@ -268,7 +413,7 @@ export default function InvoiceDetail({
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-4 py-8 text-center text-sm text-gray-500"
+                      className="px-4 py-8 text-center text-sm text-gray-500 dark:text-slate-400"
                     >
                       No invoice items found.
                     </td>
@@ -280,41 +425,47 @@ export default function InvoiceDetail({
         </div>
 
         {/* TERMS + TOTAL */}
-        <div className="grid grid-cols-1 gap-8 border-t border-[#E7E8EB] px-4 py-6 sm:px-6 lg:grid-cols-2 lg:gap-12 lg:px-8 lg:py-7">
+
+        <div
+          className="
+            grid
+            grid-cols-1
+            gap-8
+            border-t
+            border-[#E7E8EB]
+            px-4
+            py-6
+            dark:border-slate-700
+            sm:px-6
+            lg:grid-cols-2
+            lg:gap-12
+            lg:px-8
+            lg:py-7
+          "
+        >
+          {/* TERMS */}
+
           <div>
-            <h2 className="mb-3 text-sm font-semibold text-[#0A1B39]">
+            <h2 className="mb-3 text-sm font-semibold text-[#0A1B39] dark:text-white">
               Terms and Conditions
             </h2>
 
-            <p className="text-sm leading-6 text-gray-500">
+            <p className="text-sm leading-6 text-gray-500 dark:text-slate-400">
               The payment must be returned in the same condition.
-            </p>
-
-            <h2 className="mb-3 mt-5 text-sm font-semibold text-[#0A1B39]">
-              Notes
-            </h2>
-
-            <p className="text-sm leading-6 text-gray-500">
-              All charges are final and include applicable taxes, fees and
-              additional costs.
             </p>
           </div>
 
+          {/* TOTAL */}
+
           <div className="w-full lg:ml-auto lg:max-w-sm">
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between gap-4">
-                <span className="text-gray-500">Amount</span>
-
-                <span className="font-medium text-[#0A1B39]">
-                  ${formatAmount(subtotal)}
-                </span>
-              </div>
-
               {taxPercentage > 0 && (
                 <div className="flex justify-between gap-4">
-                  <span className="text-gray-500">Tax ({taxPercentage}%)</span>
+                  <span className="text-gray-500 dark:text-slate-400">
+                    Tax ({taxPercentage}%)
+                  </span>
 
-                  <span className="font-medium text-[#0A1B39]">
+                  <span className="font-medium text-[#0A1B39] dark:text-slate-100">
                     ${formatAmount(taxAmount)}
                   </span>
                 </div>
@@ -322,150 +473,170 @@ export default function InvoiceDetail({
 
               {discountPercentage > 0 && (
                 <div className="flex justify-between gap-4">
-                  <span className="text-gray-500">
+                  <span className="text-gray-500 dark:text-slate-400">
                     Discount ({discountPercentage}%)
                   </span>
 
-                  <span className="font-medium text-red-500">
+                  <span className="font-medium text-red-500 dark:text-red-400">
                     -${formatAmount(discountAmount)}
                   </span>
                 </div>
               )}
 
-              <div className="mt-4 flex justify-between gap-4 border-t border-[#E7E8EB] pt-4">
-                <span className="text-base font-semibold text-[#0A1B39]">
+              <div
+                className="
+                  mt-4
+                  flex
+                  justify-between
+                  gap-4
+                  border-t
+                  border-[#E7E8EB]
+                  pt-4
+                  dark:border-slate-700
+                "
+              >
+                <span className="text-base font-semibold text-[#0A1B39] dark:text-white">
                   Total
                 </span>
 
-                <span className="text-lg font-bold text-[#0A1B39]">
+                <span className="text-lg font-bold text-[#0A1B39] dark:text-white">
                   ${formatAmount(invoice?.total)}
                 </span>
               </div>
 
-              <div className="pt-1">
-                <p className="text-xs text-gray-500">Total in words</p>
+              {/* PAYMENT SUMMARY */}
 
-                <p className="mt-1 text-xs font-medium text-[#0A1B39]">
-                  {numberToWords(Number(invoice?.total || 0))}
-                </p>
+              <div
+                className="
+                  mt-5
+                  border-t
+                  border-[#E7E8EB]
+                  pt-4
+                  dark:border-slate-700
+                "
+              >
+                <div className="space-y-3">
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-500 dark:text-slate-400">
+                      Paid Amount
+                    </span>
+
+                    <span className="font-semibold text-green-600 dark:text-green-400">
+                      ${totalPaid.toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-500 dark:text-slate-400">
+                      Remaining
+                    </span>
+
+                    <span className="font-semibold text-red-600 dark:text-red-400">
+                      ${remainingAmount.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* FOOTER */}
-        <div className="border-t border-[#E7E8EB] px-4 py-5 sm:px-8">
-          <p className="text-center text-sm text-gray-400">
+
+        <div className="border-t border-[#E7E8EB] px-4 py-5 dark:border-slate-700 sm:px-8">
+          <p className="text-center text-sm text-gray-400 dark:text-slate-500">
             Thank you for choosing our hospital.
           </p>
         </div>
       </div>
 
-      {/* PAYMENTS */}
-      <div className="mx-auto mt-6 w-full max-w-6xl">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-[#0A1B39]">Payments</h2>
+      {/* PAYMENT FORM - ADMIN ONLY */}
 
-            <p className="mt-1 text-xs text-gray-500">
+      {!isPatient && (
+        <div className="mx-auto mt-6 w-full max-w-6xl">
+          <PaymentForm
+            invoiceId={invoice.id}
+            invoiceTotal={invoiceTotal}
+            paidAmount={totalPaid}
+          />
+        </div>
+      )}
+
+      {/* PAYMENTS */}
+
+      <div className="mx-auto mt-6 w-full max-w-6xl">
+        <div
+          className="
+            mb-4
+            flex
+            flex-col
+            gap-3
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
+          "
+        >
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold text-[#0A1B39] dark:text-white">
+              Payments
+            </h2>
+
+            <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
               Payment history for invoice{" "}
-              <span className="font-medium text-[#0A1B39]">
+              <span className="font-medium text-[#0A1B39] dark:text-slate-200">
                 {invoice?.invoice_number || "-"}
               </span>
             </p>
           </div>
 
-          <span className="w-fit rounded border border-[#2E37A4] bg-[#EEF2FF] px-2 py-1 text-[15px] font-medium text-[#2E37A4]">
-            Total Payments : {payments.length}
+          <span
+            className="
+              w-fit
+              shrink-0
+              rounded
+              border
+              border-[#2E37A4]
+              bg-[#EEF2FF]
+              px-2
+              py-1
+              text-[15px]
+              font-medium
+              text-[#2E37A4]
+              dark:border-indigo-500/40
+              dark:bg-indigo-500/10
+              dark:text-indigo-300
+            "
+          >
+            Total Payments: {payments.length}
           </span>
         </div>
 
-        {/* PaymentsTable ke andar bhi agar table hai
-            to us component mein overflow-x-auto hona chahiye */}
         <div className="w-full overflow-x-auto">
           <PaymentsTable
             payments={payments}
-            invoiceNumber={invoice?.invoice_number}
+            invoiceNumber={invoice?.invoice_number ?? undefined}
+            isPatient={isPatient}
           />
         </div>
       </div>
 
       {/* BUTTONS */}
-      <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+
+      <div
+        className="
+          mt-6
+          flex
+          w-full
+          flex-col
+          justify-center
+          gap-3
+          sm:flex-row
+        "
+      >
         <Button variant="ghost" text="Print" onClick={handlePrint} />
 
         <Button variant="primary" text="Download" onClick={handleDownload} />
       </div>
     </div>
   );
-}
-
-function numberToWords(amount: number): string {
-  if (!amount) return "Zero Only";
-
-  const ones = [
-    "",
-    "One",
-    "Two",
-    "Three",
-    "Four",
-    "Five",
-    "Six",
-    "Seven",
-    "Eight",
-    "Nine",
-    "Ten",
-    "Eleven",
-    "Twelve",
-    "Thirteen",
-    "Fourteen",
-    "Fifteen",
-    "Sixteen",
-    "Seventeen",
-    "Eighteen",
-    "Nineteen",
-  ];
-
-  const tens = [
-    "",
-    "",
-    "Twenty",
-    "Thirty",
-    "Forty",
-    "Fifty",
-    "Sixty",
-    "Seventy",
-    "Eighty",
-    "Ninety",
-  ];
-
-  const convert = (num: number): string => {
-    if (num < 20) {
-      return ones[num];
-    }
-
-    if (num < 100) {
-      return (
-        tens[Math.floor(num / 10)] + (num % 10 ? ` ${ones[num % 10]}` : "")
-      );
-    }
-
-    if (num < 1000) {
-      return (
-        `${ones[Math.floor(num / 100)]} Hundred` +
-        (num % 100 ? ` ${convert(num % 100)}` : "")
-      );
-    }
-
-    if (num < 1000000) {
-      return (
-        `${convert(Math.floor(num / 1000))} Thousand` +
-        (num % 1000 ? ` ${convert(num % 1000)}` : "")
-      );
-    }
-
-    return amount.toFixed(2);
-  };
-
-  return `${convert(Math.floor(amount))} Only`;
 }

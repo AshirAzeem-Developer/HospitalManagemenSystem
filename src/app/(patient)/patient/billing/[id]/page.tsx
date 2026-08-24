@@ -12,16 +12,23 @@ type PageProps = {
   }>;
 };
 
-export default async function InvoiceDetailPage({ params }: PageProps) {
+export default async function PatientInvoiceDetailPage({ params }: PageProps) {
   const { id } = await params;
 
   const [invoice, items, payments] = await Promise.all([
     getInvoiceByIdAction(id),
-
     getInvoiceItemsByInvoiceIdAction(id),
-
     getPaymentsByInvoiceIdAction(id),
   ]);
 
-  return <InvoiceDetail invoice={invoice} items={items} payments={payments} />;
+  return (
+    <div className="w-full min-w-0 max-w-full overflow-x-hidden">
+      <InvoiceDetail
+        invoice={invoice}
+        items={items}
+        payments={payments}
+        isPatient={true}
+      />
+    </div>
+  );
 }

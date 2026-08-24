@@ -247,31 +247,7 @@ export async function getInvoiceItems(): Promise<InvoiceItems[]> {
   return data ?? [];
 }
 
-export async function getPatientInvoices(
-  profileId: string
-): Promise<Invoice[]> {
-  const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("invoices")
-    .select(`
-      *,
-      patients!inner(
-        profile_id,
-        profiles(
-          full_name,
-          avatar_url
-        )
-      )
-    `)
-    .eq("patients.profile_id", profileId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data ?? [];
-}
 
 export async function getInvoiceItemsByInvoiceId(
   invoiceId: string

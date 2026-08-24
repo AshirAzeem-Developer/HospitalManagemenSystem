@@ -1,9 +1,5 @@
 import { Card } from "@/components/ui/card";
 import BillingTable from "@/features/billing/component/billing-table";
-import { getPatientInvoices } from "@/features/billing/queries";
-import { createClient } from "@/lib/supabase/server";
-
-import BillingTable from "@/features/billing/component/billing-table";
 
 import { getPatientInvoices } from "@/features/billing/queries";
 import { getPaymentsByInvoiceIdAction } from "@/features/billing/actions";

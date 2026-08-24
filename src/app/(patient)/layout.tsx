@@ -34,23 +34,6 @@ export default async function PatientLayout({
   }
 
   return (
-<<<<<<< Updated upstream
-    <div className="flex">
-      <div className="print:hidden">
-        <Sidebar links={patientLinks} roleLabel="Patient" />
-      </div>
-
-      <div className="flex-1">
-        <div className="print:hidden">
-          <Navbar />
-        </div>
-
-        <main className="p-4 sm:p-6 print:min-h-0 print:bg-white print:p-0">
-          {children}
-        </main>
-
-        <main className="p-6">{children}</main>
-=======
     <div
       className="
         min-h-screen
@@ -127,7 +110,6 @@ export default async function PatientLayout({
         >
           © {new Date().getFullYear()} SafeHeal. All rights reserved.
         </footer>
->>>>>>> Stashed changes
       </div>
     </div>
   );

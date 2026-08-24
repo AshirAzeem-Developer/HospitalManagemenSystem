@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FiEye } from "react-icons/fi";
 import { IoChevronDown } from "react-icons/io5";
+import PaginationSearchBar from "@/components/ui/PaginationSearchBar";
 
 interface PatientPrescriptionListItem {
   id: string;
@@ -24,7 +25,6 @@ export default function PatientPrescriptionTable({
 }: PatientPrescriptionTableProps) {
   const router = useRouter();
 
-  const [search, setSearch] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("recent");
   const [showSortMenu, setShowSortMenu] = useState(false);
 
@@ -34,11 +34,7 @@ export default function PatientPrescriptionTable({
   };
 
   const visiblePrescriptions = useMemo(() => {
-    let result = prescriptions.filter(
-      (p) =>
-        p.doctorName.toLowerCase().includes(search.toLowerCase()) ||
-        p.diagnosis.toLowerCase().includes(search.toLowerCase()),
-    );
+    let result = [...prescriptions];
 
     result = [...result].sort((a, b) => {
       const aTime = new Date(a.prescribedOnRaw).getTime();
@@ -47,50 +43,40 @@ export default function PatientPrescriptionTable({
     });
 
     return result;
-  }, [prescriptions, search, sortOption]);
+  }, [prescriptions, sortOption]);
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-100 p-6">
-        <h2 className="text-xl font-semibold text-slate-800">
-          My Prescriptions
-        </h2>
+    <div className="min-w-0 rounded-xl border border-border bg-background shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-foreground sm:text-xl">My Prescriptions</h2>
       </div>
 
-      <div className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
-        <input
-          type="text"
-          placeholder="Search by doctor or diagnosis"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 md:w-72"
-        />
+      <div className="flex flex-col gap-4 p-4 sm:p-6 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0 flex-1">
+          <PaginationSearchBar placeholder="Search prescriptions" />
+        </div>
 
         <div className="relative">
           <button
             type="button"
             onClick={() => setShowSortMenu((v) => !v)}
-            className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-hover focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
           >
             Sort By : {sortLabels[sortOption]}
             <IoChevronDown
               size={16}
-              className={`transition-transform ${
-                showSortMenu ? "rotate-180" : ""
-              }`}
+              className={`transition-transform ${showSortMenu ? "rotate-180" : ""}`}
             />
           </button>
 
           {showSortMenu && (
-            <div className="absolute right-0 z-20 mt-2 w-40 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black/5">
+            <div className="absolute right-0 z-20 mt-2 w-40 overflow-hidden rounded-lg border border-border bg-background py-1 shadow-lg ring-1 ring-black/5">
               {(Object.keys(sortLabels) as SortOption[]).map((option) => (
                 <button
                   key={option}
                   type="button"
-                  className={`w-full px-4 py-2.5 text-left text-sm transition hover:bg-gray-50 ${
-                    sortOption === option
-                      ? "font-medium text-indigo-600"
-                      : "text-slate-700"
+                  className={`w-full px-4 py-2.5 text-left text-sm transition hover:bg-hover ${
+                    sortOption === option ? "font-medium text-indigo-600" : "text-foreground"
                   }`}
                   onClick={() => {
                     setSortOption(option);
@@ -106,50 +92,29 @@ export default function PatientPrescriptionTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="border-y border-gray-100 bg-gray-50">
+        <table className="w-full min-w-[720px]">
+          <thead className="border-y border-border bg-hover">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                Prescription ID
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                Doctor
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                Diagnosis
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                Date
-              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-muted">Prescription ID</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-muted">Doctor</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-muted">Diagnosis</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-muted">Date</th>
               <th className="w-20"></th>
             </tr>
           </thead>
 
           <tbody>
             {visiblePrescriptions.map((prescription) => (
-              <tr
-                key={prescription.id}
-                className="border-b border-gray-100 transition hover:bg-gray-50/60"
-              >
-                <td className="px-6 py-5 text-sm font-medium text-indigo-900">
-                  #{prescription.id}
-                </td>
-                <td className="px-6 py-5 text-sm font-medium text-slate-800">
-                  {prescription.doctorName}
-                </td>
-                <td className="px-6 py-5 text-sm text-gray-500">
-                  {prescription.diagnosis}
-                </td>
-                <td className="px-6 py-5 text-sm text-gray-500">
-                  {prescription.prescribedOn}
-                </td>
+              <tr key={prescription.id} className="border-b border-border transition hover:bg-hover/60">
+                <td className="whitespace-nowrap px-6 py-5 text-sm font-medium text-foreground">#{prescription.id}</td>
+                <td className="whitespace-nowrap px-6 py-5 text-sm font-medium text-foreground">{prescription.doctorName}</td>
+                <td className="px-6 py-5 text-sm text-muted">{prescription.diagnosis}</td>
+                <td className="whitespace-nowrap px-6 py-5 text-sm text-muted">{prescription.prescribedOn}</td>
                 <td className="px-6 py-5 text-center">
                   <button
                     type="button"
-                    onClick={() =>
-                      router.push(`/patient/prescriptions/${prescription.id}`)
-                    }
-                    className="rounded-lg border border-gray-200 p-2 text-gray-500 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                    onClick={() => router.push(`/patient/prescriptions/${prescription.id}`)}
+                    className="rounded-lg border border-border bg-background p-2 text-foreground transition hover:bg-hover focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                     aria-label="View prescription"
                   >
                     <FiEye size={18} />
@@ -161,9 +126,7 @@ export default function PatientPrescriptionTable({
         </table>
 
         {visiblePrescriptions.length === 0 && (
-          <div className="p-8 text-center text-sm text-gray-500">
-            No prescriptions found.
-          </div>
+          <div className="p-8 text-center text-sm text-muted">No prescriptions found.</div>
         )}
       </div>
     </div>

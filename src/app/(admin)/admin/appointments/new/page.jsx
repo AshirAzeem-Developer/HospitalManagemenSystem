@@ -1,15 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FiChevronLeft, FiPlus, FiCalendar, FiClock, FiChevronDown } from "react-icons/fi";
 
 import { getPatients, getDoctors, getStatuses, createAppointmentAction 
 } from '@/features/appointments/appointmentActions/appointmentAction';
 
-export default function NewAppointmentPage() {
+function AppointmentForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // URL parameters se patientId aur doctorId dono read karna
+  const preSelectedPatientId = searchParams.get('patientId') || '';
+  const preSelectedDoctorId = searchParams.get('doctorId') || '';
+
   const [loading, setLoading] = useState(false);
 
   const [patients, setPatients] = useState([]);
@@ -19,14 +25,19 @@ export default function NewAppointmentPage() {
   // Dropdown open states
   const [patientOpen, setPatientOpen] = useState(false);
   const [doctorOpen, setDoctorOpen] = useState(false);
+  
+  const dateRef = useRef(null);
+  const timeRef = useRef(null);
+
+  const todayStr = new Date().toISOString().split('T')[0];
 
   const [formData, setFormData] = useState({
-    patientId: '',
-    doctorId: '',
+    patientId: preSelectedPatientId, 
+    doctorId: preSelectedDoctorId,   
     date: '',
     time: '',
     reason: '',
-    status: ''
+    status: 'confirmed'
   });
 
   useEffect(() => {
@@ -45,6 +56,7 @@ export default function NewAppointmentPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'date' && value && value < todayStr) return;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -56,7 +68,15 @@ export default function NewAppointmentPage() {
     e.preventDefault();
     setLoading(true);
 
-    const response = await createAppointmentAction(formData);
+    let finalStatus = 'confirmed';
+    if (statuses.length > 0) {
+      const confirmStatusObj = statuses.find(s => (s.name || s.status)?.toLowerCase() === 'confirmed');
+      if (confirmStatusObj) {
+        finalStatus = confirmStatusObj.id;
+      }
+    }
+
+    const response = await createAppointmentAction({ ...formData, status: finalStatus });
     
     setLoading(false);
     if (response.success) {
@@ -68,6 +88,10 @@ export default function NewAppointmentPage() {
 
   const selectedPatient = patients.find(p => p.id === formData.patientId);
   const selectedDoctor = doctors.find(d => d.id === formData.doctorId);
+  
+  // URL mein ID aane par dropdown fix/disable ho jaye ga
+  const isPatientFixed = !!preSelectedPatientId; 
+  const isDoctorFixed = !!preSelectedDoctorId; 
 
   return (
     <div className="p-6 bg-background min-h-screen text-foreground">
@@ -88,22 +112,28 @@ export default function NewAppointmentPage() {
               <label className="text-sm font-semibold text-foreground">
                 Patient <span className="text-red-500">*</span>
               </label>
-              <Link href="/admin/patients/NewPatient" className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition">
-                <FiPlus className="mr-1" /> Add New
-              </Link>
+              {!isPatientFixed && (
+                <Link href="/admin/patients/NewPatient" className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition">
+                  <FiPlus className="mr-1" /> Add New
+                </Link>
+              )}
             </div>
             
             <div className="relative w-full">
               <button 
                 type="button" 
-                onClick={() => { setPatientOpen(!patientOpen); setDoctorOpen(false); }}
-                className="w-full flex justify-between items-center border border-border rounded-lg p-3 text-sm text-foreground bg-background focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                onClick={() => { if (!isPatientFixed) { setPatientOpen(!patientOpen); setDoctorOpen(false); } }}
+                className={`w-full flex justify-between items-center border border-border rounded-lg p-3 text-sm transition ${isPatientFixed ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed opacity-80' : 'bg-background text-foreground focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500'}`}
               >
-                <span className="truncate">{selectedPatient?.profile?.full_name || "Select Patient"}</span>
-                <FiChevronDown className="text-muted flex-shrink-0" />
+                <span className="truncate">
+                  {selectedPatient?.profile?.full_name 
+                    ? selectedPatient.profile.full_name 
+                    : (isPatientFixed ? "Loading Patient..." : "Select Patient")}
+                </span>
+                {!isPatientFixed && <FiChevronDown className="text-muted flex-shrink-0" />}
               </button>
 
-              {patientOpen && (
+              {!isPatientFixed && patientOpen && (
                 <div className="absolute top-full left-0 mt-1 w-full max-h-[200px] overflow-y-auto bg-background border border-border shadow-lg rounded-lg z-50">
                   <ul className="py-1">
                     <li 
@@ -137,14 +167,18 @@ export default function NewAppointmentPage() {
             <div className="relative w-full">
               <button 
                 type="button" 
-                onClick={() => { setDoctorOpen(!doctorOpen); setPatientOpen(false); }}
-                className="w-full flex justify-between items-center border border-border rounded-lg p-3 text-sm text-foreground bg-background focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                onClick={() => { if (!isDoctorFixed) { setDoctorOpen(!doctorOpen); setPatientOpen(false); } }}
+                className={`w-full flex justify-between items-center border border-border rounded-lg p-3 text-sm transition ${isDoctorFixed ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed opacity-80' : 'bg-background text-foreground focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500'}`}
               >
-                <span className="truncate">{selectedDoctor?.profile?.full_name || "Select Doctor"}</span>
-                <FiChevronDown className="text-muted flex-shrink-0" />
+                <span className="truncate">
+                  {selectedDoctor?.profile?.full_name 
+                    ? selectedDoctor.profile.full_name 
+                    : (isDoctorFixed ? "Loading Doctor..." : "Select Doctor")}
+                </span>
+                {!isDoctorFixed && <FiChevronDown className="text-muted flex-shrink-0" />}
               </button>
 
-              {doctorOpen && (
+              {!isDoctorFixed && doctorOpen && (
                 <div className="absolute top-full left-0 mt-1 w-full max-h-[200px] overflow-y-auto bg-background border border-border shadow-lg rounded-lg z-50">
                   <ul className="py-1">
                     <li 
@@ -173,8 +207,18 @@ export default function NewAppointmentPage() {
           <div className="relative">
             <label className="block text-sm font-semibold text-foreground mb-2">Date of Appointment <span className="text-red-500">*</span></label>
             <div className="relative">
-              <input type="date" name="date" value={formData.date} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark]" />
-              <FiCalendar className="absolute right-3 top-3.5 text-muted pointer-events-none" />
+              <input
+                ref={dateRef}
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                onKeyDown={(e) => e.preventDefault()}
+                min={todayStr}
+                required
+                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark] cursor-pointer"
+              />
+              <FiCalendar onClick={() => dateRef.current?.showPicker?.()} className="absolute right-3 top-3.5 text-muted cursor-pointer" />
             </div>
           </div>
 
@@ -182,8 +226,8 @@ export default function NewAppointmentPage() {
           <div className="relative">
             <label className="block text-sm font-semibold text-foreground mb-2">Time <span className="text-red-500">*</span></label>
             <div className="relative">
-              <input type="time" name="time" value={formData.time} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark]" />
-              <FiClock className="absolute right-3 top-3.5 text-muted pointer-events-none" />
+              <input ref={timeRef} type="time" name="time" value={formData.time} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark]" />
+              <FiClock onClick={() => timeRef.current?.showPicker?.()} className="absolute right-3 top-3.5 text-muted cursor-pointer" />
             </div>
           </div>
 
@@ -191,24 +235,6 @@ export default function NewAppointmentPage() {
           <div className="md:col-span-2">
             <label className="block text-sm font-semibold text-foreground mb-2">Appointment Reason <span className="text-red-500">*</span></label>
             <textarea name="reason" value={formData.reason} onChange={handleChange} rows="4" required placeholder="Enter reason here..." className="w-full border border-border rounded-lg p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-background placeholder:text-muted"></textarea>
-          </div>
-
-          {/* Status Field */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-foreground mb-2">Status <span className="text-red-500">*</span></label>
-            <select name="status" value={formData.status} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 bg-background [&>option]:bg-background [&>option]:text-foreground">
-              <option value="">Select Status</option>
-              {statuses.length > 0 ? (
-                statuses.map(s => <option key={s.id} value={s.id}>{s.name || s.status}</option>)
-              ) : (
-                <>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </>
-              )}
-            </select>
           </div>
         </div>
 
@@ -222,10 +248,17 @@ export default function NewAppointmentPage() {
 
       </form>
 
-      {/* Background overlay to close dropdowns when clicking outside */}
       {(patientOpen || doctorOpen) && (
         <div className="fixed inset-0 z-40" onClick={() => { setPatientOpen(false); setDoctorOpen(false); }}></div>
       )}
     </div>
+  );
+}
+
+export default function NewAppointmentPage() {
+  return (
+    <Suspense fallback={<div className="p-6">Loading form...</div>}>
+      <AppointmentForm />
+    </Suspense>
   );
 }

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { paginateQuery } from "@/lib/paginateQuery";
 
 import {
   CreatePrescriptionInput,
@@ -261,7 +262,139 @@ export async function getPrescriptionById(id: string) {
   };
 }
 
-export async function getPatientPrescriptions() {
+export async function getDoctorPrescriptions({
+  page = 1,
+  limit = 10,
+  query = "",
+}: {
+  page?: number;
+  limit?: number;
+  query?: string;
+} = {}) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  const { data: doctor, error: doctorError } = await supabase
+    .from("doctors")
+    .select("id")
+    .eq("profile_id", user.id)
+    .single();
+
+  if (doctorError || !doctor) {
+    return { success: false, message: "Doctor not found" };
+  }
+
+  const safePage = Number.isFinite(page) && page > 0 ? page : 1;
+  const safeLimit = Number.isFinite(limit) && limit > 0 ? limit : 10;
+
+  let dbQuery = supabase
+    .from("prescriptions")
+    .select(
+      "id, patient_id, created_at, patients!inner(id, profile_id, profiles(full_name, avatar_url))",
+      { count: "exact" },
+    )
+    .eq("doctor_id", doctor.id)
+    .order("created_at", { ascending: false });
+
+  const trimmedQuery = query.trim();
+  if (trimmedQuery) {
+    const { data: profileMatches, error: profileError } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("full_name", `%${trimmedQuery}%`);
+
+    if (profileError) {
+      return { success: false, message: "Failed to filter prescriptions" };
+    }
+
+    const profileIds = (profileMatches ?? []).map((profile) => profile.id);
+
+    if (profileIds.length === 0) {
+      return {
+        success: true,
+        data: [],
+        totalCount: 0,
+        totalPages: 1,
+      };
+    }
+
+    const { data: patientMatches, error: patientError } = await supabase
+      .from("patients")
+      .select("id")
+      .in("profile_id", profileIds);
+
+    if (patientError) {
+      return { success: false, message: "Failed to filter prescriptions" };
+    }
+
+    const patientIds = (patientMatches ?? []).map((patient) => patient.id);
+
+    if (patientIds.length === 0) {
+      return {
+        success: true,
+        data: [],
+        totalCount: 0,
+        totalPages: 1,
+      };
+    }
+
+    dbQuery = dbQuery.in("patient_id", patientIds);
+  }
+
+  const { data: prescriptions, count, totalPages, error } = await paginateQuery(
+    dbQuery,
+    { page: safePage, limit: safeLimit },
+  );
+
+  if (error) {
+    return { success: false, message: "Failed to load prescriptions." };
+  }
+
+  const prescriptionList = (prescriptions ?? []).map((prescription: any) => {
+    const patient = Array.isArray(prescription.patients)
+      ? prescription.patients[0]
+      : prescription.patients;
+
+    const profile =
+      patient && "profiles" in patient
+        ? Array.isArray(patient.profiles)
+          ? patient.profiles[0]
+          : patient.profiles
+        : null;
+
+    return {
+      id: prescription.id,
+      patientName: profile?.full_name ?? "Unknown Patient",
+      patientImage: profile?.avatar_url ?? null,
+      prescribedOnRaw: prescription.created_at,
+      prescribedOn: new Date(prescription.created_at).toLocaleDateString("en-GB"),
+    };
+  });
+
+  return {
+    success: true,
+    data: prescriptionList,
+    totalCount: count ?? 0,
+    totalPages,
+  };
+}
+
+export async function getPatientPrescriptions({
+  page = 1,
+  limit = 10,
+  query = "",
+}: {
+  page?: number;
+  limit?: number;
+  query?: string;
+} = {}) {
   const supabase = await createClient();
 
   const {
@@ -282,25 +415,97 @@ export async function getPatientPrescriptions() {
     return { success: false, message: "Patient record not found" };
   }
 
-  // Scoped to this patient only — a patient must never see another
-  // patient's prescriptions, regardless of which doctor wrote them.
-  const { data: prescriptions, error: prescriptionsError } = await supabase
+  const safePage = Number.isFinite(page) && page > 0 ? page : 1;
+  const safeLimit = Number.isFinite(limit) && limit > 0 ? limit : 10;
+
+  let dbQuery = supabase
     .from("prescriptions")
-    .select("id, doctor_id, diagnosis, created_at")
+    .select("id, doctor_id, diagnosis, created_at", { count: "exact" })
     .eq("patient_id", patient.id)
     .order("created_at", { ascending: false });
+
+  const trimmedQuery = query.trim();
+  if (trimmedQuery) {
+    const matchingPrescriptionIds = new Set<string>();
+
+    const { data: diagnosisMatches, error: diagnosisError } = await supabase
+      .from("prescriptions")
+      .select("id")
+      .eq("patient_id", patient.id)
+      .ilike("diagnosis", `%${trimmedQuery}%`);
+
+    if (diagnosisError) {
+      return { success: false, message: "Failed to filter prescriptions" };
+    }
+
+    for (const item of diagnosisMatches ?? []) {
+      matchingPrescriptionIds.add(item.id);
+    }
+
+    const { data: profileMatches, error: profileError } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("full_name", `%${trimmedQuery}%`);
+
+    if (profileError) {
+      return { success: false, message: "Failed to filter prescriptions" };
+    }
+
+    const profileIds = (profileMatches ?? []).map((profile: any) => profile.id);
+
+    if (profileIds.length > 0) {
+      const { data: doctorMatches, error: doctorError } = await supabase
+        .from("doctors")
+        .select("id")
+        .in("profile_id", profileIds);
+
+      if (doctorError) {
+        return { success: false, message: "Failed to filter prescriptions" };
+      }
+
+      const doctorIds = (doctorMatches ?? []).map((doctor: any) => doctor.id);
+
+      if (doctorIds.length > 0) {
+        const { data: prescriptionMatches, error: prescriptionMatchError } =
+          await supabase
+            .from("prescriptions")
+            .select("id")
+            .eq("patient_id", patient.id)
+            .in("doctor_id", doctorIds);
+
+        if (prescriptionMatchError) {
+          return { success: false, message: "Failed to filter prescriptions" };
+        }
+
+        for (const item of prescriptionMatches ?? []) {
+          matchingPrescriptionIds.add(item.id);
+        }
+      }
+    }
+
+    if (matchingPrescriptionIds.size === 0) {
+      return { success: true, data: [], totalCount: 0, totalPages: 1 };
+    }
+
+    dbQuery = dbQuery.in("id", [...matchingPrescriptionIds]);
+  }
+
+  const { data: prescriptions, count, totalPages, error: prescriptionsError } = await paginateQuery(
+    dbQuery,
+    { page: safePage, limit: safeLimit },
+  );
 
   if (prescriptionsError) {
     return { success: false, message: "Failed to load prescriptions" };
   }
 
   if (!prescriptions || prescriptions.length === 0) {
-    return { success: true, data: [] };
+    return { success: true, data: [], totalCount: 0, totalPages: 1 };
   }
 
   // A patient's list can span multiple doctors, so unlike the doctor-facing
   // list we need the doctor's name here, not the patient's.
-  const doctorIds = Array.from(new Set(prescriptions.map((p) => p.doctor_id)));
+  const doctorIds = Array.from(new Set(prescriptions.map((p: any) => p.doctor_id)));
 
   const { data: doctors, error: doctorsError } = await supabase
     .from("doctors")
@@ -311,7 +516,7 @@ export async function getPatientPrescriptions() {
     return { success: false, message: "Failed to load doctor details" };
   }
 
-  const doctorProfileIds = (doctors ?? []).map((d) => d.profile_id);
+  const doctorProfileIds = (doctors ?? []).map((d: any) => d.profile_id);
 
   const { data: doctorProfiles, error: doctorProfilesError } = await supabase
     .from("profiles")
@@ -323,11 +528,11 @@ export async function getPatientPrescriptions() {
   }
 
   const doctorProfileMap = new Map(
-    (doctorProfiles ?? []).map((profile) => [profile.id, profile]),
+    (doctorProfiles ?? []).map((profile: any) => [profile.id, profile]),
   );
-  const doctorMap = new Map((doctors ?? []).map((doctor) => [doctor.id, doctor]));
+  const doctorMap = new Map((doctors ?? []).map((doctor: any) => [doctor.id, doctor]));
 
-  const data = prescriptions.map((prescription) => {
+  const data = prescriptions.map((prescription: any) => {
     const doctor = doctorMap.get(prescription.doctor_id);
     const doctorProfile = doctor
       ? doctorProfileMap.get(doctor.profile_id)
@@ -344,7 +549,7 @@ export async function getPatientPrescriptions() {
     };
   });
 
-  return { success: true, data };
+  return { success: true, data, totalCount: count ?? 0, totalPages };
 }
 
 export async function getPrescriptionsByAppointmentIds(

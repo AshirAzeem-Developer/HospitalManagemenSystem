@@ -19,6 +19,7 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import { IoChevronDown } from "react-icons/io5";
+import PaginationSearchBar from "@/components/ui/PaginationSearchBar";
 
 import { deletePrescription } from "@/features/prescriptions/actions";
 
@@ -109,9 +110,9 @@ function RowActionsMenu({
 
     setPosition({
       top: rect.bottom + MENU_GAP,
-      left: Math.min(
-        rect.right - MENU_WIDTH,
-        window.innerWidth - MENU_WIDTH - MENU_GAP,
+      left: Math.max(
+        MENU_GAP,
+        Math.min(rect.right - MENU_WIDTH, window.innerWidth - MENU_WIDTH - MENU_GAP),
       ),
     });
   }, [isOpen]);
@@ -158,7 +159,7 @@ function RowActionsMenu({
         aria-expanded={isOpen}
         aria-label="Prescription actions"
         onClick={() => (isOpen ? onClose() : onOpen())}
-        className="rounded-lg border border-gray-200 p-2 text-gray-500 transition hover:border-gray-300 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+        className="rounded-lg border border-border bg-background p-2 text-foreground transition hover:bg-hover focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
       >
         <FiMoreVertical size={18} />
       </button>
@@ -170,12 +171,12 @@ function RowActionsMenu({
             ref={menuRef}
             role="menu"
             style={{ top: position.top, left: position.left }}
-            className="fixed z-[9999] w-56 overflow-hidden rounded-xl border border-gray-100 bg-white py-2 shadow-lg ring-1 ring-black/5"
+            className="fixed z-9999 w-56 overflow-hidden rounded-xl border border-border bg-background py-2 shadow-lg ring-1 ring-black/5"
           >
             <button
               type="button"
               role="menuitem"
-              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-gray-700 transition hover:bg-gray-50"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-foreground transition hover:bg-hover"
               onClick={() => {
                 onView();
                 onClose();
@@ -188,7 +189,7 @@ function RowActionsMenu({
             <button
               type="button"
               role="menuitem"
-              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-gray-700 transition hover:bg-gray-50"
+              className="flex w-full items-center gap-3 px-5 py-2.5 text-left text-sm text-foreground transition hover:bg-hover"
               onClick={() => {
                 onEdit();
                 onClose();
@@ -198,7 +199,7 @@ function RowActionsMenu({
               Edit
             </button>
 
-            <div className="my-1 border-t border-gray-100" />
+            <div className="my-1 border-t border-border" />
 
             <button
               type="button"
@@ -225,7 +226,6 @@ export default function PrescriptionTable({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [search, setSearch] = useState("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -260,14 +260,10 @@ export default function PrescriptionTable({
   };
 
   // ---------------------------------------
-  // Search + Filter + Sort (derived, no extra state needed)
+  // Filter + Sort (derived, no extra state needed)
   // ---------------------------------------
   const visiblePrescriptions = useMemo(() => {
-    let result = prescriptions.filter(
-      (prescription) =>
-        prescription.patientName.toLowerCase().includes(search.toLowerCase()) ||
-        prescription.id.toLowerCase().includes(search.toLowerCase()),
-    );
+    let result = [...prescriptions];
 
     if (appliedDateFrom) {
       const from = new Date(appliedDateFrom).getTime();
@@ -294,7 +290,7 @@ export default function PrescriptionTable({
     });
 
     return result;
-  }, [prescriptions, search, appliedDateFrom, appliedDateTo, sortOption]);
+  }, [prescriptions, appliedDateFrom, appliedDateTo, sortOption]);
 
   const hasActiveFilter = Boolean(appliedDateFrom || appliedDateTo);
 
@@ -404,16 +400,15 @@ export default function PrescriptionTable({
   }
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white shadow-sm">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-100 p-6">
-        <h2 className="text-xl font-semibold text-slate-800">Prescriptions</h2>
+    <div className="min-w-0 rounded-xl border border-border bg-background shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-foreground sm:text-xl">Prescriptions</h2>
 
         <div className="relative" ref={exportRef}>
           <button
             type="button"
             onClick={() => setShowExportMenu((v) => !v)}
-            className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:bg-hover focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
           >
             Export
             <IoChevronDown
@@ -425,10 +420,10 @@ export default function PrescriptionTable({
           </button>
 
           {showExportMenu && (
-            <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black/5">
+            <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-lg ring-1 ring-black/5">
               <button
                 type="button"
-                className="w-full px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-gray-50"
+                className="w-full px-4 py-2.5 text-left text-sm text-foreground transition hover:bg-hover"
                 onClick={exportToPDF}
               >
                 Download As PDF
@@ -436,7 +431,7 @@ export default function PrescriptionTable({
 
               <button
                 type="button"
-                className="w-full px-4 py-2.5 text-left text-sm text-slate-700 transition hover:bg-gray-50"
+                className="w-full px-4 py-2.5 text-left text-sm text-foreground transition hover:bg-hover"
                 onClick={exportToCSV}
               >
                 Download As Excel
@@ -447,25 +442,21 @@ export default function PrescriptionTable({
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between">
-        <input
-          type="text"
-          placeholder="Search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 md:w-72"
-        />
+      <div className="flex flex-col gap-4 p-4 sm:p-6 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0 flex-1">
+          <PaginationSearchBar placeholder="Search prescriptions" />
+        </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3 md:justify-end">
           {/* Filters */}
           <div className="relative" ref={filterRef}>
             <button
               type="button"
               onClick={() => setShowFilterMenu((v) => !v)}
-              className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 ${
+              className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition hover:bg-hover focus:outline-none focus:ring-2 focus:ring-indigo-500/30 ${
                 hasActiveFilter
                   ? "border-indigo-500 text-indigo-600"
-                  : "border-gray-200 text-slate-700 hover:border-gray-300"
+                  : "border-border bg-background text-foreground"
               }`}
             >
               <FiFilter size={15} />
@@ -478,32 +469,30 @@ export default function PrescriptionTable({
             </button>
 
             {showFilterMenu && (
-              <div className="absolute right-0 z-20 mt-2 w-64 rounded-lg border border-gray-100 bg-white p-4 shadow-lg ring-1 ring-black/5">
-                <p className="mb-3 text-sm font-medium text-slate-700">
-                  Prescribed On
-                </p>
+              <div className="absolute right-0 z-20 mt-2 w-64 rounded-lg border border-border bg-background p-4 shadow-lg ring-1 ring-black/5">
+                <p className="mb-3 text-sm font-medium text-foreground">Prescribed On</p>
 
-                <label className="mb-1 block text-xs text-gray-500">From</label>
+                <label className="mb-1 block text-xs text-muted">From</label>
                 <input
                   type="date"
                   value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
-                  className="mb-3 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="mb-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 />
 
-                <label className="mb-1 block text-xs text-gray-500">To</label>
+                <label className="mb-1 block text-xs text-muted">To</label>
                 <input
                   type="date"
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
-                  className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="mb-4 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 />
 
                 <div className="flex justify-between gap-2">
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-gray-100"
+                    className="rounded-lg px-3 py-2 text-sm text-muted transition hover:bg-hover"
                   >
                     Clear
                   </button>
@@ -524,7 +513,7 @@ export default function PrescriptionTable({
             <button
               type="button"
               onClick={() => setShowSortMenu((v) => !v)}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+              className="flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:bg-hover focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             >
               Sort By : {sortLabels[sortOption]}
               <IoChevronDown
@@ -536,15 +525,13 @@ export default function PrescriptionTable({
             </button>
 
             {showSortMenu && (
-              <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 shadow-lg ring-1 ring-black/5">
+              <div className="absolute right-0 z-20 mt-2 w-48 overflow-hidden rounded-lg border border-border bg-background py-1 shadow-lg ring-1 ring-black/5">
                 {(Object.keys(sortLabels) as SortOption[]).map((option) => (
                   <button
                     key={option}
                     type="button"
-                    className={`w-full px-4 py-2.5 text-left text-sm transition hover:bg-gray-50 ${
-                      sortOption === option
-                        ? "font-medium text-indigo-600"
-                        : "text-slate-700"
+                    className={`w-full px-4 py-2.5 text-left text-sm transition hover:bg-hover ${
+                      sortOption === option ? "font-medium text-indigo-600" : "text-foreground"
                     }`}
                     onClick={() => {
                       setSortOption(option);
@@ -562,31 +549,20 @@ export default function PrescriptionTable({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="border-y border-gray-100 bg-gray-50">
+        <table className="w-full min-w-[640px]">
+          <thead className="border-y border-border bg-hover">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                Prescription ID
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                Patient
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600">
-                Prescribed On
-              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-muted">Prescription ID</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-muted">Patient</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-muted">Prescribed On</th>
               <th className="w-20"></th>
             </tr>
           </thead>
 
           <tbody>
             {visiblePrescriptions.map((prescription) => (
-              <tr
-                key={prescription.id}
-                className="border-b border-gray-100 transition hover:bg-gray-50/60"
-              >
-                <td className="px-6 py-5 text-sm font-medium text-indigo-900">
-                  #{prescription.id}
-                </td>
+              <tr key={prescription.id} className="border-b border-border transition hover:bg-hover/60">
+                <td className="whitespace-nowrap px-6 py-5 text-sm font-medium text-foreground">#{prescription.id}</td>
 
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-3">
@@ -596,10 +572,10 @@ export default function PrescriptionTable({
                         alt={prescription.patientName}
                         width={42}
                         height={42}
-                        className="h-[42px] w-[42px] rounded-full object-cover"
+                        className="h-10.5 w-10.5 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-500">
+                      <div className="flex h-10.5 w-10.5 items-center justify-center rounded-full bg-hover text-sm font-semibold text-muted">
                         ?
                       </div>
                     )}
@@ -609,16 +585,14 @@ export default function PrescriptionTable({
                       onClick={() =>
                         router.push(`/doctor/prescriptions/${prescription.id}`)
                       }
-                      className="cursor-pointer text-sm font-medium text-slate-800 transition hover:text-teal-700"
+                      className="cursor-pointer text-sm font-medium text-foreground transition hover:text-indigo-600"
                     >
                       {prescription.patientName}
                     </button>
                   </div>
                 </td>
 
-                <td className="px-6 py-5 text-sm text-gray-500">
-                  {prescription.prescribedOn}
-                </td>
+                <td className="whitespace-nowrap px-6 py-5 text-sm text-muted">{prescription.prescribedOn}</td>
 
                 <td className="px-6 py-5 text-center">
                   <RowActionsMenu
@@ -645,24 +619,18 @@ export default function PrescriptionTable({
         </table>
 
         {visiblePrescriptions.length === 0 && (
-          <div className="p-8 text-center text-sm text-gray-500">
-            No prescriptions found.
-          </div>
+          <div className="p-8 text-center text-sm text-muted">No prescriptions found.</div>
         )}
       </div>
 
       {/* Delete confirmation modal */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-800">
-              Delete prescription?
-            </h3>
-            <p className="mt-2 text-sm text-gray-500">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-sm rounded-xl bg-background p-4 shadow-xl sm:p-6">
+            <h3 className="text-lg font-semibold text-foreground">Delete prescription?</h3>
+            <p className="mt-2 text-sm text-muted">
               This will permanently delete prescription{" "}
-              <span className="font-medium text-slate-700">
-                #{deleteTarget.id}
-              </span>{" "}
+              <span className="font-medium text-foreground">#{deleteTarget.id}</span>{" "}
               for {deleteTarget.patientName}. This action can&apos;t be undone.
             </p>
 
@@ -678,7 +646,7 @@ export default function PrescriptionTable({
                   setDeleteTarget(null);
                   setDeleteError(null);
                 }}
-                className="rounded-lg px-4 py-2 text-sm text-gray-600 transition hover:bg-gray-100 disabled:opacity-50"
+                className="rounded-lg px-4 py-2 text-sm text-foreground transition hover:bg-hover disabled:opacity-50"
               >
                 Cancel
               </button>

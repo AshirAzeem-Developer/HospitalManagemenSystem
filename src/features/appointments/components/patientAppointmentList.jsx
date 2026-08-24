@@ -24,6 +24,8 @@ export default function PatientAppointmentList({
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [editFormData, setEditFormData] = useState({});
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   useEffect(() => {
     if (doctorsList && doctorsList.length > 0) {
       setAllDoctors(doctorsList);
@@ -67,6 +69,11 @@ export default function PatientAppointmentList({
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "date" && value && value < todayStr) {
+      return;
+    }
+
     setEditFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -112,21 +119,11 @@ export default function PatientAppointmentList({
         <table className="w-full text-left text-sm text-foreground">
           <thead className="border-b border-border bg-black/[0.02] dark:bg-white/[0.02] text-muted-foreground">
             <tr>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">
-                Date & Time
-              </th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">
-                Doctor
-              </th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">
-                Status
-              </th>
-              <th className="px-6 py-4 font-semibold whitespace-nowrap">
-                Prescription
-              </th>
-              <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">
-                Action
-              </th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">Date & Time</th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">Doctor</th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">Status</th>
+              <th className="px-6 py-4 font-semibold whitespace-nowrap">Prescription</th>
+              <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -135,7 +132,6 @@ export default function PatientAppointmentList({
                 ? `app-${appointment.id}`
                 : `app-idx-${index}`;
               const isMenuOpen = activeDropdown === appointment.id;
-
               const currentStatus = appointment.status?.toLowerCase();
               const isEditable = currentStatus === "pending";
 
@@ -147,7 +143,6 @@ export default function PatientAppointmentList({
               return (
                 <tr
                   key={uniqueKey}
-                  // Table row hover is now completely soft in both modes
                   className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -191,9 +186,9 @@ export default function PatientAppointmentList({
                     {currentStatus === "completed" ? (
                       <Link
                         href={`/patient/prescriptions/${appointment.prescriptionId}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 rounded-md shadow-sm hover:bg-emerald-500/20 transition-all duration-200 outline-none"
-                      >
-                        <FileText className="h-3.5 w-3.5" />
+                         className="inline-flex items-center gap-1.5 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
                         <span>View</span>
                       </Link>
                     ) : (
@@ -358,6 +353,8 @@ export default function PatientAppointmentList({
                           name="date"
                           value={editFormData.date || ""}
                           onChange={handleInputChange}
+                          onKeyDown={(e) => e.preventDefault()}
+                          min={todayStr}
                           className="w-full mt-1 px-2.5 py-1.5 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-foreground bg-background"
                         />
                       ) : (

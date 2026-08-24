@@ -15,5 +15,10 @@ export default async function PrescriptionDetailPage({
     notFound();
   }
 
-  return <PrescriptionDetail data={result.data} />;
+  return (
+    <PrescriptionDetail
+      data={result.data}
+      backHref="/doctor/prescriptions"
+    />
+  );
 }

@@ -22,11 +22,25 @@ export const adminLinks: MenuGroup[] = [
         icon: "Users",
       },
 
+      
       {
         label: "Appointments",
         href: "/admin/appointments",
+        icon: "Clock3",
+      },
+
+      {
+        label: "Book Appointment",
+        href: "/admin/appointments/new",
         icon: "CalendarDays",
       },
+
+      {
+        label: "Appointment Requests",
+        href: "/admin/appointments/requests",
+        icon: "CalendarClock",
+      },
+
       {
         label: "Billing",
         href: "/admin/billing",
@@ -103,7 +117,7 @@ export const patientLinks: MenuGroup[] = [
         href: "/patient/appointments",
         icon: "Clock3",
       },
-      
+
       {
         label: "Prescriptions",
         href: "/patient/prescriptions",

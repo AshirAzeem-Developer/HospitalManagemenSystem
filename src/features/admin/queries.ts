@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-
 import type { Profile } from "./types";
 
 export async function getCurrentUserProfile(): Promise<{
@@ -99,6 +98,7 @@ export async function getAdminDashboardStats() {
     totalRevenue,
   };
 }
+
 // Appointment Statistics for Admin Dashboard
 export async function getAppointmentStatistics() {
   const supabase = await createClient();

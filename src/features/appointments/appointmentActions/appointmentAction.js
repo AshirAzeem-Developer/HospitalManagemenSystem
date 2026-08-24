@@ -64,6 +64,20 @@ export async function getStatuses() {
 export async function getAppointments(filters = {}) {
   const supabase = await createClient();
   
+  // NEW LOGIC: AUTO-CANCEL PAST APPOINTMENTS
+  const todayStr = new Date().toISOString().split('T')[0]; 
+
+  const { error: cancelError } = await supabase
+    .from("appointments")
+    .update({ status: "cancelled" })
+    .lt("appointment_date", todayStr) 
+    .eq("status", "pending"); 
+
+  if (cancelError) {
+    console.error("Error auto-cancelling past appointments:", cancelError.message);
+  }
+  // ==========================================
+
   let query = supabase
     .from("appointments")
     .select(`
@@ -103,10 +117,11 @@ export async function getAppointments(filters = {}) {
     status: app.status,
     patientId: app.patient_id,
     doctorId: app.doctor_id,
+    reason: app.reason_of_visit, 
     patientName: app.patient?.profile?.full_name || "Unknown Patient",
     patientImage: app.patient?.profile?.avatar_url || "/default-avatar.png", 
     doctorName: app.doctor?.profile?.full_name || "Unknown Doctor",
-    doctorImage: app.doctor?.profile?.avatar_url || "/default-avatar.png", // Fallback image 
+    doctorImage: app.doctor?.profile?.avatar_url || "/default-avatar.png", 
   }));
 
   return formattedAppointments;
@@ -145,12 +160,12 @@ export async function updateAppointmentAction(id, updatedData) {
       .eq("id", appData.doctor.profile_id);
   }
 
-  // 4. Ab appointments table mein Date, Time, Status aur DOCTOR ID update karein
+  // 4. Ab appointments table mein Date, Time, Status aur DOCTOR ID update 
   const updatePayload = {
     appointment_date: updatedData.date,
     time_slot: updatedData.time,
     status: updatedData.status,
-    doctor_id: updatedData.doctorId, // <--- YEH ADD KIYA HAI (Iske baghair doctor change nahi hota db me)
+    doctor_id: updatedData.doctorId, 
   };
 
   const { error: appError } = await supabase

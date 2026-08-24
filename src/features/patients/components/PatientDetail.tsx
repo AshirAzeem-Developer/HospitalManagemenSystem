@@ -19,7 +19,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import BillingTable from "@/features/billing/component/billing-table";
-import AppointmentsContainer from "@/features/appointments/components/AppointmentsContainer";
+import AppointmentsContainer from "@/features/appointments/appointmentContainers/adminAppointmentsContainer";
 
 type PatientVitals = {
   blood_pressure: string;
@@ -205,7 +205,7 @@ export default function PatientDetail({
               text="Book Appointment"
               icon={<CalendarDays size={16} />}
               onClick={() => {
-                router.push("/admin/appointments/new");
+                router.push(`/admin/appointments/new?patientId=${patient.id}`);
               }}
               className="w-full sm:w-auto"
             />

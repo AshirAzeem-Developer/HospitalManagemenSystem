@@ -8,6 +8,10 @@
   --border: #e7e8eb;
   --muted: #64748b;
   --hover: #f3f4f6;
+
+  /* Distinct surfaces for cards/panels vs. the page */
+  --card: #ffffff;
+  --page: #f5f6f8;
 }
 
 .dark {
@@ -27,7 +31,6 @@
   --color-border: var(--border);
   --color-muted: var(--muted);
   --color-hover: var(--hover);
-
   --color-card: var(--card);
   --color-page: var(--page);
 
@@ -46,4 +49,26 @@ body {
   .no-print {
     display: none !important;
   }
+}
+
+/* Light mode - force white background regardless of system dark mode */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #f8fafc inset !important;
+  box-shadow: 0 0 0 1000px #f8fafc inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0f172a !important;
+}
+
+/* Dark mode - force dark background */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
+  box-shadow: 0 0 0 1000px #1f2937 inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
 }

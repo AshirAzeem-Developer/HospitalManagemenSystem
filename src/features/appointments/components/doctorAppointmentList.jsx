@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Eye, Pencil, Stethoscope, X } from "lucide-react";
+import { MoreVertical, Eye, Pencil, Stethoscope, X, Plus } from "lucide-react";
 
 export default function DoctorAppointmentList({ appointments = [] }) {
   const [sidebar, setSidebar] = useState({
@@ -45,6 +45,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
       </div>
     );
   }
+  
 
   return (
     <div className="w-full relative">
@@ -138,7 +139,21 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                   </td>
 
                   <td className="px-6 py-4">
-                    {appointment.prescriptionId ? (
+                    {appointment.status?.toLowerCase() ===
+                    "pending" ? (
+                      <span className="inline-flex items-center rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
+                        Prescription Pending
+                      </span>
+                    ) : appointment.status?.toLowerCase() === "confirmed" ? (
+                      <Link
+                        href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
+                        className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
+                      >
+                        <Stethoscope size={16} />
+                        Consultation
+                      </Link>
+                    ) : appointment.status?.toLowerCase() === "completed" &&
+                      appointment.prescriptionId ? (
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/doctor/prescriptions/${appointment.prescriptionId}`}
@@ -156,17 +171,8 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                           Edit
                         </Link>
                       </div>
-                    ) : (
-                      <Link
-                        href={`/doctor/prescriptions/create?appointmentId=${appointment.id}`}
-                        className="inline-flex items-center gap-2 rounded-lg bg-[#2E37A4] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#252d89]"
-                      >
-                        <Stethoscope size={16} />
-                        Consultation
-                      </Link>
-                    )}
+                    ) : null}
                   </td>
-
                   <td className="px-6 py-4 text-right">
                     <div className="relative inline-block text-left">
                       <button
@@ -202,7 +208,6 @@ export default function DoctorAppointmentList({ appointments = [] }) {
         </table>
       </div>
 
-      {/* Sidebar - View Details */}
       {sidebar.isOpen && sidebar.data && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
@@ -224,7 +229,7 @@ export default function DoctorAppointmentList({ appointments = [] }) {
             </div>
 
             <div className="p-5 overflow-y-auto flex-1 bg-card">
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
                   <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
                     Patient Name
@@ -264,6 +269,21 @@ export default function DoctorAppointmentList({ appointments = [] }) {
                       {sidebar.data.status || "Unknown"}
                     </span>
                   </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-muted uppercase tracking-wider">
+                    Reason of Visit
+                  </label>
+                  <p className="text-sm font-medium text-foreground mt-0.5 leading-relaxed">
+                    {sidebar.data.reason ? (
+                      sidebar.data.reason
+                    ) : (
+                      <span className="text-muted font-normal italic text-xs">
+                        No reason provided
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>

@@ -214,7 +214,7 @@ export async function addDoctorAction(formData: unknown) {
         qualification: parsedContact.data.qualification,
         consultation_fee: parsedContact.data.consultationFee,
         bio: parsedContact.data.bio,
-        status: parsedContact.data.status,
+        status: "available",
       })
       .select("id")
       .single();

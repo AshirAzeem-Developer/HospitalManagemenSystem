@@ -1,4 +1,10 @@
 import DashboardStatCard from "@/components/ui/DashboardStatCard";
+import AppointmentStatistics from "@/components/ui/AppointmentStatistics";
+
+import {
+  getAdminDashboardStats,
+  getAppointmentStatistics,
+} from "@/features/admin/queries";
 
 import {
   Stethoscope,
@@ -7,25 +13,15 @@ import {
   Wallet,
 } from "lucide-react";
 
-import {
-  getAdminDashboardStats,
-  getAppointmentStatistics,
-} from "@/features/admin/queries";
-import AppointmentStatistics from "@/components/ui/AppointmentStatistics";
 export default async function AdminDashboardPage() {
-  
-  const [
-  {
+  const {
     totalDoctors,
     totalPatients,
     totalAppointments,
     totalRevenue,
-  },
-  appointmentStats,
-] = await Promise.all([
-  getAdminDashboardStats(),
-  getAppointmentStatistics(),
-]);
+  } = await getAdminDashboardStats();
+
+  const appointmentStats = await getAppointmentStatistics();
 
   const stats = [
     {
@@ -69,8 +65,8 @@ export default async function AdminDashboardPage() {
         Dashboard
       </h1>
 
-      {/* Statistics Cards */}
-      <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Dashboard Stats */}
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <DashboardStatCard
             key={stat.title}
@@ -83,13 +79,15 @@ export default async function AdminDashboardPage() {
           />
         ))}
       </div>
+
+      {/* Appointment Statistics */}
       <AppointmentStatistics
-  cancelled={appointmentStats.cancelled}
-  completed={appointmentStats.completed}
-  confirmed={appointmentStats.confirmed}
-  pending={appointmentStats.pending}
-  monthlyData={appointmentStats.monthlyData}
-/>
+        cancelled={appointmentStats.cancelled}
+        completed={appointmentStats.completed}
+        confirmed={appointmentStats.confirmed}
+        pending={appointmentStats.pending}
+        monthlyData={appointmentStats.monthlyData}
+      />
     </div>
   );
 }

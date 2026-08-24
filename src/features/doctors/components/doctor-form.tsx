@@ -57,7 +57,7 @@ export default function ProfileForm({ doctor }: Props) {
     specialization: doctor?.specialization ?? "",
     qualification: doctor?.qualification ?? "",
     consultationFee: doctor?.consultation_fee ?? "",
-    status: doctor?.status ?? "",
+    status: doctor?.status ?? "available",
     bio: doctor?.bio ?? "",
     profileImage: null,
   });

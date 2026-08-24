@@ -21,8 +21,7 @@ export default async function AdminPatientsPage({ searchParams }: Props) {
   const parsedPage = Number.parseInt(params.page ?? "1", 10);
   const parsedLimit = Number.parseInt(params.limit ?? "10", 10);
 
-  const page =
-    Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 
   const limit =
     Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10;
@@ -69,10 +68,7 @@ export default async function AdminPatientsPage({ searchParams }: Props) {
           </div>
 
           {/* New Patient */}
-          <Link
-            href="/admin/patients/NewPatient"
-            className="w-full sm:w-auto"
-          >
+          <Link href="/admin/patients/NewPatient" className="w-full sm:w-auto">
             <Button
               text="New Patient"
               variant="primary"

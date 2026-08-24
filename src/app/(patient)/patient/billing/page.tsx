@@ -1,14 +1,4 @@
 import { Card } from "@/components/ui/card";
-<<<<<<< Updated upstream
-
-export default function PatientBillingPage() {
-  return (
-    <div>
-      <h1 className="text-xl font-semibold text-slate-900">Billing & Statements</h1>
-      <p className="mt-1 text-sm text-slate-500">View payment history and outstanding invoices.</p>
-      <div className="mt-6">
-        <Card label="Balance Due" value="$0.00" hint="Wired up in feature update" />
-=======
 
 import BillingTable from "@/features/billing/component/billing-table";
 
@@ -111,7 +101,6 @@ export default async function PatientBillingPage() {
       {/* BILLING TABLE */}
       <div className="mt-6 w-full min-w-0 max-w-full">
         <BillingTable invoices={invoices} isPatient={true} />
->>>>>>> Stashed changes
       </div>
     </div>
   );

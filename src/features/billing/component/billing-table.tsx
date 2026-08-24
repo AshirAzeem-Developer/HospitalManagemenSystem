@@ -429,10 +429,10 @@ export default function BillingTable({ invoices }: BillingTableProps) {
           </div>
         </div>
 
-        <div className="w-full ">
-          <div className="min-w-[850px]">
+        <div className="w-full overflow-x-auto ">
+          
             <Table columns={columns} data={paginatedInvoices} />
-          </div>
+         
         </div>
 
         {/* Pagination */}

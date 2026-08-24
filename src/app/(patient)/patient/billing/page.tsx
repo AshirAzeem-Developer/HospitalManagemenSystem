@@ -30,13 +30,13 @@ export default async function PatientBillingPage() {
       </div>
 
       {/* Balance Card */}
-      <div className="w-full sm:max-w-sm">
+      {/* <div className="w-full sm:max-w-sm">
         <Card
           label="Balance Due"
           value="$0.00"
           hint="Wired up in feature update"
         />
-      </div>
+      </div> */}
 
       {/* Billing Table */}
       <div className="mt-6 w-full min-w-0 max-w-full">

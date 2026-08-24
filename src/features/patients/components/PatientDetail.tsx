@@ -300,7 +300,7 @@ export default function PatientDetail({
       </div>
 
       {/* Tabs */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+      <div className="rounded-xl border border-slate-200 bg-white dark:border-gray-700 dark:bg-gray-900">
         <div className="flex flex-col gap-4 border-b border-slate-200 px-4 pt-4 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-center gap-6">
             {(

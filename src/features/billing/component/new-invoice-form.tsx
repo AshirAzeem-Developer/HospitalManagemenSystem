@@ -4,7 +4,6 @@ import Input from "@/components/ui/input";
 import InvoiceItemsTable, { type InvoiceItem } from "./invoice-items-table";
 import InvoiceSummary from "./invoice-summary";
 import Button from "@/components/ui/button";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -47,18 +46,21 @@ type PatientOption = {
   address: string;
 };
 
+type PaymentStatus = "paid" | "partially_paid" | "unpaid";
+
 export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
   const router = useRouter();
-
   const isEditMode = Boolean(editId);
 
   // INVOICE STATES
+  const [invoiceDate, setInvoiceDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  });
 
-  const [invoiceDate, setInvoiceDate] = useState("");
   const [dueDate, setDueDate] = useState("");
-
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
+  // const [paymentMethod, setPaymentMethod] = useState("");
+  // const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | "">("");
 
   const [patientId, setPatientId] = useState("");
   const [patientName, setPatientName] = useState("");
@@ -66,23 +68,19 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
   const [billingAddress, setBillingAddress] = useState("");
 
   const [items, setItems] = useState<InvoiceItem[]>([]);
-
   const [tax, setTax] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [roundOff, setRoundOff] = useState(false);
 
   // LOADING STATES
-
   const [loadingInvoice, setLoadingInvoice] = useState(false);
   const [loadingPatients, setLoadingPatients] = useState(true);
 
   // PATIENTS
-
   const [patients, setPatients] = useState<PatientOption[]>([]);
   const [patientSearch, setPatientSearch] = useState("");
 
   // LOAD PATIENTS
-
   useEffect(() => {
     const loadPatients = async () => {
       try {
@@ -104,7 +102,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         setPatients(formattedPatients);
       } catch (error) {
         console.error("Failed to load invoice patients:", error);
-
         toast.error("Failed to load patients. Please try again.");
       } finally {
         setLoadingPatients(false);
@@ -115,27 +112,20 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
   }, []);
 
   // FILTER PATIENTS
-
   const filteredPatients = patients.filter((patient) =>
     patient.name.toLowerCase().includes(patientSearch.toLowerCase())
   );
 
   // PATIENT CHANGE
-
   const handlePatientChange = (patient: PatientOption) => {
     setPatientId(patient.id);
-
     setPatientName(patient.name);
-
     setPatientEmail(patient.email);
-
     setBillingAddress(patient.address);
-
     setPatientSearch(patient.name);
   };
 
   // LOAD INVOICE IN EDIT MODE
-
   useEffect(() => {
     if (!editId) return;
 
@@ -154,19 +144,25 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         }
 
         setInvoiceDate(invoice.issued_date || "");
-
         setDueDate(invoice.due_date || "");
 
-        setPaymentStatus(invoice.status || "");
+        // ONLY paid / partially_paid / unpaid
+        // if (
+        //   invoice.status === "paid" ||
+        //   invoice.status === "partially_paid" ||
+        //   invoice.status === "unpaid"
+        // ) {
+        //   setPaymentStatus(invoice.status);
+        // } else {
+        //   setPaymentStatus("");
+        // }
 
         setBillingAddress(invoice.notes || "");
 
         setTax(Number(invoice.tax_percentage || 0));
-
         setDiscount(Number(invoice.discount || 0));
 
         // PATIENT
-
         if (invoice.patient_id) {
           setPatientId(invoice.patient_id);
         }
@@ -179,7 +175,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
 
         if (profile?.full_name) {
           setPatientName(profile.full_name);
-
           setPatientSearch(profile.full_name);
         }
 
@@ -191,20 +186,22 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           setBillingAddress(patient.stay_address);
         }
 
-        // INVOICE ITEMS
+        // PAYMENT METHOD
+        // if (
+        //   invoice.payment_method === "cash" ||
+        //   invoice.payment_method === "card"
+        // ) {
+        //   setPaymentMethod(invoice.payment_method);
+        // }
 
+        // INVOICE ITEMS
         const formattedItems: InvoiceItem[] = (invoiceItems ?? []).map(
           (item: any) => ({
             id: item.id,
-
             item_name: item.item_name || "",
-
             description: item.description || "",
-
             unit_cost: String(item.unit_cost ?? ""),
-
             quantity: String(item.quantity ?? "1"),
-
             amount: String(item.amount ?? ""),
           })
         );
@@ -212,7 +209,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         setItems(formattedItems);
       } catch (error) {
         console.error("Failed to load invoice:", error);
-
         toast.error("Failed to load invoice. Please try again.");
       } finally {
         setLoadingInvoice(false);
@@ -223,7 +219,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
   }, [editId]);
 
   // HANDLE PATIENT DATA AFTER PATIENTS LOAD
-
   useEffect(() => {
     if (!patientId || patients.length === 0) {
       return;
@@ -238,9 +233,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
     }
 
     setPatientName(selectedPatient.name);
-
     setPatientEmail(selectedPatient.email);
-
     setPatientSearch(selectedPatient.name);
 
     if (!billingAddress) {
@@ -265,10 +258,15 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         return;
       }
 
-      if (!paymentStatus) {
-        toast.error("Please select payment status.");
-        return;
-      }
+      // if (!paymentMethod) {
+      //   toast.error("Please select payment method.");
+      //   return;
+      // }
+
+      // if (!paymentStatus) {
+      //   toast.error("Please select payment status.");
+      //   return;
+      // }
 
       const subtotal = items.reduce(
         (total, item) => total + Number(item.amount || 0),
@@ -288,7 +286,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
       );
 
       // EDIT INVOICE
-
       if (isEditMode && editId) {
         await updateInvoiceAction(editId, {
           patient_id: patientId,
@@ -305,13 +302,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
 
           total,
 
-          status: paymentStatus as
-            | "draft"
-            | "paid"
-            | "partially_paid"
-            | "unpaid"
-            | "overdue",
-
           notes: billingAddress || null,
         });
 
@@ -322,7 +312,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           .map((item) => item.id);
 
         // DELETE REMOVED ITEMS
-
         for (const existingItem of existingItems) {
           if (!currentItemIds.includes(existingItem.id)) {
             await deleteInvoiceItemAction(existingItem.id);
@@ -330,17 +319,12 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
         }
 
         // UPDATE / CREATE ITEMS
-
         for (const item of validItems) {
           const itemData = {
             item_name: item.item_name,
-
             description: item.description || "",
-
             unit_cost: Number(item.unit_cost || 0),
-
             quantity: Number(item.quantity || 1),
-
             amount: Number(item.amount || 0),
           };
 
@@ -349,19 +333,15 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           } else {
             await createInvoiceItemAction({
               invoice_id: editId,
-
               item_name: itemData.item_name,
-
               description: itemData.description,
-
               unit_cost: itemData.unit_cost,
-
               quantity: itemData.quantity,
-
               amount: itemData.amount,
             });
           }
         }
+
         toast.success("Invoice updated successfully!");
 
         setTimeout(() => {
@@ -372,7 +352,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
       }
 
       // CREATE NEW INVOICE
-
       const invoiceData = {
         appointment_id: null,
 
@@ -390,17 +369,10 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
 
         total,
 
-        status: paymentStatus as
-          | "draft"
-          | "paid"
-          | "partially_paid"
-          | "unpaid"
-          | "overdue",
+        status: "unpaid" as const,
 
         notes: billingAddress || null,
       };
-
-      // CREATE INVOICE
 
       const createdInvoice = await createInvoiceAction(invoiceData);
 
@@ -423,7 +395,7 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
       toast.success("Invoice created successfully!");
 
       setTimeout(() => {
-        router.push("/admin/billing");
+        router.push(`/admin/billing/${createdInvoice.id}`);
       }, 1000);
     } catch (error: any) {
       console.error("Failed to save invoice:", error);
@@ -435,30 +407,27 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
   };
 
   // EDIT PAGE LOADING
-
   if (isEditMode && loadingInvoice) {
     return (
       <div className="flex min-h-[400px] w-full items-center justify-center">
-        <div className="text-center">
-          <div
-            className="
-              mx-auto
-              h-8
-              w-8
-              animate-spin
-              rounded-full
-              border-4
-              border-[#E7E8EB]
-              border-t-[#2E37A4]
-            "
-          />
-        </div>
+        <div
+          className="
+            h-8
+            w-8
+            animate-spin
+            rounded-full
+            border-4
+            border-border
+            border-t-[#2E37A4]
+          "
+        />
       </div>
     );
   }
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-5 sm:space-y-6">
+      {/* HEADER */}
       <div className="w-full">
         <Link
           href="/admin/billing"
@@ -469,39 +438,54 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
             gap-2
             text-sm
             font-medium
-            text-[#0A1B39]
+            text-foreground
+            transition-colors
             hover:text-[#2E37A4]
             sm:text-base
           "
         >
           <ArrowLeft size={18} strokeWidth={2} />
-
           <span>Invoices</span>
         </Link>
 
-        <h1 className="text-xl font-semibold text-[#0A1B39] sm:text-2xl">
+        <h1
+          className="
+            text-xl
+            font-semibold
+            text-foreground
+            sm:text-2xl
+          "
+        >
           {isEditMode ? "Edit Invoice" : "New Invoice"}
         </h1>
       </div>
 
       {/* INVOICE FORM */}
-
-      <div className="w-full rounded-lg border border-[#E7E8EB] bg-white">
+      <div
+        className="
+          w-full
+          overflow-visible
+          rounded-lg
+          border
+          border-border
+          bg-background
+        "
+      >
         <div
           className="
             grid
             grid-cols-1
             gap-5
             p-4
-            text-[#0A1B39]
+            text-foreground
             sm:grid-cols-2
             sm:gap-6
             sm:p-6
+            lg:p-7
           "
         >
           {/* PATIENT SEARCH */}
-
-          <div className="relative">
+          <div className="relative min-w-0">
             <Input
               label="Patient Name"
               placeholder={
@@ -512,17 +496,13 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
               disabled={loadingPatients}
               onChange={(e) => {
                 setPatientSearch(e.target.value);
-
                 setPatientId("");
-
                 setPatientEmail("");
-
                 setBillingAddress("");
               }}
             />
 
             {/* PATIENT RESULTS */}
-
             {patientSearch.trim() !== "" &&
               !patientId &&
               filteredPatients.length > 0 && (
@@ -537,8 +517,8 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
                     overflow-y-auto
                     rounded-lg
                     border
-                    border-[#E7E8EB]
-                    bg-white
+                    border-border
+                    bg-background
                     shadow-lg
                   "
                 >
@@ -548,20 +528,21 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
                       type="button"
                       onClick={() => handlePatientChange(patient)}
                       className="
-                          flex
-                          w-full
-                          flex-col
-                          px-3
-                          py-2
-                          text-left
-                          hover:bg-gray-50
-                        "
+                        flex
+                        w-full
+                        flex-col
+                        px-3
+                        py-2.5
+                        text-left
+                        transition-colors
+                        hover:bg-hover
+                      "
                     >
-                      <span className="text-sm font-medium text-[#0A1B39]">
+                      <span className="text-sm font-medium text-foreground">
                         {patient.name}
                       </span>
 
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted">
                         {patient.email || "No email"}
                       </span>
                     </button>
@@ -570,7 +551,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
               )}
 
             {/* NO PATIENT */}
-
             {patientSearch.trim() !== "" &&
               !patientId &&
               !loadingPatients &&
@@ -584,12 +564,12 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
                     mt-1
                     rounded-lg
                     border
-                    border-[#E7E8EB]
-                    bg-white
+                    border-border
+                    bg-background
                     px-3
                     py-3
                     text-sm
-                    text-gray-500
+                    text-muted
                     shadow-lg
                   "
                 >
@@ -599,7 +579,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           </div>
 
           {/* EMAIL */}
-
           <Input
             label="Email"
             placeholder="Patient email will appear automatically"
@@ -608,17 +587,15 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           />
 
           {/* INVOICE DATE */}
-
           <Input
             label="Invoice Date"
             type="date"
             required
             value={invoiceDate}
-            onChange={(e) => setInvoiceDate(e.target.value)}
+            disabled
           />
 
           {/* DUE DATE */}
-
           <Input
             label="Due Date"
             type="date"
@@ -628,10 +605,10 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
           />
 
           {/* PAYMENT METHOD */}
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
+          {/* <div className="min-w-0">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Payment Method
+              <span className="ml-1 text-red-500">*</span>
             </label>
 
             <CustomSelect
@@ -640,12 +617,11 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
               value={paymentMethod}
               onChange={setPaymentMethod}
             />
-          </div>
+          </div> */}
 
           {/* PAYMENT STATUS */}
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
+          {/* <div className="min-w-0">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Payment Status
               <span className="ml-1 text-red-500">*</span>
             </label>
@@ -654,29 +630,35 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
               options={paymentStatusOptions}
               placeholder="Select"
               value={paymentStatus}
-              onChange={setPaymentStatus}
+              onChange={(value) => setPaymentStatus(value as PaymentStatus)}
             />
-          </div>
+          </div> */}
 
           {/* BILLING ADDRESS */}
-
           <div className="col-span-1 sm:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-[#0A1B39]">
+            <label className="mb-2 block text-sm font-medium text-foreground">
               Billing Address
             </label>
 
             <textarea
               className="
-                h-28
+                min-h-28
                 w-full
-                resize-none
+                resize-y
                 rounded-md
                 border
-                border-[#E7E8EB]
+                border-border
+                bg-background
                 p-3
-                text-[#0A1B39]
+                text-sm
+                text-foreground
                 outline-none
+                transition-colors
+                placeholder:text-muted
                 focus:border-[#2E37A4]
+                focus:ring-1
+                focus:ring-[#2E37A4]
+                sm:min-h-32
               "
               value={billingAddress}
               onChange={(e) => setBillingAddress(e.target.value)}
@@ -686,13 +668,11 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
       </div>
 
       {/* INVOICE ITEMS */}
-
-      <div className="w-full overflow-x-auto">
+      <div className="w-full">
         <InvoiceItemsTable initialItems={items} onItemsChange={setItems} />
       </div>
 
       {/* SUMMARY */}
-
       <div className="w-full">
         <InvoiceSummary
           items={items}
@@ -706,7 +686,6 @@ export default function NewInvoiceForm({ editId }: NewInvoiceFormProps) {
       </div>
 
       {/* BUTTONS */}
-
       <div
         className="
           flex

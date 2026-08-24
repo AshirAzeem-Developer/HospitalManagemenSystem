@@ -1,27 +1,45 @@
-const DashboardStatCard = ({ icon, percentage, title, value }) => {
+const DashboardStatCard = ({
+  icon,
+  title,
+  value,
+  iconBg,
+  iconColor,
+  valueColor,
+}) => {
   return (
-    <div className="rounded-2xl border bg-white p-3 shadow-sm">
-      <div className="flex justify-between">
-        <div className="h-12 w-12 rounded-full bg-indigo-600 flex items-center justify-center text-white">
-          {icon}
-        </div>
-
-        <div className="flex flex-col items-end gap-2">
-          <span className="rounded-md bg-green-500 px-3 py-1 text-sm font-semibold text-white">
-            {percentage}%
-          </span>
-          <p className="text-sm text-gray-400">in last 7 Days</p>
-        </div>
+    <div
+      className="
+        rounded-2xl
+        border border-slate-200
+        bg-white
+        p-5
+        shadow-sm
+        transition-all
+        duration-200
+        hover:-translate-y-0.5
+        hover:shadow-md
+        dark:border-slate-700
+        dark:bg-slate-900
+      "
+    >
+      {/* Icon */}
+      <div
+        className={`flex h-12 w-12 items-center justify-center rounded-xl ${iconBg} ${iconColor}`}
+      >
+        {icon}
       </div>
-      <h3 className="mt-4 text-gray-500">{title}</h3>
-      <h1 className="mt-1 text-2xl font-bold">{value}</h1>
+
+      {/* Title */}
+      <p className="mt-5 text-sm font-medium text-slate-600 dark:text-slate-300">
+        {title}
+      </p>
+
+      {/* Value */}
+      <h2 className={`mt-1 text-3xl font-bold ${valueColor} dark:text-white`}>
+        {value}
+      </h2>
     </div>
   );
 };
 
 export default DashboardStatCard;
-
-// This component is currently rendered only on the Admin Dashboard (/admin).
-// Doctor and Patient dashboards should also use this same component.
-// Please render it in your respective dashboard pages
-// and pass the appropriate data according to your module.

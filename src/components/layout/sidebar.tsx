@@ -223,7 +223,7 @@ export function Sidebar({
                   const Icon =
                     iconMap[item.icon as keyof typeof iconMap];
 
-                  const isActive =
+                    const isActive =
                     item.href === "/admin" ||
                     item.href === "/doctor" ||
                     item.href === "/patient" ||

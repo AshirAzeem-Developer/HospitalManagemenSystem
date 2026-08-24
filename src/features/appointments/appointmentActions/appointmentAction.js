@@ -59,12 +59,11 @@ export async function getStatuses() {
   return data;
 }
 
-// 4. Server Action file (Backend)
-
+// 4. Server Action file (Backend) - Fetch Appointments
 export async function getAppointments(filters = {}) {
   const supabase = await createClient();
   
-  // NEW LOGIC: AUTO-CANCEL PAST APPOINTMENTS
+  // AUTO-CANCEL PAST APPOINTMENTS
   const todayStr = new Date().toISOString().split('T')[0]; 
 
   const { error: cancelError } = await supabase
@@ -76,7 +75,6 @@ export async function getAppointments(filters = {}) {
   if (cancelError) {
     console.error("Error auto-cancelling past appointments:", cancelError.message);
   }
-  // ==========================================
 
   let query = supabase
     .from("appointments")
@@ -127,7 +125,7 @@ export async function getAppointments(filters = {}) {
   return formattedAppointments;
 }
 
-// 5. UPDATE APPOINTMENT (Profiles table ke name ke sath)
+// 5. UPDATE APPOINTMENT
 export async function updateAppointmentAction(id, updatedData) {
   const supabase = await createClient();
 
@@ -144,7 +142,6 @@ export async function updateAppointmentAction(id, updatedData) {
     console.error("Error fetching profile IDs:", fetchError.message);
   }
 
-  // Patient profile_id update
   if (updatedData.patientName && appData?.patient?.profile_id) {
     await supabase
       .from("profiles")
@@ -152,7 +149,6 @@ export async function updateAppointmentAction(id, updatedData) {
       .eq("id", appData.patient.profile_id);
   }
 
-  // Doctor profile_id update
   if (updatedData.doctorName && appData?.doctor?.profile_id) {
     await supabase
       .from("profiles")
@@ -160,7 +156,6 @@ export async function updateAppointmentAction(id, updatedData) {
       .eq("id", appData.doctor.profile_id);
   }
 
-  // 4. Ab appointments table mein Date, Time, Status aur DOCTOR ID update 
   const updatePayload = {
     appointment_date: updatedData.date,
     time_slot: updatedData.time,
@@ -206,16 +201,13 @@ export async function createAppointmentAction(appointmentData) {
 
   let finalPatientId = appointmentData.patientId;
 
-  // Agar frontend se patientId nahi aaya (yani Patient khud form fill kar raha hai)
   if (!finalPatientId) {
-    // 1. Logged-in user ka session get karein
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
       return { success: false, message: "User not authenticated." };
     }
 
-    // 2. Auth user_id ke zariye 'patients' table se patient ki real ID nikalien
     const { data: patientRecord, error: patientError } = await supabase
       .from("patients")
       .select("id")
@@ -227,12 +219,11 @@ export async function createAppointmentAction(appointmentData) {
       return { success: false, message: "Patient profile not found." };
     }
 
-    // 3. ID ko finalPatientId mein set kar dein
     finalPatientId = patientRecord.id;
   }
 
   const insertPayload = {
-    patient_id: finalPatientId, // Backend ne secure way mein ID yahan dal di
+    patient_id: finalPatientId,
     doctor_id: appointmentData.doctorId,
     appointment_date: appointmentData.date,
     time_slot: appointmentData.time,
@@ -249,14 +240,13 @@ export async function createAppointmentAction(appointmentData) {
     return { success: false, message: error.message };
   }
 
-  // Cache paths ko refresh karein dono dashboard ke liye
   revalidatePath("/admin/appointments"); 
   revalidatePath("/patient/appointments"); 
   
   return { success: true, message: "Appointment created successfully!" };
 }
 
-// 8. UPDATE ONLY APPOINTMENT STATUS (For Prescriptions etc)
+// 8. UPDATE ONLY APPOINTMENT STATUS
 export async function updateAppointmentStatusAction(id, newStatus) {
   const supabase = await createClient();
 
@@ -270,9 +260,25 @@ export async function updateAppointmentStatusAction(id, newStatus) {
     return { success: false, message: error.message };
   }
 
-  // Paths ko refresh kar dein taake frontend par status update nazar aaye
   revalidatePath("/doctor/appointments");
   revalidatePath("/admin/appointments");
   
   return { success: true, message: "Status updated successfully!" };
+}
+
+// 9. GET ACTIVE DOCTOR SCHEDULES
+export async function getDoctorSchedule(doctorId) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("doctor_schedules")
+    .select("id, doctor_id, day_of_week, start_time, end_time, slot_duration_minutes, is_active")
+    .eq("doctor_id", doctorId)
+    .eq("is_active", true); // Only active schedules
+
+  if (error) {
+    console.error("Error fetching doctor schedule:", error.message);
+    return [];
+  }
+  return data;
 }

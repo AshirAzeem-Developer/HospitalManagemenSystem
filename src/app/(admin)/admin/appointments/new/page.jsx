@@ -5,14 +5,20 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FiChevronLeft, FiPlus, FiCalendar, FiClock, FiChevronDown } from "react-icons/fi";
 
-import { getPatients, getDoctors, getStatuses, createAppointmentAction 
+import { 
+  getPatients, 
+  getDoctors, 
+  getStatuses, 
+  createAppointmentAction,
+  getDoctorSchedule 
 } from '@/features/appointments/appointmentActions/appointmentAction';
+
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 function AppointmentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // URL parameters se patientId aur doctorId dono read karna
   const preSelectedPatientId = searchParams.get('patientId') || '';
   const preSelectedDoctorId = searchParams.get('doctorId') || '';
 
@@ -21,16 +27,14 @@ function AppointmentForm() {
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  
+  const [doctorSchedule, setDoctorSchedule] = useState([]);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [availableTimes, setAvailableTimes] = useState([]);
 
-  // Dropdown open states
   const [patientOpen, setPatientOpen] = useState(false);
   const [doctorOpen, setDoctorOpen] = useState(false);
   
-  const dateRef = useRef(null);
-  const timeRef = useRef(null);
-
-  const todayStr = new Date().toISOString().split('T')[0];
-
   const [formData, setFormData] = useState({
     patientId: preSelectedPatientId, 
     doctorId: preSelectedDoctorId,   
@@ -54,10 +58,91 @@ function AppointmentForm() {
     fetchDropdowns();
   }, []);
 
+  // Fetch Schedule on Doctor Select & Generate Available Dates
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      if (formData.doctorId) {
+        const scheduleData = await getDoctorSchedule(formData.doctorId);
+        setDoctorSchedule(scheduleData || []);
+        
+        // Reset selections
+        setFormData(prev => ({ ...prev, date: '', time: '' }));
+        setAvailableTimes([]);
+
+        // Generate Dates for next 30 days
+        if (scheduleData && scheduleData.length > 0) {
+          generateAvailableDates(scheduleData);
+        } else {
+          setAvailableDates([]);
+        }
+      }
+    };
+    fetchSchedule();
+  }, [formData.doctorId]);
+
+  // Generate Available Dates based on Doctor Schedule
+  const generateAvailableDates = (schedule) => {
+    const datesList = [];
+    const today = new Date();
+
+    for (let i = 0; i < 30; i++) {
+      const currentDate = new Date(today);
+      currentDate.setDate(today.getDate() + i);
+
+      const dayOfWeekNum = currentDate.getDay(); // 0 = Sun, 1 = Mon ... 6 = Sat
+
+      // Check if day is in doctor's schedule
+      const isAvailable = schedule.some(s => 
+        Number(s.day_of_week) === dayOfWeekNum || 
+        (dayOfWeekNum === 0 && Number(s.day_of_week) === 7)
+      );
+
+      if (isAvailable) {
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`; // YYYY-MM-DD
+
+        const displayLabel = `${DAY_NAMES[dayOfWeekNum]}, ${currentDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+        datesList.push({ dateStr, displayLabel, dayOfWeekNum });
+      }
+    }
+    setAvailableDates(datesList);
+  };
+
+  // Generate Slots based on start_time, end_time, and slot_duration_minutes
+  const generateTimeSlots = (start, end, durationMinutes = 30) => {
+    const slots = [];
+    let current = new Date(`2000-01-01T${start}`);
+    const endTime = new Date(`2000-01-01T${end}`);
+
+    while (current < endTime) {
+      slots.push(current.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+      current.setMinutes(current.getMinutes() + Number(durationMinutes));
+    }
+    setAvailableTimes(slots);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'date' && value && value < todayStr) return;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'date' && value) {
+      const selectedDateObj = new Date(value);
+      const dayOfWeekNum = selectedDateObj.getDay();
+
+      const daySchedule = doctorSchedule.find(s => 
+        Number(s.day_of_week) === dayOfWeekNum || 
+        (dayOfWeekNum === 0 && Number(s.day_of_week) === 7)
+      );
+
+      if (daySchedule) {
+        generateTimeSlots(daySchedule.start_time, daySchedule.end_time, daySchedule.slot_duration_minutes);
+        setFormData(prev => ({ ...prev, date: value, time: '' }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleDropdownSelect = (name, value) => {
@@ -89,7 +174,6 @@ function AppointmentForm() {
   const selectedPatient = patients.find(p => p.id === formData.patientId);
   const selectedDoctor = doctors.find(d => d.id === formData.doctorId);
   
-  // URL mein ID aane par dropdown fix/disable ho jaye ga
   const isPatientFixed = !!preSelectedPatientId; 
   const isDoctorFixed = !!preSelectedDoctorId; 
 
@@ -203,45 +287,91 @@ function AppointmentForm() {
             <input type="hidden" name="doctorId" value={formData.doctorId} required />
           </div>
 
-          {/* Date Field */}
+          {/* DATE FIELD - NOW A DROPDOWN */}
           <div className="relative">
-            <label className="block text-sm font-semibold text-foreground mb-2">Date of Appointment <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Date of Appointment <span className="text-red-500">*</span>
+            </label>
             <div className="relative">
-              <input
-                ref={dateRef}
-                type="date"
+              <select
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                onKeyDown={(e) => e.preventDefault()}
-                min={todayStr}
                 required
-                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark] cursor-pointer"
-              />
-              <FiCalendar onClick={() => dateRef.current?.showPicker?.()} className="absolute right-3 top-3.5 text-muted cursor-pointer" />
+                disabled={!formData.doctorId || availableDates.length === 0}
+                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer disabled:opacity-50"
+              >
+                <option value="" disabled>
+                  {!formData.doctorId 
+                    ? "Select Doctor First" 
+                    : availableDates.length === 0 
+                      ? "No Available Dates Found" 
+                      : "Select Available Date"}
+                </option>
+                {availableDates.map((item, index) => (
+                  <option key={index} value={item.dateStr}>
+                    {item.displayLabel}
+                  </option>
+                ))}
+              </select>
+              <FiCalendar className="absolute right-3 top-3.5 text-muted pointer-events-none" />
             </div>
           </div>
 
-          {/* Time Field */}
+          {/* TIME FIELD */}
           <div className="relative">
-            <label className="block text-sm font-semibold text-foreground mb-2">Time <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Time Slot <span className="text-red-500">*</span>
+            </label>
             <div className="relative">
-              <input ref={timeRef} type="time" name="time" value={formData.time} onChange={handleChange} required className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background [color-scheme:light_dark]" />
-              <FiClock onClick={() => timeRef.current?.showPicker?.()} className="absolute right-3 top-3.5 text-muted cursor-pointer" />
+              <select
+                name="time"
+                value={formData.time}
+                onChange={handleChange}
+                required
+                disabled={availableTimes.length === 0}
+                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer disabled:opacity-50"
+              >
+                <option value="" disabled>
+                  {availableTimes.length === 0 ? "Select Date First" : "Select Available Time Slot"}
+                </option>
+                {availableTimes.map((slot, index) => (
+                  <option key={index} value={slot}>
+                    {slot}
+                  </option>
+                ))}
+              </select>
+              <FiClock className="absolute right-3 top-3.5 text-muted pointer-events-none" />
             </div>
           </div>
 
           {/* Appointment Reason */}
           <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-foreground mb-2">Appointment Reason <span className="text-red-500">*</span></label>
-            <textarea name="reason" value={formData.reason} onChange={handleChange} rows="4" required placeholder="Enter reason here..." className="w-full border border-border rounded-lg p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-background placeholder:text-muted"></textarea>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Appointment Reason <span className="text-red-500">*</span>
+            </label>
+            <textarea 
+              name="reason" 
+              value={formData.reason} 
+              onChange={handleChange} 
+              rows="4" 
+              required 
+              placeholder="Enter reason here..." 
+              className="w-full border border-border rounded-lg p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-background placeholder:text-muted"
+            ></textarea>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="mt-8 flex justify-end items-center gap-4 border-t pt-6 border-border">
-          <Link href="/admin/appointments" className="px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-hover rounded-lg transition">Cancel</Link>
-          <button type="submit" disabled={loading} className="px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm disabled:opacity-70">
+          <Link href="/admin/appointments" className="px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-hover rounded-lg transition">
+            Cancel
+          </Link>
+          <button 
+            type="submit" 
+            disabled={loading || !formData.date || !formData.time} 
+            className="px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm disabled:opacity-70"
+          >
             {loading ? 'Creating...' : 'Create Appointment'}
           </button>
         </div>

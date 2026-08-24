@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiChevronLeft, FiCalendar, FiClock, FiChevronDown } from "react-icons/fi";
 
-import { getDoctors, createAppointmentAction } from '@/features/appointments/appointmentActions/appointmentAction';
+import { 
+  getDoctors, 
+  createAppointmentAction, 
+  getDoctorSchedule 
+} from '@/features/appointments/appointmentActions/appointmentAction';
+
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export default function PatientNewAppointmentPage() {
   const router = useRouter();
@@ -13,12 +19,10 @@ export default function PatientNewAppointmentPage() {
 
   const [doctors, setDoctors] = useState([]);
   const [doctorOpen, setDoctorOpen] = useState(false);
-
-  // Date aur Time ke refs
-  const dateRef = useRef(null);
-  const timeRef = useRef(null);
-
-  const todayStr = new Date().toISOString().split('T')[0];
+  
+  const [doctorSchedule, setDoctorSchedule] = useState([]);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [availableTimes, setAvailableTimes] = useState([]);
 
   const [formData, setFormData] = useState({
     doctorId: '',
@@ -28,6 +32,7 @@ export default function PatientNewAppointmentPage() {
     status: 'pending' 
   });
 
+  // 1. Fetch Doctors on Mount
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
@@ -40,14 +45,94 @@ export default function PatientNewAppointmentPage() {
     fetchDoctors();
   }, []);
 
+  // 2. Fetch Schedule & Generate Available Dates for Next 30 Days
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      if (formData.doctorId) {
+        const scheduleData = await getDoctorSchedule(formData.doctorId);
+        setDoctorSchedule(scheduleData || []);
+        
+        // Reset form selections
+        setFormData(prev => ({ ...prev, date: '', time: '' }));
+        setAvailableTimes([]);
+
+        // Generate list of available dates for next 30 days
+        if (scheduleData && scheduleData.length > 0) {
+          generateAvailableDates(scheduleData);
+        } else {
+          setAvailableDates([]);
+        }
+      }
+    };
+    fetchSchedule();
+  }, [formData.doctorId]);
+
+  // Helper: Aane wale 30 dino mein se sirf doctor ke available days filter karna
+  const generateAvailableDates = (schedule) => {
+    const datesList = [];
+    const today = new Date();
+
+    for (let i = 0; i < 30; i++) {
+      const currentDate = new Date(today);
+      currentDate.setDate(today.getDate() + i);
+
+      const dayOfWeekNum = currentDate.getDay(); // 0 = Sun, 1 = Mon ... 6 = Sat
+
+      // Check if day is in doctor's schedule
+      const isAvailable = schedule.some(s => 
+        Number(s.day_of_week) === dayOfWeekNum || 
+        (dayOfWeekNum === 0 && Number(s.day_of_week) === 7)
+      );
+
+      if (isAvailable) {
+        // Format YYYY-MM-DD for database
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+
+        // Human readable display format (e.g. "Monday, 25 Aug 2026")
+        const displayLabel = `${DAY_NAMES[dayOfWeekNum]}, ${currentDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+        datesList.push({ dateStr, displayLabel, dayOfWeekNum });
+      }
+    }
+    setAvailableDates(datesList);
+  };
+
+  // Helper: Time slots generate karna
+  const generateTimeSlots = (start, end, durationMinutes = 30) => {
+    const slots = [];
+    let current = new Date(`2000-01-01T${start}`);
+    const endTime = new Date(`2000-01-01T${end}`);
+
+    while (current < endTime) {
+      slots.push(current.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+      current.setMinutes(current.getMinutes() + Number(durationMinutes));
+    }
+    setAvailableTimes(slots);
+  };
+
+  // 3. Handle Inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === 'date' && value && value < todayStr) {
-      return;
-    }
+    if (name === 'date' && value) {
+      const selectedDateObj = new Date(value);
+      const dayOfWeekNum = selectedDateObj.getDay();
 
-    setFormData(prev => ({ ...prev, [name]: value }));
+      const daySchedule = doctorSchedule.find(s => 
+        Number(s.day_of_week) === dayOfWeekNum || 
+        (dayOfWeekNum === 0 && Number(s.day_of_week) === 7)
+      );
+
+      if (daySchedule) {
+        generateTimeSlots(daySchedule.start_time, daySchedule.end_time, daySchedule.slot_duration_minutes);
+        setFormData(prev => ({ ...prev, date: value, time: '' }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleDropdownSelect = (name, value) => {
@@ -126,49 +211,61 @@ export default function PatientNewAppointmentPage() {
             <input type="hidden" name="doctorId" value={formData.doctorId} required />
           </div>
 
-          {/* DATE FIELD */}
+          {/* DATE FIELD - NOW A RESTRICTED DROPDOWN */}
           <div className="relative">
             <label className="block text-sm font-semibold text-foreground mb-2">
               Date of Appointment <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <input 
-                ref={dateRef}
-                type="date" 
-                name="date" 
-                value={formData.date} 
-                onChange={handleChange} 
-                onKeyDown={(e) => e.preventDefault()}
-                min={todayStr}
-                required 
-                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer [color-scheme:light_dark]" 
-              />
-              <FiCalendar 
-                onClick={() => dateRef.current?.showPicker?.()} 
-                className="absolute right-3 top-3.5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
-              />
+              <select
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                required
+                disabled={!formData.doctorId || availableDates.length === 0}
+                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer disabled:opacity-50"
+              >
+                <option value="" disabled>
+                  {!formData.doctorId 
+                    ? "Select Doctor First" 
+                    : availableDates.length === 0 
+                      ? "No Available Dates Found" 
+                      : "Select Available Date"}
+                </option>
+                {availableDates.map((item, index) => (
+                  <option key={index} value={item.dateStr}>
+                    {item.displayLabel}
+                  </option>
+                ))}
+              </select>
+              <FiCalendar className="absolute right-3 top-3.5 text-muted-foreground pointer-events-none" />
             </div>
           </div>
 
           {/* TIME FIELD */}
           <div className="relative">
             <label className="block text-sm font-semibold text-foreground mb-2">
-              Time <span className="text-red-500">*</span>
+              Time Slot <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <input 
-                ref={timeRef}
-                type="time" 
-                name="time" 
-                value={formData.time} 
-                onChange={handleChange} 
-                required 
-                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer [color-scheme:light_dark]" 
-              />
-              <FiClock 
-                onClick={() => timeRef.current?.showPicker?.()} 
-                className="absolute right-3 top-3.5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" 
-              />
+              <select
+                name="time"
+                value={formData.time}
+                onChange={handleChange}
+                required
+                disabled={availableTimes.length === 0}
+                className="w-full border border-border rounded-lg p-3 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-background cursor-pointer disabled:opacity-50"
+              >
+                <option value="" disabled>
+                  {availableTimes.length === 0 ? "Select Date First" : "Select Time Slot"}
+                </option>
+                {availableTimes.map((slot, index) => (
+                  <option key={index} value={slot}>
+                    {slot}
+                  </option>
+                ))}
+              </select>
+              <FiClock className="absolute right-3 top-3.5 text-muted-foreground pointer-events-none" />
             </div>
           </div>
 
@@ -197,7 +294,7 @@ export default function PatientNewAppointmentPage() {
           </Link>
           <button 
             type="submit" 
-            disabled={loading} 
+            disabled={loading || !formData.date || !formData.time} 
             className="px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm disabled:opacity-70 cursor-pointer"
           >
             {loading ? 'Booking...' : 'Book Appointment'}
